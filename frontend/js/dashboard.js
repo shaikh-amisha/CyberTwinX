@@ -152,18 +152,6 @@ const dashboardElements = {
     riskLevel:
         document.getElementById("riskLevel"),
 
-    evidenceSufficiency:
-        document.getElementById("evidenceSufficiency"),
-
-    evidenceProgress:
-        document.getElementById("evidenceProgress"),
-
-    supportingEvidence:
-        document.getElementById("supportingEvidence"),
-
-    missingEvidence:
-        document.getElementById("missingEvidence"),
-
     aiAssessmentConfidence:
         document.getElementById("aiAssessmentConfidence"),
 
@@ -872,9 +860,6 @@ function updateDigitalSecurityTwin() {
 
     const security =
         dashboardState.security;
-
-    const evidence =
-        dashboardState.evidence;
 
     /*
         Twin Health Score
