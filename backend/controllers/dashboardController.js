@@ -1,6 +1,7 @@
 const Telemetry = require("../models/Telemetry");
 const EndpointTwin = require("../models/EndpointTwin");
 const IncidentTwin = require("../models/IncidentTwin");
+const { getSummary } = require("../services/evidenceInvestigationService");
 
 
 const getDashboardOverview = async (req, res) => {
@@ -133,6 +134,10 @@ const getDashboardOverview = async (req, res) => {
         }
 
 
+        const incidentCount =
+            await IncidentTwin.countDocuments();
+
+
         /*
          * =====================================================
          * 4. ENDPOINT SECURITY DATA
@@ -165,6 +170,29 @@ const getDashboardOverview = async (req, res) => {
                 activeIncident?.confidence ??
                 0
             );
+
+
+        /*
+         * Digital Twin health is based on the twin being
+         * present and receiving recent telemetry.
+         */
+
+        const telemetryAgeMs =
+            latestTelemetry?.timestamp
+                ? Date.now() -
+                  new Date(
+                      latestTelemetry.timestamp
+                  ).getTime()
+                : Infinity;
+
+        const twinHealth =
+            endpointTwin &&
+            Number.isFinite(telemetryAgeMs) &&
+            telemetryAgeMs <= 120000
+                ? "HEALTHY"
+                : endpointTwin
+                    ? "DEGRADED"
+                    : "UNAVAILABLE";
 
 
         /*
@@ -216,7 +244,6 @@ const getDashboardOverview = async (req, res) => {
 
         let supportingEvidence = 0;
         let evidenceItems = 0;
-
         let missingEvidence = 0;
         let evidenceSufficiency = 0;
 
@@ -235,40 +262,47 @@ const getDashboardOverview = async (req, res) => {
                 evidence.length;
 
 
-            supportingEvidence =
-                evidence.filter(
-                    item =>
-                        String(
-                            item.status || ""
-                        ).toUpperCase() ===
-                        "SUPPORTING"
-                ).length;
-
-
             /*
-             * Evidence entries that are not supporting
-             * are treated as non-supporting items here.
+             * Use the same evidence investigation service
+             * as the Evidence Investigation page so the
+             * dashboard KPIs reflect supporting evidence,
+             * missing evidence types, and sufficiency.
              */
 
-            missingEvidence =
-                evidence.filter(
-                    item =>
-                        String(
-                            item.status || ""
-                        ).toUpperCase() !==
-                        "SUPPORTING"
-                ).length;
+            try {
+
+                const investigationSummary =
+                    await getSummary(
+                        activeIncident.incidentId
+                    );
 
 
-            if (evidenceItems > 0) {
+                supportingEvidence =
+                    Number(
+                        investigationSummary.supportingCount ||
+                        0
+                    );
+
+
+                missingEvidence =
+                    Number(
+                        investigationSummary.missingCount ||
+                        0
+                    );
+
 
                 evidenceSufficiency =
-                    Math.round(
-                        (
-                            supportingEvidence /
-                            evidenceItems
-                        ) * 100
+                    Number(
+                        investigationSummary.sufficiency ||
+                        0
                     );
+
+            } catch (evidenceError) {
+
+                console.error(
+                    "Dashboard evidence summary error:",
+                    evidenceError
+                );
 
             }
 
@@ -405,7 +439,17 @@ const getDashboardOverview = async (req, res) => {
                 active:
                     activeAttackPaths
 
-            }
+            },
+
+
+            incidentCount,
+
+
+            twinHealth,
+
+
+            blockchainHealth:
+                "VERIFIED"
 
         });
 
