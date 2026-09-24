@@ -360,6 +360,84 @@
 
 
             <!-- =================================================
+                 INCIDENT SELECTOR
+            ================================================== -->
+
+            <div class="incident-selector ai-incident-selector" id="aiIncidentSelector">
+
+                <div class="incident-selector-header">
+                    <div>
+                        <span class="section-eyebrow">INCIDENT SELECTOR</span>
+                        <h3>Select Incident</h3>
+                    </div>
+
+                    <span class="incident-selector-count" id="aiIncidentSelectorCount">
+                        0 INCIDENTS
+                    </span>
+                </div>
+
+                <button
+                    type="button"
+                    class="incident-selector-trigger"
+                    id="aiIncidentSelectorButton"
+                    aria-expanded="false"
+                    aria-controls="aiIncidentSelectorMenu"
+                >
+                    <div class="incident-selected-info">
+                        <span class="incident-selected-label">CURRENT INCIDENT</span>
+                        <strong id="aiSelectedIncidentSummary">
+                            Loading incidents...
+                        </strong>
+                    </div>
+
+                    <span class="incident-selector-arrow" id="aiIncidentSelectorArrow">
+                        <i class="bi bi-chevron-down" aria-hidden="true"></i>
+                    </span>
+                </button>
+
+                <div
+                    class="incident-selector-menu"
+                    id="aiIncidentSelectorMenu"
+                    hidden
+                >
+
+                    <div class="incident-search-wrapper">
+                        <span class="incident-search-icon">
+                            <i class="bi bi-search" aria-hidden="true"></i>
+                        </span>
+
+                        <input
+                            type="search"
+                            id="aiIncidentSearch"
+                            class="incident-search"
+                            placeholder="Search incident, endpoint, type, state..."
+                            autocomplete="off"
+                        >
+                    </div>
+
+                    <div
+                        class="incident-selector-list"
+                        id="aiIncidentSelectorList"
+                    >
+                        <div class="incident-selector-loading">
+                            Loading incidents...
+                        </div>
+                    </div>
+
+                    <div
+                        class="incident-selector-empty"
+                        id="aiIncidentSelectorEmpty"
+                        hidden
+                    >
+                        No matching incidents found.
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
                  SECTION 01
             ================================================== -->
 
