@@ -202,7 +202,6 @@
 
         <header class="topbar">
 
-
             <div class="topbar-item">
 
                 <span class="topbar-label">
@@ -214,6 +213,9 @@
                 </strong>
 
             </div>
+
+
+            <div class="topbar-divider"></div>
 
 
             <div class="topbar-item">
@@ -229,14 +231,17 @@
             </div>
 
 
+            <div class="topbar-divider"></div>
+
+
             <div class="topbar-item">
 
                 <span class="topbar-label">
-                    ENDPOINT STATE
+                    STATE
                 </span>
 
                 <span
-                    class="severity-badge"
+                    class="state-badge"
                     id="topbarState"
                 >
                     UNKNOWN
@@ -245,32 +250,30 @@
             </div>
 
 
-            <div class="topbar-spacer"></div>
-
-
-            <div class="topbar-item">
+            <div class="topbar-risk">
 
                 <span class="topbar-label">
                     RISK
                 </span>
 
-                <strong>
-                    <span id="topbarRisk">
-                        0
-                    </span>
-                    / 100
+                <strong id="topbarRisk">
+                    0
                 </strong>
+
+                <span>
+                    /100
+                </span>
 
             </div>
 
 
-            <div class="topbar-item">
+            <div class="system-status">
 
                 <span class="status-dot"></span>
 
-                <strong id="topbarSystemStatus">
+                <span id="topbarSystemStatus">
                     OFFLINE
-                </strong>
+                </span>
 
             </div>
 
