@@ -836,6 +836,20 @@ button {
 
 }
 
+/* =========================================================
+   DASHBOARD HEALTH BAR COLORS
+   ========================================================= */
+
+#investigationHealthBar {
+    background: var(--accent);
+    box-shadow: 0 0 10px rgba(0, 229, 255, 0.22);
+}
+
+#twinHealthBar {
+    background: #a855f7;
+    box-shadow: 0 0 10px rgba(168, 85, 247, 0.22);
+}
+
 .risk-footer {
 
     display: flex;
