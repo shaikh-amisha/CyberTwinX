@@ -6,12 +6,12 @@ const stateData = {
 };
 
 const featureCards = [
-  { icon:'◈', title:'State Twin', body:'Live security state, not static alerts.', href:'#twin' },
-  { icon:'⌁', title:'Incident Timeline', body:'Replay the incident as a connected sequence.', href:'#twin' },
-  { icon:'⌘', title:'Attack Path', body:'Trace how activity moved through the system.', href:'#attack-path' },
-  { icon:'▶', title:'What-If Simulation', body:'Model a response before you commit to it.', href:'#attack-path' },
-  { icon:'▣', title:'Evidence Register', body:'Every finding, backed and verified.', href:'#evidence' },
-  { icon:'✦', title:'AI Investigation', body:'Ask the model. Keep the receipts.', href:'#investigation' }
+  { icon:'<i class="bi bi-diagram-3-fill" aria-hidden="true"></i>', title:'State Twin', body:'Live security state, not static alerts.', href:'#twin' },
+  { icon:'<i class="bi bi-clock-history" aria-hidden="true"></i>', title:'Incident Timeline', body:'Replay the incident as a connected sequence.', href:'#twin' },
+  { icon:'<i class="bi bi-diagram-2-fill" aria-hidden="true"></i>', title:'Attack Path', body:'Trace how activity moved through the system.', href:'#attack-path' },
+  { icon:'<i class="bi bi-arrow-left-right" aria-hidden="true"></i>', title:'What-If Simulation', body:'Model a response before you commit to it.', href:'#attack-path' },
+  { icon:'<i class="bi bi-file-earmark-text-fill" aria-hidden="true"></i>', title:'Evidence Register', body:'Every finding, backed and verified.', href:'#evidence' },
+  { icon:'<i class="bi bi-stars" aria-hidden="true"></i>', title:'AI Investigation', body:'Ask the model. Keep the receipts.', href:'#investigation' }
 ];
 
 const productPages = [
@@ -78,7 +78,7 @@ function setupCounter(el) {
 function setupMarquee() {
   const track = document.getElementById('marquee-track');
   const renderSet = () => featureCards.map(c =>
-    `<a class="feature-card" href="${c.href}"><div class="feature-icon">${c.icon}</div><h3>${c.title}</h3><p>${c.body}</p><span>Learn More →</span></a>`
+    `<a class="feature-card" href="${c.href}"><div class="feature-icon">${c.icon}</div><h3>${c.title}</h3><p>${c.body}</p><span>Learn More <i class="bi bi-arrow-right" aria-hidden="true"></i></span></a>`
   ).join('');
   track.innerHTML = renderSet() + renderSet();
 }
@@ -145,7 +145,7 @@ function setupWhatIf() {
     counter.dataset.current = '0';
     animateNumber(counter, risk, 700);
     result.querySelector('#reset-simulation').addEventListener('click', () => {
-      result.innerHTML = '<span class="eyebrow">SIMULATED RESULT</span><div class="empty">→ <span>Select an action<br />to model the outcome</span></div>';
+      result.innerHTML = '<span class="eyebrow">SIMULATED RESULT</span><div class="empty"><i class="bi bi-arrow-right" aria-hidden="true"></i> <span>Select an action<br />to model the outcome</span></div>';
     });
   });
 }
@@ -174,7 +174,7 @@ function setupProductSlideshow() {
     asideEl.querySelectorAll('a[data-nav]').forEach(a => a.classList.toggle('selected', a.dataset.nav === productPages[index].nav));
   };
 
-  pauseBtn.addEventListener('click', () => { paused = !paused; pauseBtn.textContent = paused ? '▶' : 'Ⅱ'; });
+  pauseBtn.addEventListener('click', () => { paused = !paused; pauseBtn.innerHTML = paused ? '<i class="bi bi-play-fill" aria-hidden="true"></i>' : '<i class="bi bi-pause-fill" aria-hidden="true"></i>'; });
   document.querySelector('.product').addEventListener('mouseenter', () => { paused = true; });
   document.querySelector('.product').addEventListener('mouseleave', () => { paused = false; });
   window.setInterval(() => { if (!paused) { index = (index + 1) % productPages.length; draw(); } }, 6000);
@@ -182,9 +182,9 @@ function setupProductSlideshow() {
 }
 
 const bulletinItems = [
-  '⌁ Actively exploited: a critical F5 BIG-IP APM flaw allows unauthenticated remote code execution. <a href="#attack-path">See how CyberTwinX traces exploitation paths →</a>',
-  '⌁ New: Counterfactual analysis now models multi-step responses. <a href="#attack-path">See What-If →</a>',
-  '⌁ Reported this week: a Chrome–Windows zero-day chain used to escape browser sandboxes. <a href="#evidence">See evidence correlation →</a>'
+  '<i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i> Actively exploited: a critical F5 BIG-IP APM flaw allows unauthenticated remote code execution. <a href="#attack-path">See how CyberTwinX traces exploitation paths →</a>',
+  '<i class="bi bi-stars" aria-hidden="true"></i> New: Counterfactual analysis now models multi-step responses. <a href="#attack-path">See What-If →</a>',
+  '<i class="bi bi-shield-exclamation" aria-hidden="true"></i> Reported this week: a Chrome–Windows zero-day chain used to escape browser sandboxes. <a href="#evidence">See evidence correlation →</a>'
 ];
 
 function setupAnnouncement() {
