@@ -344,17 +344,23 @@ button {
 
     min-height: 100vh;
 
+    padding-top: var(--topbar-height);
+
 }
 
 .topbar {
 
     height: var(--topbar-height);
 
-    position: sticky;
+    position: fixed;
 
     top: 0;
 
-    z-index: 50;
+    left: var(--sidebar-width);
+
+    right: 0;
+
+    z-index: 150;
 
     display: flex;
 
@@ -1581,9 +1587,13 @@ button {
 
         margin-left: 0;
 
+        padding-top: 64px;
+
     }
 
 .topbar {
+
+        left: 0;
 
         height: auto;
 
