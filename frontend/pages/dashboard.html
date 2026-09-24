@@ -803,48 +803,42 @@
 
                             <span
                                 class="percentage"
-                                id="evidenceSufficiency"
+                                id="investigationHealthLabel"
                             >
-                                0%
+                                0 / 100
                             </span>
 
                         </div>
 
-                        <div class="progress">
+                        <div
+                            class="risk-score"
+                            id="investigationHealthScore"
+                        >
+                            0
+                        </div>
+
+                        <div class="risk-bar">
 
                             <div
-                                class="progress-fill"
-                                id="evidenceProgress"
+                                class="risk-bar-fill"
+                                id="investigationHealthBar"
                                 style="width:0%"
                             ></div>
 
                         </div>
 
-                        <div class="health-stats">
+                        <div class="risk-footer">
 
-                            <div>
+                            <span
+                                class="severity-badge"
+                                id="investigationHealthLevel"
+                            >
+                                —
+                            </span>
 
-                                <strong id="supportingEvidence">
-                                    0
-                                </strong>
-
-                                <span>
-                                    Supporting Evidence
-                                </span>
-
-                            </div>
-
-                            <div>
-
-                                <strong id="missingEvidence">
-                                    0
-                                </strong>
-
-                                <span>
-                                    Missing Evidence Types
-                                </span>
-
-                            </div>
+                            <span>
+                                Investigation completeness
+                            </span>
 
                         </div>
 
@@ -855,20 +849,52 @@
 
                     <article class="dashboard-card">
 
-                        <span class="card-label">
-                            TWIN HEALTH
-                        </span>
+                        <div class="card-header">
 
-                        <h4
-                            class="state-display"
-                            id="twinHealth"
+                            <span class="card-label">
+                                TWIN HEALTH
+                            </span>
+
+                            <span
+                                class="percentage"
+                                id="twinHealthLabel"
+                            >
+                                0 / 100
+                            </span>
+
+                        </div>
+
+                        <div
+                            class="risk-score"
+                            id="twinHealthScore"
                         >
-                            UNKNOWN
-                        </h4>
+                            0
+                        </div>
 
-                        <p>
-                            Current Digital Security Twin health
-                        </p>
+                        <div class="risk-bar">
+
+                            <div
+                                class="risk-bar-fill"
+                                id="twinHealthBar"
+                                style="width:0%"
+                            ></div>
+
+                        </div>
+
+                        <div class="risk-footer">
+
+                            <span
+                                class="severity-badge"
+                                id="twinHealthLevel"
+                            >
+                                —
+                            </span>
+
+                            <span>
+                                Digital Twin health
+                            </span>
+
+                        </div>
 
                     </article>
 
