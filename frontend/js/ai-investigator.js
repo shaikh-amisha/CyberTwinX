@@ -153,7 +153,31 @@ const elements = {
     recommendationList:
         document.getElementById(
             "recommendationList"
-        )
+        ),
+
+    incidentSelector:
+        document.getElementById("aiIncidentSelector"),
+
+    incidentSelectorButton:
+        document.getElementById("aiIncidentSelectorButton"),
+
+    incidentSelectorMenu:
+        document.getElementById("aiIncidentSelectorMenu"),
+
+    incidentSearch:
+        document.getElementById("aiIncidentSearch"),
+
+    incidentSelectorList:
+        document.getElementById("aiIncidentSelectorList"),
+
+    incidentSelectorEmpty:
+        document.getElementById("aiIncidentSelectorEmpty"),
+
+    incidentSelectorCount:
+        document.getElementById("aiIncidentSelectorCount"),
+
+    selectedIncidentSummary:
+        document.getElementById("aiSelectedIncidentSummary")
 
 };
 
@@ -397,7 +421,205 @@ function addChatMessage(
 
 
 /* =========================================================
-   09. ASK AI
+   09. INCIDENT SELECTOR
+   ========================================================= */
+
+function formatIncidentDate(value) {
+    if (!value) return "Unknown date";
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) return "Unknown date";
+
+    return date.toLocaleDateString("en-IN", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric"
+    });
+}
+
+function getIncidentSearchText(incident) {
+    return [
+        incident.incidentId,
+        incident.incidentType,
+        incident.endpointId,
+        incident.endpointHostname,
+        incident.severity,
+        incident.currentState,
+        incident.riskLevel,
+        incident.currentObjective,
+        ...(incident.evidence || []).map(
+            evidence => (evidence.type || "") + " " + (evidence.description || "")
+        )
+    ].filter(Boolean).join(" ").toLowerCase();
+}
+
+function updateSelectedIncidentSummary(incident) {
+    if (!elements.selectedIncidentSummary) return;
+
+    if (!incident) {
+        elements.selectedIncidentSummary.textContent = "No incident selected";
+        return;
+    }
+
+    elements.selectedIncidentSummary.textContent =
+        (incident.incidentId || "Incident") + " — " +
+        (incident.endpointHostname || incident.endpointId || "Unknown endpoint") + " — " +
+        (incident.severity || "LOW") + " — Risk " +
+        (incident.riskScore ?? 0);
+}
+
+function renderIncidentSelector(incidents = aiInvestigatorState.allIncidents) {
+    if (!elements.incidentSelectorList) return;
+
+    if (!incidents.length) {
+        elements.incidentSelectorList.innerHTML = "";
+        if (elements.incidentSelectorEmpty) elements.incidentSelectorEmpty.hidden = false;
+        return;
+    }
+
+    if (elements.incidentSelectorEmpty) elements.incidentSelectorEmpty.hidden = true;
+
+    elements.incidentSelectorList.innerHTML = incidents.map(incident => {
+        const severity = String(incident.severity || "LOW").toLowerCase();
+
+        return `
+            <button type="button" class="incident-selector-item ${incident.incidentId === aiInvestigatorState.currentIncidentId ? "active" : ""}" data-incident-id="${escapeHTML(incident.incidentId || "")}">
+                <div class="incident-selector-item-main">
+                    <span class="incident-selector-item-title">${escapeHTML(incident.incidentType || incident.incidentId || "Incident")}</span>
+                    <span class="incident-selector-item-meta">
+                        <span>${escapeHTML(incident.endpointHostname || incident.endpointId || "Unknown endpoint")}</span>
+                        <span>•</span>
+                        <span>${escapeHTML(incident.currentState || "DETECTED")}</span>
+                        <span>•</span>
+                        <span>Risk ${escapeHTML(String(incident.riskScore ?? 0))}</span>
+                        <span>•</span>
+                        <span>${escapeHTML(formatIncidentDate(incident.updatedAt || incident.createdAt))}</span>
+                    </span>
+                </div>
+                <span class="incident-selector-severity ${severity}">${escapeHTML(incident.severity || "LOW")}</span>
+            </button>`;
+    }).join("");
+
+    elements.incidentSelectorList.querySelectorAll(".incident-selector-item").forEach(item => {
+        item.addEventListener("click", () => selectAIIncident(item.dataset.incidentId));
+    });
+}
+
+async function fetchAIIncidents() {
+    const response = await fetch("http://localhost:5000/api/incident-twin");
+    if (!response.ok) throw new Error(`Failed to fetch incidents (${response.status})`);
+    const result = await response.json();
+    if (!result.success) throw new Error(result.message || "Failed to retrieve incidents.");
+    return result.data || [];
+}
+
+function resetAIConversation(incident) {
+    if (!elements.chatMessages) return;
+
+    elements.chatMessages.innerHTML = "";
+    const incidentLabel = incident?.incidentId || "the selected incident";
+    addChatMessage(
+        "ai",
+        `Hello! I'm the CyberTwinX AI Investigator. How can I help you with ${incidentLabel}? I can analyze its Incident Twin, timeline, and available evidence.`
+    );
+}
+
+async function selectAIIncident(id) {
+    if (!id) return;
+
+    const incident = aiInvestigatorState.allIncidents.find(item => item.incidentId === id);
+    if (!incident) return;
+
+    aiInvestigatorState.currentIncidentId = incident.incidentId;
+    aiInvestigatorState.incident = incident.incidentId;
+    aiInvestigatorState.selectedIncident = incident;
+    aiInvestigatorState.endpoint = incident.endpointHostname || incident.endpointId || "";
+    aiInvestigatorState.securityState = incident.currentState || "";
+    aiInvestigatorState.riskScore = Number(incident.riskScore) || 0;
+    aiInvestigatorState.confidence = Number(incident.confidence) || 0;
+
+    aiInvestigatorState.assessment = {
+        title: "Awaiting investigation",
+        description: "Ask the Investigator a question to analyze the selected incident and its available evidence."
+    };
+    aiInvestigatorState.recommendation = {
+        title: "Waiting for recommendation",
+        description: "Recommendations will appear after the AI analyzes the selected incident.",
+        priority: "PENDING"
+    };
+    aiInvestigatorState.recommendations = [];
+
+    updateSelectedIncidentSummary(incident);
+    renderIncidentSelector(aiInvestigatorState.allIncidents);
+    updateTopbar();
+    updateAssessment();
+    updateRecommendation();
+    renderRecommendations();
+    resetAIConversation(incident);
+
+    if (elements.incidentSelector) elements.incidentSelector.classList.remove("open");
+    if (elements.incidentSelectorMenu) elements.incidentSelectorMenu.hidden = true;
+    if (elements.incidentSelectorButton) elements.incidentSelectorButton.setAttribute("aria-expanded", "false");
+    if (elements.incidentSearch) elements.incidentSearch.value = "";
+}
+
+function initializeAIIncidentSelector() {
+    if (!elements.incidentSelectorButton || !elements.incidentSelectorMenu) return;
+
+    elements.incidentSelectorButton.addEventListener("click", () => {
+        const isOpen = !elements.incidentSelectorMenu.hidden;
+        elements.incidentSelectorMenu.hidden = isOpen;
+        elements.incidentSelector.classList.toggle("open", !isOpen);
+        elements.incidentSelectorButton.setAttribute("aria-expanded", String(!isOpen));
+        if (!isOpen && elements.incidentSearch) setTimeout(() => elements.incidentSearch.focus(), 50);
+    });
+
+    if (elements.incidentSearch) {
+        elements.incidentSearch.addEventListener("input", event => {
+            const query = event.target.value.trim().toLowerCase();
+            const filtered = query ? aiInvestigatorState.allIncidents.filter(incident => getIncidentSearchText(incident).includes(query)) : aiInvestigatorState.allIncidents;
+            renderIncidentSelector(filtered);
+        });
+    }
+
+    document.addEventListener("click", event => {
+        if (!elements.incidentSelector || elements.incidentSelector.contains(event.target)) return;
+        elements.incidentSelectorMenu.hidden = true;
+        elements.incidentSelector.classList.remove("open");
+        elements.incidentSelectorButton.setAttribute("aria-expanded", "false");
+    });
+}
+
+async function loadAIIncidentContext() {
+    try {
+        aiInvestigatorState.allIncidents = (await fetchAIIncidents()).sort((a, b) => new Date(b.updatedAt || b.createdAt || 0) - new Date(a.updatedAt || a.createdAt || 0));
+
+        if (elements.incidentSelectorCount) {
+            elements.incidentSelectorCount.textContent = aiInvestigatorState.allIncidents.length + " INCIDENT" + (aiInvestigatorState.allIncidents.length === 1 ? "" : "S");
+        }
+
+        const params = new URLSearchParams(window.location.search);
+        const requestedIncident = params.get("incidentId");
+        const storedIncident = localStorage.getItem("cybertwinxIncidentId");
+        const selected = aiInvestigatorState.allIncidents.find(incident => incident.incidentId === (requestedIncident || storedIncident)) || aiInvestigatorState.allIncidents[0];
+
+        if (!selected) {
+            updateSelectedIncidentSummary(null);
+            resetAIConversation(null);
+            return;
+        }
+
+        await selectAIIncident(selected.incidentId);
+    } catch (error) {
+        console.error("[CyberTwin] Failed to load AI incidents:", error);
+        if (elements.selectedIncidentSummary) elements.selectedIncidentSummary.textContent = "Unable to load incidents";
+        resetAIConversation(null);
+    }
+}
+
+/* =========================================================
+   10. ASK AI
    ========================================================= */
 
 async function askInvestigator() {
@@ -864,6 +1086,9 @@ function initializeAIInvestigator() {
 
     refreshAIInvestigator();
 
+    initializeAIIncidentSelector();
+
+    loadAIIncidentContext();
 
     initializeChat();
 
