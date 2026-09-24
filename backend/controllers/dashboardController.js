@@ -274,6 +274,9 @@ const getDashboardOverview = async (req, res) => {
 
         let evidenceItems = 0;
         let evidenceSufficiency = 0;
+        let evidenceCoverage = 0;
+        let evidenceQuality = 0;
+        let investigationConfidence = 0;
 
 
         if (activeIncident) {
@@ -290,11 +293,29 @@ const getDashboardOverview = async (req, res) => {
                 evidence.length;
 
 
+            investigationConfidence =
+                Math.max(
+                    0,
+                    Math.min(
+                        100,
+                        Number(
+                            activeIncident.confidence ??
+                            confidence ??
+                            0
+                        )
+                    )
+                );
+
+
             /*
              * Use the same evidence investigation service
-             * as the Evidence Investigation page so the
-             * dashboard KPIs reflect supporting evidence,
-             * missing evidence types, and sufficiency.
+             * as the Evidence Investigation page.
+             *
+             * Investigation Health is a composite score:
+             * 50 points: expected evidence-category coverage
+             * 25 points: supporting evidence quality
+             * 15 points: active incident investigation data
+             * 10 points: investigation confidence
              */
 
             try {
@@ -306,10 +327,61 @@ const getDashboardOverview = async (req, res) => {
 
 
                 evidenceSufficiency =
+                    Math.max(
+                        0,
+                        Math.min(
+                            100,
+                            Number(
+                                investigationSummary.sufficiency ||
+                                0
+                            )
+                        )
+                    );
+
+
+                const expectedCount =
+                    Array.isArray(
+                        investigationSummary.expectedCategories
+                    )
+                        ? investigationSummary.expectedCategories.length
+                        : 0;
+
+
+                const presentCount =
+                    Array.isArray(
+                        investigationSummary.presentCategories
+                    )
+                        ? investigationSummary.presentCategories.length
+                        : 0;
+
+
+                evidenceCoverage =
+                    expectedCount > 0
+                        ? Math.round(
+                            (
+                                presentCount /
+                                expectedCount
+                            ) * 100
+                        )
+                        : 100;
+
+
+                const supportingCount =
                     Number(
-                        investigationSummary.sufficiency ||
+                        investigationSummary.supportingCount ||
                         0
                     );
+
+
+                evidenceQuality =
+                    evidenceItems > 0
+                        ? Math.round(
+                            (
+                                supportingCount /
+                                evidenceItems
+                            ) * 100
+                        )
+                        : 0;
 
             } catch (evidenceError) {
 
@@ -321,6 +393,20 @@ const getDashboardOverview = async (req, res) => {
             }
 
         }
+
+
+        const investigationHealthScore =
+            Math.round(
+                Math.min(
+                    100,
+                    (
+                        evidenceCoverage * 0.50 +
+                        evidenceQuality * 0.25 +
+                        (activeIncident ? 15 : 0) +
+                        (investigationConfidence * 0.10)
+                    )
+                )
+            );
 
 
         /*
@@ -456,13 +542,7 @@ const getDashboardOverview = async (req, res) => {
 
             twinHealthScore,
 
-            investigationHealthScore:
-                Math.round(
-                    Math.min(
-                        100,
-                        Math.max(0, evidenceSufficiency)
-                    )
-                ),
+            investigationHealthScore,
 
             blockchainHealth:
                 "VERIFIED"
