@@ -927,16 +927,16 @@ function findingIcon(
     ) {
 
         case "HIGH":
-            return "&#9888;"; // warning triangle
+            return '<i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>'; // warning triangle
 
         case "MEDIUM":
-            return "&#9679;"; // dot
+            return '<i class="bi bi-record-circle-fill" aria-hidden="true"></i>'; // dot
 
         case "LOW":
-            return "&#10003;"; // check
+            return '<i class="bi bi-check-circle-fill" aria-hidden="true"></i>'; // check
 
         default:
-            return "&#8226;";
+            return '<i class="bi bi-dot" aria-hidden="true"></i>';
 
     }
 
@@ -2392,7 +2392,7 @@ function showStateChangeAlert(previous, current) {
             <span class="state-before">
                 ${escapeHtml(before)}
             </span>
-            <span class="state-arrow">→</span>
+            <span class="state-arrow"><i class="bi bi-arrow-right" aria-hidden="true"></i></span>
             <span class="state-after">
                 ${escapeHtml(after)}
             </span>
