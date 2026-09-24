@@ -185,14 +185,44 @@ const getDashboardOverview = async (req, res) => {
                   ).getTime()
                 : Infinity;
 
-        const twinHealth =
-            endpointTwin &&
+        /*
+         * Twin Health Score (0-100)
+         * 40: Endpoint Twin exists
+         * 30: Telemetry is recent
+         * 20: Endpoint is active
+         * 10: Twin confidence
+         */
+        let twinHealthScore = 0;
+
+        if (endpointTwin) {
+            twinHealthScore += 40;
+        }
+
+        if (
             Number.isFinite(telemetryAgeMs) &&
             telemetryAgeMs <= 120000
-                ? "HEALTHY"
-                : endpointTwin
-                    ? "DEGRADED"
-                    : "UNAVAILABLE";
+        ) {
+            twinHealthScore += 30;
+        }
+
+        if (
+            String(endpointTwin?.status || "").toUpperCase() ===
+            "ACTIVE"
+        ) {
+            twinHealthScore += 20;
+        }
+
+        twinHealthScore += Math.min(
+            10,
+            Math.max(0, confidence / 10)
+        );
+
+        twinHealthScore = Math.round(
+            Math.min(100, twinHealthScore)
+        );
+
+        const twinHealth =
+            getHealthLevel(twinHealthScore);
 
 
         /*
@@ -242,9 +272,7 @@ const getDashboardOverview = async (req, res) => {
          * =====================================================
          */
 
-        let supportingEvidence = 0;
         let evidenceItems = 0;
-        let missingEvidence = 0;
         let evidenceSufficiency = 0;
 
 
@@ -274,20 +302,6 @@ const getDashboardOverview = async (req, res) => {
                 const investigationSummary =
                     await getSummary(
                         activeIncident.incidentId
-                    );
-
-
-                supportingEvidence =
-                    Number(
-                        investigationSummary.supportingCount ||
-                        0
-                    );
-
-
-                missingEvidence =
-                    Number(
-                        investigationSummary.missingCount ||
-                        0
                     );
 
 
@@ -422,12 +436,6 @@ const getDashboardOverview = async (req, res) => {
                 sufficiency:
                     evidenceSufficiency,
 
-                supporting:
-                    supportingEvidence,
-
-                missing:
-                    missingEvidence,
-
                 total:
                     evidenceItems
 
@@ -444,9 +452,17 @@ const getDashboardOverview = async (req, res) => {
 
             incidentCount,
 
-
             twinHealth,
 
+            twinHealthScore,
+
+            investigationHealthScore:
+                Math.round(
+                    Math.min(
+                        100,
+                        Math.max(0, evidenceSufficiency)
+                    )
+                ),
 
             blockchainHealth:
                 "VERIFIED"
@@ -497,6 +513,25 @@ function getRiskLevel(score) {
     }
 
     return "LOW";
+
+}
+
+
+function getHealthLevel(score) {
+
+    if (score >= 80) {
+        return "HEALTHY";
+    }
+
+    if (score >= 60) {
+        return "GOOD";
+    }
+
+    if (score >= 40) {
+        return "DEGRADED";
+    }
+
+    return "POOR";
 
 }
 
