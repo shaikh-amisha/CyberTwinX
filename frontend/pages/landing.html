@@ -12,11 +12,11 @@
 <div class="app">
   <div class="announce" id="announce">
     <span id="announce-text"></span>
-    <button id="announce-close" aria-label="Dismiss announcement">×</button>
+    <button id="announce-close" aria-label="Dismiss announcement"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
   </div>
   <header class="site-nav">
     <a class="brand" href="#top"><span class="logo">CX</span><span>CYBERTWINX</span><i class="dot"></i></a>
-    <button class="menu-toggle" aria-label="Toggle navigation">☰</button>
+    <button class="menu-toggle" aria-label="Toggle navigation"><i class="bi bi-list" aria-hidden="true"></i></button>
     <nav class="nav-links">
       <a href="#platform">Platform</a><a href="#twin">Twin</a><a href="#attack-path">Attack Path</a><a href="#evidence">Evidence</a>
     </nav>
@@ -42,7 +42,7 @@
         <div class="metrics"><div><span class="eyebrow">RISK SCORE</span><strong class="risk-number"><b data-count="61">61</b><small>/100</small></strong><div class="risk-bar"><i style="width:61%"></i></div></div><div class="metric"><span class="eyebrow">TELEMETRY</span><strong data-count="14208">14,208</strong><small>events / 24h</small></div><div class="metric"><span class="eyebrow">FINDINGS</span><strong class="amber" data-count="7">07</strong><small>2 requiring review</small></div></div>
         <div class="finding"><span>F-204</span><span>Privileged shell spawned by web process</span><b class="amber">REVIEW</b></div>
         <div class="finding"><span>F-205</span><span>Outbound connection to untrusted ASN</span><b class="red">CRITICAL</b></div>
-        <div class="console-foot"><span>⌁ 8 collectors active</span><span>confidence <b>91.7%</b></span></div>
+        <div class="console-foot"><span><i class="bi bi-broadcast-pin" aria-hidden="true"></i> 8 collectors active</span><span>confidence <b>91.7%</b></span></div>
       </div>
     </section>
 
@@ -59,10 +59,10 @@
         <div class="panel state-machine">
           <div class="panel-head"><span class="eyebrow">STATE TRANSITION MODEL</span><span class="mono">MODEL / LX-07</span></div>
           <div class="state-nodes" data-state-buttons>
-            <button data-state="normal">● <small>01</small><b>NORMAL</b></button><i>→</i>
-            <button data-state="suspicious" class="selected">● <small>02</small><b>SUSPICIOUS</b></button><i>→</i>
-            <button data-state="critical">● <small>03</small><b>COMPROMISED</b></button><i>→</i>
-            <button data-state="contained">● <small>04</small><b>CONTAINED</b></button>
+            <button data-state="normal"><i class="bi bi-record-circle-fill" aria-hidden="true"></i> <small>01</small><b>NORMAL</b></button><i class="bi bi-arrow-right" aria-hidden="true"></i>
+            <button data-state="suspicious" class="selected">● <small>02</small><b>SUSPICIOUS</b></button><i class="bi bi-arrow-right" aria-hidden="true"></i>
+            <button data-state="critical"><i class="bi bi-record-circle-fill" aria-hidden="true"></i> <small>03</small><b>COMPROMISED</b></button><i class="bi bi-arrow-right" aria-hidden="true"></i>
+            <button data-state="contained"><i class="bi bi-record-circle-fill" aria-hidden="true"></i> <small>04</small><b>CONTAINED</b></button>
           </div>
           <div class="mini-timeline">
             <div><time>09:31</time><span>AUTHENTICATION ANOMALY</span></div>
@@ -90,8 +90,8 @@
       </div>
       <div class="panel what-if">
         <div><span class="eyebrow">CURRENT INCIDENT</span><h3 class="amber">● SUSPICIOUS</h3><div class="stat"><span>RISK SCORE</span><b data-count="61">61<small>/100</small></b></div><div class="stat"><span>CONFIDENCE</span><b>91.7%</b></div></div>
-        <div class="action"><span class="eyebrow">SIMULATE ACTION</span><label for="response-action">RESPONSE CONTROL</label><select id="response-action"><option>Isolate Endpoint</option><option>Block Connection</option><option>Disable User</option><option>Kill Process</option><option>Collect Evidence</option></select><button class="button primary" id="simulate">▶ SIMULATE RESPONSE</button><small>No live changes will be made</small></div>
-        <div class="result" id="simulation-result"><span class="eyebrow">SIMULATED RESULT</span><div class="empty">→ <span>Select an action<br />to model the outcome</span></div></div>
+        <div class="action"><span class="eyebrow">SIMULATE ACTION</span><label for="response-action">RESPONSE CONTROL</label><select id="response-action"><option>Isolate Endpoint</option><option>Block Connection</option><option>Disable User</option><option>Kill Process</option><option>Collect Evidence</option></select><button class="button primary" id="simulate"><i class="bi bi-play-fill" aria-hidden="true"></i> SIMULATE RESPONSE</button><small>No live changes will be made</small></div>
+        <div class="result" id="simulation-result"><span class="eyebrow">SIMULATED RESULT</span><div class="empty"><i class="bi bi-arrow-right" aria-hidden="true"></i> <span>Select an action<br />to model the outcome</span></div></div>
       </div>
     </section>
 
@@ -105,16 +105,16 @@
           <tr><td>EV-8823</td><td>netflow:eth0</td><td>NETWORK</td><td>09:33:42</td><td class="green">● VERIFIED</td></tr>
           <tr><td>EV-8824</td><td>/etc/cron.d/.cache</td><td>FILE</td><td>09:34:06</td><td class="amber">● PENDING</td></tr>
         </tbody></table></div>
-        <div class="checkpoint"><div class="split"><span class="eyebrow">CHECKPOINT / CP-00042</span><b class="green">✓ VERIFIED</b></div><p class="mono">a9f2 3c11 8b72 4fd0 9c61 0a2e 7d44 · prev CP-00041</p></div>
+        <div class="checkpoint"><div class="split"><span class="eyebrow">CHECKPOINT / CP-00042</span><b class="green"><i class="bi bi-check-circle-fill" aria-hidden="true"></i> VERIFIED</b></div><p class="mono">a9f2 3c11 8b72 4fd0 9c61 0a2e 7d44 · prev CP-00041</p></div>
       </div>
     </section>
 
     <section class="section wrap reveal" id="investigation">
       <div class="section-heading"><div><span class="eyebrow">04 / AI-ASSISTED INVESTIGATION</span><h2>Ask the model.<br /><em>Keep the receipts.</em></h2></div></div>
       <div class="panel assistant">
-        <div class="assistant-head"><b>▣ CYBERTWINX INVESTIGATOR</b><span class="green">● READY</span></div>
+        <div class="assistant-head"><b><i class="bi bi-stars" aria-hidden="true"></i> CYBERTWINX INVESTIGATOR</b><span class="green"><i class="bi bi-check-circle-fill" aria-hidden="true"></i> READY</span></div>
         <div class="chat"><small>ANALYST / 09:38:11</small><p class="analyst">What changed the endpoint from suspicious to compromised?</p><small class="cyan">CYBERTWINX / 09:38:12</small><p>The model crossed the compromise threshold when <mark>EV-8823</mark> linked the privileged shell to an outbound connection from an untrusted ASN. Risk rose from <b>61</b> to <b>88</b>.</p></div>
-        <div class="assistant-tags"><span>▣ EVIDENCE USED <b>03</b></span><span>◈ STATE <b>COMPROMISED</b></span><span>ϟ RISK FACTORS <b>04</b></span></div>
+        <div class="assistant-tags"><span><i class="bi bi-file-earmark-text-fill" aria-hidden="true"></i> EVIDENCE USED <b>03</b></span><span><i class="bi bi-diagram-3-fill" aria-hidden="true"></i> STATE <b>COMPROMISED</b></span><span><i class="bi bi-lightning-charge-fill" aria-hidden="true"></i> RISK FACTORS <b>04</b></span></div>
       </div>
     </section>
 
@@ -122,15 +122,15 @@
       <div class="section-heading split"><div><span class="eyebrow">LIVE PRODUCT / ROTATING VIEW</span><h2>See the console.<br /><em>Screen by screen.</em></h2></div><p>The landing page shares the same surfaces, language, and density as the CyberTwinX dashboard.</p></div>
       <div class="panel product">
         <aside id="product-aside">
-          <b>▣ CYBERTWINX</b>
-          <span>OVERVIEW</span><a data-nav="overview">◈ Overview</a>
-          <span>INVESTIGATION</span><a data-nav="investigation">⌕ Incidents</a><a data-nav="attackpath">⌁ Attack Paths</a><a data-nav="whatif">▶ What-If</a>
-          <span>INTEGRITY</span><a data-nav="integrity">⌁ Checkpoints</a>
+          <b><i class="bi bi-stars" aria-hidden="true"></i> CYBERTWINX</b>
+          <span>OVERVIEW</span><a data-nav="overview"><i class="bi bi-grid-1x2-fill" aria-hidden="true"></i> Overview</a>
+          <span>INVESTIGATION</span><a data-nav="investigation"><i class="bi bi-search" aria-hidden="true"></i> Incidents</a><a data-nav="attackpath"><i class="bi bi-diagram-2-fill" aria-hidden="true"></i> Attack Paths</a><a data-nav="whatif"><i class="bi bi-arrow-left-right" aria-hidden="true"></i> What-If</a>
+          <span>INTEGRITY</span><a data-nav="integrity"><i class="bi bi-link-45deg" aria-hidden="true"></i> Checkpoints</a>
         </aside>
         <div class="product-main">
-          <div class="product-top"><span class="green">● AGENT CONNECTED</span><span>STATE <b class="amber">SUSPICIOUS</b></span><span>RISK <b class="red">61</b></span></div>
+          <div class="product-top"><span class="green"><i class="bi bi-broadcast-pin" aria-hidden="true"></i> AGENT CONNECTED</span><span>STATE <b class="amber">SUSPICIOUS</b></span><span>RISK <b class="red">61</b></span></div>
           <div class="product-slides" id="product-slides"></div>
-          <div class="carousel-controls product-controls"><div data-dots></div><button class="pause" data-pause aria-label="Pause slideshow">Ⅱ</button></div>
+          <div class="carousel-controls product-controls"><div data-dots></div><button class="pause" data-pause aria-label="Pause slideshow"><i class="bi bi-pause-fill" aria-hidden="true"></i></button></div>
         </div>
       </div>
     </section>
