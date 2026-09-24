@@ -10852,3 +10852,45 @@ body::before {
     color: #d5e1eb !important;
 }
 
+
+
+/* =========================================================
+   ENDPOINT TWIN — ICONS, HEADER & SECURITY ACTIVITY SPACING
+   ========================================================= */
+
+.endpoint-state-model-label {
+    color: var(--accent) !important;
+    text-shadow: 0 0 10px rgba(0, 229, 255, 0.18);
+}
+
+.nav-icon,
+.section-icon,
+.identity-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nav-icon i,
+.section-icon i,
+.identity-icon i {
+    line-height: 1;
+}
+
+.endpoint-state-model-label {
+    color: #00e5ff !important;
+}
+
+#securityActivity {
+    margin-top: 22px;
+}
+
+#securityActivity .dashboard-card {
+    min-width: 0;
+}
+
+@media (max-width: 700px) {
+    #securityActivity {
+        margin-top: 18px;
+    }
+}
