@@ -35,6 +35,12 @@ const dashboardState = {
         missing: 0
     },
 
+    twin: {
+        health: "UNKNOWN",
+        incidentCount: 0,
+        blockchainHealth: "UNKNOWN"
+    },
+
     ai: {
         confidence: 0,
         title: "Awaiting analysis",
@@ -108,8 +114,8 @@ const dashboardElements = {
     incidentSeverity:
         document.getElementById("incidentSeverity"),
 
-    securityState:
-        document.getElementById("securityState"),
+    twinHealth:
+        document.getElementById("twinHealth"),
 
     aiConfidence:
         document.getElementById("aiConfidence"),
@@ -395,6 +401,10 @@ function updateDashboardState(data) {
                 0
             );
 
+        dashboardState.twin.health =
+            data.twinHealth ||
+            "UNKNOWN";
+
     }
 
 
@@ -439,6 +449,18 @@ function updateDashboardState(data) {
     /*
          System information
     */
+
+    if (data.incidentCount !== undefined) {
+
+        dashboardState.twin.incidentCount =
+            Number(data.incidentCount) || 0;
+
+    }
+
+    dashboardState.twin.blockchainHealth =
+        data.blockchainHealth ||
+        "UNKNOWN";
+
 
     if (data.system) {
 
@@ -506,8 +528,8 @@ function updateOverview() {
     );
 
     setText(
-        dashboardElements.securityState,
-        dashboardState.security.state
+        dashboardElements.twinHealth,
+        dashboardState.twin.health
     );
 
     setText(
@@ -852,46 +874,43 @@ function updateDigitalSecurityTwin() {
 
 
     /*
-        Incident
+        Incident count
     */
 
     setText(
         dashboardElements.twinIncidentValue,
-        incident.id || "—"
+        dashboardState.twin.incidentCount
     );
 
     setText(
         dashboardElements.twinIncidentMeta,
-        incident.type && incident.type !== "—"
-            ? `${incident.type} · ${incident.severity || "UNKNOWN"}`
-            : "No active incident"
+        String(dashboardState.twin.incidentCount) +
+            " incident(s) recorded"
     );
 
     setText(
         dashboardElements.twinIncidentNode,
-        incident.id && incident.id !== "—"
-            ? "INCIDENT"
-            : "NO INCIDENT"
+        "INCIDENTS"
     );
 
 
     /*
-        Evidence
+        Blockchain health
     */
 
     setText(
         dashboardElements.twinEvidenceValue,
-        `${evidence.sufficiency || 0}%`
+        dashboardState.twin.blockchainHealth
     );
 
     setText(
         dashboardElements.twinEvidenceMeta,
-        `${evidence.supporting || 0} supporting · ${evidence.missing || 0} missing`
+        "Evidence integrity verification"
     );
 
     setText(
         dashboardElements.twinEvidenceNode,
-        "EVIDENCE"
+        "BLOCKCHAIN"
     );
 
 
