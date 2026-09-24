@@ -10809,4 +10809,46 @@ body::before {
     display: none !important;
 }
 
+/* =========================================================
+   DASHBOARD TYPOGRAPHY BRIGHTNESS
+   ========================================================= */
+
+.card-label,
+.topbar-label,
+.nav-title,
+.section-heading p,
+.risk-footer,
+.health-stats span,
+.twin-details span,
+.timeline-time,
+.node-type,
+.graph-node small,
+.table-header,
+.recommendation span {
+    color: #d9e4ee !important;
+}
+
+.section-heading h3,
+.card-header .card-label {
+    color: #f1f7fb !important;
+}
+
+.card-label {
+    text-shadow: 0 0 8px rgba(0, 229, 255, 0.12);
+}
+
+.section-heading p,
+.health-stats span,
+.twin-details span,
+.timeline-time,
+.graph-node small,
+.recommendation span {
+    color: #c2cfdb !important;
+}
+
+.table-header,
+.nav-title,
+.topbar-label {
+    color: #d5e1eb !important;
+}
 
