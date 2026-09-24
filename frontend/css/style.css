@@ -10967,3 +10967,89 @@ body::before {
     border-color: rgba(34, 197, 94, 0.65);
     box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.08);
 }
+
+
+/* =========================================================
+   WHAT-IF — RESULT VISIBILITY
+   ========================================================= */
+
+.simulation-card {
+    border-color: rgba(34, 211, 238, 0.22) !important;
+    background: rgba(8, 13, 20, 0.96) !important;
+    box-shadow:
+        0 10px 32px rgba(0, 0, 0, 0.28),
+        inset 0 1px 0 rgba(255, 255, 255, 0.035);
+}
+
+.simulation-path-card {
+    border-color: rgba(148, 163, 184, 0.20);
+    background: rgba(15, 22, 31, 0.96);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.025),
+        0 8px 24px rgba(0, 0, 0, 0.18);
+}
+
+.simulation-path-card.whatif {
+    border-color: rgba(0, 255, 200, 0.32);
+    background: rgba(6, 30, 28, 0.88);
+    box-shadow:
+        inset 0 1px 0 rgba(0, 255, 200, 0.045),
+        0 8px 26px rgba(0, 0, 0, 0.20);
+}
+
+.simulation-path-header span {
+    color: rgba(220, 230, 240, 0.78);
+}
+
+.simulation-path-header strong {
+    color: rgba(235, 242, 248, 0.78);
+}
+
+.simulation-path-card.whatif .simulation-path-header strong {
+    color: #00ffc8;
+}
+
+.simulation-path-list li {
+    color: rgba(235, 242, 248, 0.88);
+}
+
+.simulation-impact {
+    border-left-width: 3px;
+    border-left-color: rgba(0, 255, 200, 0.75);
+    background: rgba(0, 255, 200, 0.075);
+    color: rgba(235, 242, 248, 0.88);
+}
+
+.response-scenario-card {
+    border-color: rgba(148, 163, 184, 0.20);
+    background: rgba(15, 22, 31, 0.96);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.025),
+        0 7px 22px rgba(0, 0, 0, 0.18);
+}
+
+.response-scenario-card:hover {
+    border-color: rgba(0, 255, 200, 0.38);
+    background: rgba(17, 28, 36, 0.98);
+}
+
+.response-scenario-card.selected {
+    border-color: rgba(0, 255, 200, 0.78);
+    background: rgba(5, 39, 35, 0.96);
+    box-shadow:
+        0 0 0 1px rgba(0, 255, 200, 0.12),
+        0 12px 30px rgba(0, 0, 0, 0.28);
+}
+
+.response-scenario-card h4 {
+    color: #f4f8fb;
+}
+
+.response-scenario-card p {
+    color: rgba(210, 222, 233, 0.76);
+}
+
+.response-meta-tag {
+    border-color: rgba(148, 163, 184, 0.16);
+    color: rgba(210, 222, 233, 0.70);
+}
