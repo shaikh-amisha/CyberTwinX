@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>CyberTwin | What-If Analysis</title>
+
+    <link
+        rel="stylesheet"
+        href="../css/style.css"
+    >
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- =====================================================
+         SIDEBAR
+    ====================================================== -->
+
+    <aside class="sidebar">
+
+        <div class="brand">
+
+            <div class="brand-logo">
+                CT
+            </div>
+
+            <div class="brand-content">
+                <h1>CYBERTWIN</h1>
+
+                <span>
+                    Security Intelligence
+                </span>
+            </div>
+
+        </div>
+
+
+        <nav class="sidebar-nav">
+
+            <div class="nav-section">
+
+                <div class="nav-title">
+                    OVERVIEW
+                </div>
+
+                <a
+                    href="./dashboard.html"
+                    class="nav-item"
+                >
+                    <span class="nav-icon">◧</span>
+                    <span>Dashboard</span>
+                </a>
+
+            </div>
+
+
+            <div class="nav-section">
+
+                <div class="nav-title">
+                    INVESTIGATION
+                </div>
+
+                <a
+                    href="./endpoint-twin.html"
+                    class="nav-item"
+                >
+                    <span class="nav-icon">◈</span>
+                    <span>Endpoint Twin</span>
+                </a>
+
+
+                <a
+                    href="./incident-twin.html"
+                    class="nav-item"
+                >
+                    <span class="nav-icon">◈</span>
+                    <span>Incident Twin</span>
+                </a>
+
+
+                <a
+                    href="./evidence.html"
+                    class="nav-item"
+                >
+                    <span class="nav-icon">◫</span>
+                    <span>Evidence Investigation</span>
+                </a>
+
+
+                <a
+                    href="./attack-path.html"
+                    class="nav-item"
+                >
+                    <span class="nav-icon">⧉</span>
+                    <span>Attack Path Analysis</span>
+                </a>
+
+
+                <a
+                    href="./ai-investigator.html"
+                    class="nav-item"
+                >
+                    <span class="nav-icon">✦</span>
+                    <span>AI Investigator</span>
+                </a>
+
+
+                <a
+                    href="./what-if.html"
+                    class="nav-item active"
+                >
+                    <span class="nav-icon">⇄</span>
+                    <span>What-If Analysis</span>
+                </a>
+
+            </div>
+
+
+            <div class="nav-section">
+
+                <div class="nav-title">
+                    INTEGRITY
+                </div>
+
+                <a
+                    href="./blockchain.html"
+                    class="nav-item"
+                >
+                    <span class="nav-icon">⛓</span>
+                    <span>Blockchain Integrity</span>
+                </a>
+
+            </div>
+
+        </nav>
+
+
+        <div class="sidebar-footer">
+
+            <div class="system-status">
+
+                <span class="status-dot"></span>
+
+                <span id="sidebarSystemStatus">
+                    --
+                </span>
+
+            </div>
+
+            <div class="version">
+                CyberTwin v1.0
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <!-- =====================================================
+         MAIN CONTENT
+    ====================================================== -->
+
+    <main class="main-content">
+
+        <!-- =================================================
+             TOPBAR
+        ================================================== -->
+
+        <header class="topbar">
+
+            <div class="topbar-item">
+
+                <span class="topbar-label">
+                    ENDPOINT
+                </span>
+
+                <strong id="topbarEndpoint">
+                    --
+                </strong>
+
+            </div>
+
+
+            <div class="topbar-divider"></div>
+
+
+            <div class="topbar-item">
+
+                <span class="topbar-label">
+                    INCIDENT
+                </span>
+
+                <strong id="topbarIncident">
+                    --
+                </strong>
+
+            </div>
+
+
+            <div class="topbar-divider"></div>
+
+
+            <div class="topbar-item">
+
+                <span class="topbar-label">
+                    STATE
+                </span>
+
+                <span
+                    class="state-badge"
+                    id="topbarState"
+                >
+                    --
+                </span>
+
+            </div>
+
+
+            <div class="topbar-risk">
+
+                <span class="topbar-label">
+                    RISK
+                </span>
+
+                <strong id="topbarRisk">
+                    --
+                </strong>
+
+                <span>
+                    /100
+                </span>
+
+            </div>
+
+
+            <div class="system-status">
+
+                <span class="status-dot"></span>
+
+                <span id="topbarSystemStatus">
+                    --
+                </span>
+
+            </div>
+
+        </header>
+
+
+        <!-- =================================================
+             PAGE
+        ================================================== -->
+
+        <section class="page-content whatif-page">
+
+
+            <!-- =================================================
+                 HEADER
+            ================================================== -->
+
+            <div class="page-header whatif-header">
+
+                <div>
+
+                    <div class="eyebrow">
+                        COUNTERFACTUAL ANALYSIS
+                    </div>
+
+                    <h2>
+                        What-If Analysis
+                    </h2>
+
+                    <p>
+                        Model the effect of a response before applying
+                        it to the affected endpoint.
+                    </p>
+
+                </div>
+
+
+                <div class="whatif-header-status">
+
+                    <span class="status-badge simulation">
+                        DRY-RUN SIMULATOR
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 INCIDENT CONTEXT
+            ================================================== -->
+
+            <section class="whatif-context-section">
+
+                <div class="dashboard-card whatif-context-card">
+
+                    <div class="whatif-incident-selector">
+
+                        <label
+                            for="incidentSelector"
+                            class="whatif-selector-label"
+                        >
+                            ANALYZE INCIDENT
+                        </label>
+
+                        <select
+                            id="incidentSelector"
+                            class="whatif-incident-select"
+                        >
+                            <option value="">
+                                Loading incidents...
+                            </option>
+                        </select>
+
+                    </div>
+
+                    <div class="whatif-section-heading">
+
+                        <div>
+
+                            <span class="card-label">
+                                INCIDENT CONTEXT
+                            </span>
+
+                            <h3>
+                                Current security state
+                            </h3>
+
+                        </div>
+
+                        <span
+                            class="context-live-badge"
+                            id="contextLiveBadge"
+                        >
+                            LIVE CONTEXT
+                        </span>
+
+                    </div>
+
+
+                    <div class="whatif-context-grid">
+
+                        <div class="context-item">
+
+                            <span>
+                                INCIDENT ID
+                            </span>
+
+                            <strong id="contextIncidentId">
+                                --
+                            </strong>
+
+                        </div>
+
+
+                        <div class="context-item">
+
+                            <span>
+                                INCIDENT TYPE
+                            </span>
+
+                            <strong id="contextIncidentType">
+                                --
+                            </strong>
+
+                        </div>
+
+
+                        <div class="context-item">
+
+                            <span>
+                                ENDPOINT
+                            </span>
+
+                            <strong id="contextEndpoint">
+                                --
+                            </strong>
+
+                        </div>
+
+
+                        <div class="context-item">
+
+                            <span>
+                                CURRENT STATE
+                            </span>
+
+                            <strong id="contextSecurityState">
+                                --
+                            </strong>
+
+                        </div>
+
+
+                        <div class="context-item">
+
+                            <span>
+                                RISK SCORE
+                            </span>
+
+                            <strong id="contextRisk">
+                                --
+                            </strong>
+
+                        </div>
+
+
+                        <div class="context-item">
+
+                            <span>
+                                EVIDENCE CONFIDENCE
+                            </span>
+
+                            <strong id="contextConfidence">
+                                --
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 OBSERVED ATTACK
+            ================================================== -->
+
+            <section class="whatif-observed-section">
+
+                <div class="dashboard-card whatif-observed-card">
+
+                    <div class="whatif-section-heading">
+
+                        <div>
+
+                            <span class="card-label">
+                                OBSERVED ATTACK
+                            </span>
+
+                            <h3>
+                                Select an observed stage
+                            </h3>
+
+                            <p>
+                                Only activity recorded in this
+                                Incident Twin can be selected.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        class="observed-attack-list"
+                        id="observedAttackList"
+                    >
+
+                        <div class="whatif-loading">
+                            Loading observed attack stages...
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 SELECTED ATTACK + EVIDENCE
+            ================================================== -->
+
+            <section class="whatif-analysis-grid">
+
+
+                <!-- SELECTED ATTACK -->
+
+                <article class="dashboard-card selected-attack-card">
+
+                    <div class="whatif-section-heading">
+
+                        <div>
+
+                            <span class="card-label">
+                                SELECTED ATTACK
+                            </span>
+
+                            <h3 id="selectedAttackTitle">
+                                --
+                            </h3>
+
+                        </div>
+
+                        <span
+                            class="attack-severity-badge"
+                            id="selectedAttackSeverity"
+                        >
+                            --
+                        </span>
+
+                    </div>
+
+
+                    <div class="selected-attack-summary">
+
+                        <div class="selected-attack-stat">
+
+                            <span>
+                                EVENTS
+                            </span>
+
+                            <strong id="selectedAttackCount">
+                                --
+                            </strong>
+
+                        </div>
+
+
+                        <div class="selected-attack-stat">
+
+                            <span>
+                                CONFIDENCE
+                            </span>
+
+                            <strong id="selectedAttackConfidence">
+                                --
+                            </strong>
+
+                        </div>
+
+
+                        <div class="selected-attack-stat">
+
+                            <span>
+                                EVIDENCE
+                            </span>
+
+                            <strong id="selectedAttackEvidenceStatus">
+                                --
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="selected-attack-description">
+
+                        <span class="sub-label">
+                            MODEL INTERPRETATION
+                        </span>
+
+                        <p id="selectedAttackDescription">
+                            Select an observed attack stage to
+                            inspect the supporting evidence.
+                        </p>
+
+                    </div>
+
+                </article>
+
+
+                <!-- EVIDENCE -->
+
+                <article class="dashboard-card evidence-context-card">
+
+                    <div class="whatif-section-heading">
+
+                        <div>
+
+                            <span class="card-label">
+                                SUPPORTING EVIDENCE
+                            </span>
+
+                            <h3>
+                                Evidence behind this finding
+                            </h3>
+
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        class="whatif-evidence-list"
+                        id="whatIfEvidenceList"
+                    >
+
+                        <div class="whatif-empty">
+                            Select an observed attack.
+                        </div>
+
+                    </div>
+
+                </article>
+
+            </section>
+
+
+            <!-- =================================================
+                 RESPONSE SCENARIOS
+            ================================================== -->
+
+            <section class="whatif-response-section">
+
+                <div class="dashboard-card response-scenarios-card">
+
+                    <div class="whatif-section-heading">
+
+                        <div>
+
+                            <span class="card-label">
+                                RESPONSE SCENARIOS
+                            </span>
+
+                            <h3>
+                                What would happen if you respond?
+                            </h3>
+
+                            <p>
+                                Responses are evaluated against the
+                                selected incident evidence.
+                            </p>
+
+                        </div>
+
+                        <span
+                            class="response-limit"
+                            id="responseLimit"
+                        >
+                            SELECT ONE
+                        </span>
+
+                    </div>
+
+
+                    <div
+                        class="response-scenario-grid"
+                        id="responseScenarioGrid"
+                    >
+
+                        <div class="whatif-loading">
+                            Resolving response scenarios...
+                        </div>
+
+                    </div>
+
+
+                    <div class="response-action-bar">
+
+                        <div>
+
+                            <span class="selected-response-label">
+                                SELECTED RESPONSE
+                            </span>
+
+                            <strong id="selectedResponseName">
+                                None
+                            </strong>
+
+                        </div>
+
+
+                        <button
+                            type="button"
+                            class="primary-button whatif-run-button"
+                            id="simulateScenario"
+                            disabled
+                        >
+                            Run Simulation
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 SIMULATION
+            ================================================== -->
+
+            <section class="whatif-simulation-section">
+
+                <div class="dashboard-card simulation-card">
+
+                    <div class="whatif-section-heading">
+
+                        <div>
+
+                            <span class="card-label">
+                                COUNTERFACTUAL RESULT
+                            </span>
+
+                            <h3>
+                                Actual vs What-If
+                            </h3>
+
+                            <p id="simulationResultSubtitle">
+                                Run a response simulation to calculate
+                                the modeled outcome.
+                            </p>
+
+                        </div>
+
+
+                        <span
+                            class="calculated-badge"
+                            id="simulationCalculatedBadge"
+                            hidden
+                        >
+                            CALCULATED
+                        </span>
+
+                    </div>
+
+
+                    <div class="simulation-comparison-grid">
+
+
+                        <!-- ACTUAL -->
+
+                        <div class="simulation-path-card actual">
+
+                            <div class="simulation-path-header">
+
+                                <span>
+                                    ACTUAL PATH
+                                </span>
+
+                                <strong>
+                                    OBSERVED
+                                </strong>
+
+                            </div>
+
+
+                            <ol
+                                class="simulation-path-list"
+                                id="actualPathList"
+                            >
+
+                                <li class="path-empty">
+                                    Loading observed path...
+                                </li>
+
+                            </ol>
+
+                        </div>
+
+
+                        <!-- WHAT IF -->
+
+                        <div class="simulation-path-card whatif">
+
+                            <div class="simulation-path-header">
+
+                                <span>
+                                    WHAT-IF PATH
+                                </span>
+
+                                <strong id="modeledPathTitle">
+                                    NOT SIMULATED
+                                </strong>
+
+                            </div>
+
+
+                            <ol
+                                class="simulation-path-list"
+                                id="whatIfPathList"
+                            >
+
+                                <li class="path-empty">
+                                    Select a response and run
+                                    the simulation.
+                                </li>
+
+                            </ol>
+
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        class="simulation-impact"
+                        id="simulationImpact"
+                    >
+                        Select a response to model its consequences.
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 KPI COMPARISON
+            ================================================== -->
+
+            <section class="whatif-kpi-row">
+
+
+                <article class="dashboard-card whatif-kpi-card">
+
+                    <span class="card-label">
+                        CURRENT RISK
+                    </span>
+
+                    <div
+                        class="whatif-kpi-value"
+                        id="currentRiskKpi"
+                    >
+                        --
+                    </div>
+
+                </article>
+
+
+                <article class="dashboard-card whatif-kpi-card">
+
+                    <span class="card-label">
+                        SIMULATED RISK
+                    </span>
+
+                    <div
+                        class="whatif-kpi-value simulated"
+                        id="simulatedRiskKpi"
+                    >
+                        --
+                    </div>
+
+                </article>
+
+
+                <article class="dashboard-card whatif-kpi-card">
+
+                    <span class="card-label">
+                        RISK CHANGE
+                    </span>
+
+                    <div
+                        class="whatif-kpi-value reduction"
+                        id="riskReductionKpi"
+                    >
+                        --
+                    </div>
+
+                </article>
+
+
+                <article class="dashboard-card whatif-kpi-card">
+
+                    <span class="card-label">
+                        ATTACK PATHS
+                    </span>
+
+                    <div
+                        class="whatif-kpi-value"
+                        id="attackPathsKpi"
+                    >
+                        --
+                    </div>
+
+                </article>
+
+
+                <article class="dashboard-card whatif-kpi-card">
+
+                    <span class="card-label">
+                        SECURITY STATE
+                    </span>
+
+                    <div
+                        class="whatif-kpi-state"
+                        id="securityStateKpi"
+                    >
+                        --
+                    </div>
+
+                </article>
+
+            </section>
+
+
+            <!-- =================================================
+                 MODEL READING
+            ================================================== -->
+
+            <section>
+
+                <article class="dashboard-card whatif-reading-card">
+
+                    <div class="whatif-section-heading">
+
+                        <div>
+
+                            <span class="card-label">
+                                MODEL READING
+                            </span>
+
+                            <h3>
+                                What changes and what remains?
+                            </h3>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="model-reading-grid">
+
+                        <div class="model-reading-main">
+
+                            <span class="sub-label">
+                                EXPECTED EFFECT
+                            </span>
+
+                            <p id="modelReadingPrimary">
+                                Select a response to evaluate
+                                its modeled consequences.
+                            </p>
+
+                        </div>
+
+
+                        <div class="model-reading-remain">
+
+                            <span class="sub-label">
+                                WHAT REMAINS
+                            </span>
+
+                            <p id="modelReadingRemain">
+                                --
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+            </section>
+
+
+            <!-- =================================================
+                 RESPONSE APPROVAL
+            ================================================== -->
+
+            <section>
+
+                <article class="dashboard-card whatif-approval-card">
+
+                    <div class="whatif-approval-header">
+
+                        <div>
+
+                            <span class="card-label">
+                                RESPONSE APPROVAL
+                            </span>
+
+                            <h3>
+                                Analyst decision
+                            </h3>
+
+                            <p>
+                                Simulation only. No real endpoint
+                                action is performed.
+                            </p>
+
+                        </div>
+
+
+                        <span
+                            class="approval-status"
+                            id="approvalStatus"
+                        >
+                            PENDING
+                        </span>
+
+                    </div>
+
+
+                    <div class="whatif-approval-body">
+
+                        <div class="approval-selection">
+
+                            <span class="approval-label">
+                                SELECTED RESPONSE
+                            </span>
+
+                            <strong id="approvalResponseName">
+                                --
+                            </strong>
+
+                            <p id="approvalExplanation">
+                                Run the counterfactual model
+                                before making a decision.
+                            </p>
+
+                        </div>
+
+
+                        <div class="decision-actions">
+
+                            <button
+                                class="secondary-button"
+                                id="rejectResponse"
+                                type="button"
+                                disabled
+                            >
+                                Reject
+                            </button>
+
+
+                            <button
+                                class="primary-button"
+                                id="approveResponse"
+                                type="button"
+                                disabled
+                            >
+                                Approve Response
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        class="decision-recorded"
+                        id="decisionRecorded"
+                        hidden
+                    ></div>
+
+                </article>
+
+            </section>
+
+
+            <!-- =================================================
+                 STATE MESSAGE
+            ================================================== -->
+
+            <div
+                class="whatif-state-message"
+                id="whatIfStateMessage"
+                hidden
+            >
+
+                <div class="state-message-icon">
+                    !
+                </div>
+
+                <div>
+
+                    <strong id="stateMessageTitle">
+                        Unable to load What-If analysis
+                    </strong>
+
+                    <p id="stateMessageText">
+                        --
+                    </p>
+
+                </div>
+
+
+                <button
+                    class="secondary-button"
+                    id="retryWhatIf"
+                    type="button"
+                >
+                    Retry
+                </button>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<script src="../js/what-if.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="CyberTwin Security Investigation Dashboard"
+    >
+
+    <title>CyberTwin | Dashboard</title>
+
+    <link
+        rel="stylesheet"
+        href="../css/style.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../css/threat-feed.css"
+    >
+
+    <style>
+
+        /* =====================================================
+           DIGITAL SECURITY TWIN
+        ===================================================== */
+
+        .dashboard-twin-card {
+            position: relative;
+            overflow: hidden;
+            min-height: 520px;
+            background:
+                radial-gradient(
+                    circle at 50% 48%,
+                    rgba(0, 210, 255, 0.08),
+                    transparent 30%
+                ),
+                linear-gradient(
+                    180deg,
+                    rgba(10, 18, 25, 0.98),
+                    rgba(5, 10, 15, 0.98)
+                );
+        }
+
+        .twin-layout {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 20px;
+            align-items: center;
+            padding: 28px;
+        }
+
+        .twin-feature {
+            position: relative;
+            min-height: 125px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border: 1px solid rgba(0, 210, 255, 0.12);
+            border-radius: 12px;
+            background: rgba(4, 12, 20, 0.68);
+            overflow: hidden;
+        }
+
+        .twin-feature::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(
+                    120deg,
+                    rgba(0, 210, 255, 0.05),
+                    transparent 55%
+                );
+            pointer-events: none;
+        }
+
+        .twin-feature-value {
+            position: relative;
+            margin-top: 8px;
+            font-size: 19px;
+            font-weight: 700;
+            color: #edf8fc;
+        }
+
+        .twin-feature-meta {
+            position: relative;
+            margin-top: 6px;
+            font-size: 11px;
+            line-height: 1.5;
+            color: rgba(210, 225, 235, 0.55);
+        }
+
+        .twin-feature-icon {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 34px;
+            height: 34px;
+            display: grid;
+            place-items: center;
+            border: 1px solid rgba(0, 210, 255, 0.2);
+            border-radius: 8px;
+            color: #16d9ff;
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            background: rgba(0, 210, 255, 0.04);
+        }
+
+        .twin-center {
+            position: relative;
+            grid-column: 2;
+            grid-row: 1 / 3;
+            min-height: 420px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .twin-globe {
+            position: relative;
+            width: min(390px, 90%);
+            aspect-ratio: 1;
+            display: grid;
+            place-items: center;
+            perspective: 900px;
+        }
+
+        .twin-globe::before,
+        .twin-globe::after {
+            content: "";
+            position: absolute;
+            inset: 13%;
+            border: 1px solid rgba(0, 210, 255, 0.24);
+            border-radius: 50%;
+            box-shadow:
+                0 0 28px rgba(0, 210, 255, 0.08);
+        }
+
+        .twin-globe::after {
+            inset: 25%;
+            border-color: rgba(0, 210, 255, 0.16);
+        }
+
+        .twin-grid {
+            position: absolute;
+            width: 68%;
+            height: 68%;
+            border: 1px solid rgba(0, 210, 255, 0.22);
+            border-radius: 50%;
+            transform: rotateX(62deg);
+
+            background:
+                repeating-linear-gradient(
+                    0deg,
+                    transparent 0 17px,
+                    rgba(0, 210, 255, 0.09) 18px 19px
+                );
+
+            box-shadow:
+                inset 0 0 35px rgba(0, 210, 255, 0.06);
+
+            animation:
+                twinGridPulse 4s ease-in-out infinite;
+        }
+
+        .twin-grid.vertical {
+            transform: rotateY(62deg);
+
+            background:
+                repeating-linear-gradient(
+                    90deg,
+                    transparent 0 17px,
+                    rgba(0, 210, 255, 0.09) 18px 19px
+                );
+        }
+
+        .twin-orbit {
+            position: absolute;
+            width: 82%;
+            height: 34%;
+            border: 1px solid rgba(0, 210, 255, 0.22);
+            border-radius: 50%;
+            transform: rotate(-22deg);
+        }
+
+        .twin-orbit.second {
+            width: 66%;
+            height: 78%;
+            transform: rotate(64deg);
+            border-color: rgba(0, 210, 255, 0.14);
+        }
+
+        .twin-core {
+            position: relative;
+            z-index: 3;
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+
+            text-align: center;
+
+            border: 2px solid rgba(0, 210, 255, 0.62);
+
+            background:
+                radial-gradient(
+                    circle at 50% 40%,
+                    rgba(0, 210, 255, 0.18),
+                    rgba(5, 12, 18, 0.96) 66%
+                );
+
+            box-shadow:
+                0 0 25px rgba(0, 210, 255, 0.16),
+                inset 0 0 25px rgba(0, 210, 255, 0.08);
+        }
+
+        .twin-core strong {
+            font-size: 24px;
+            letter-spacing: 1px;
+            color: #16d9ff;
+        }
+
+        .twin-core span {
+            margin-top: 5px;
+            font-size: 10px;
+            letter-spacing: 2px;
+            color: #8395a8;
+        }
+
+        .twin-core small {
+            margin-top: 8px;
+            font-size: 12px;
+            color: #d8e5ee;
+        }
+
+        .twin-node {
+            position: absolute;
+            z-index: 4;
+
+            min-width: 48px;
+            height: 48px;
+            padding: 0 10px;
+
+            display: grid;
+            place-items: center;
+
+            border: 1px solid rgba(0, 210, 255, 0.5);
+            border-radius: 50%;
+
+            background: rgba(5, 13, 19, 0.94);
+
+            color: #16d9ff;
+
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+
+            box-shadow:
+                0 0 16px rgba(0, 210, 255, 0.1);
+        }
+
+        .twin-node.endpoint {
+            top: 9%;
+            left: 48%;
+        }
+
+        .twin-node.evidence {
+            right: 8%;
+            top: 43%;
+        }
+
+        .twin-node.incident {
+            left: 8%;
+            top: 43%;
+        }
+
+        .twin-node.risk {
+            bottom: 10%;
+            left: 45%;
+        }
+
+        .twin-scan {
+            position: absolute;
+            z-index: 2;
+
+            width: 74%;
+            height: 2px;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    transparent,
+                    rgba(0, 210, 255, 0.8),
+                    transparent
+                );
+
+            transform-origin: center;
+
+            animation:
+                twinScan 4.5s linear infinite;
+
+            filter:
+                drop-shadow(
+                    0 0 7px rgba(0, 210, 255, 0.55)
+                );
+        }
+
+        .twin-center-label {
+            margin-top: -8px;
+            text-align: center;
+            z-index: 5;
+        }
+
+        .twin-center-label strong {
+            display: block;
+            color: #edf8fc;
+            font-size: 15px;
+            letter-spacing: 0.8px;
+        }
+
+        .twin-center-label span {
+            display: block;
+            margin-top: 5px;
+            color: rgba(210, 225, 235, 0.5);
+            font-size: 10px;
+        }
+
+        @keyframes twinScan {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes twinGridPulse {
+
+            0%,
+            100% {
+                opacity: 0.55;
+            }
+
+            50% {
+                opacity: 0.9;
+            }
+        }
+
+
+       
+
+    </style>
+
+</head>
+
+
+<body>
+
+<div class="app">
+
+
+    <!-- =====================================================
+         SIDEBAR
+    ===================================================== -->
+
+    <aside class="sidebar">
+
+
+        <!-- BRAND -->
+
+        <div class="brand">
+
+            <div class="brand-logo">
+                CT
+            </div>
+
+            <div class="brand-content">
+
+                <h1>
+                    CYBERTWIN
+                </h1>
+
+                <span>
+                    Security Intelligence
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             NAVIGATION
+        ================================================= -->
+
+        <nav class="sidebar-nav">
+
+
+            <!-- OVERVIEW -->
+
+            <div class="nav-section">
+
+                <div class="nav-title">
+                    OVERVIEW
+                </div>
+
+                <a
+                    href="./dashboard.html"
+                    class="nav-item active"
+                >
+
+                    <span class="nav-icon">
+                        ◧
+                    </span>
+
+                    <span>
+                        Dashboard
+                    </span>
+
+                </a>
+
+            </div>
+
+
+            <!-- INVESTIGATION -->
+
+            <div class="nav-section">
+
+                <div class="nav-title">
+                    INVESTIGATION
+                </div>
+
+
+                <a
+                    href="./endpoint-twin.html"
+                    class="nav-item"
+                >
+
+                    <span class="nav-icon">
+                        ◈
+                    </span>
+
+                    <span>
+                        Endpoint Twin
+                    </span>
+
+                </a>
+
+
+                <a
+                    href="./incident-twin.html"
+                    class="nav-item"
+                >
+
+                    <span class="nav-icon">
+                        ◉
+                    </span>
+
+                    <span>
+                        Incident Twin
+                    </span>
+
+                </a>
+
+
+                <a
+                    href="./evidence.html"
+                    class="nav-item"
+                >
+
+                    <span class="nav-icon">
+                        ◫
+                    </span>
+
+                    <span>
+                        Evidence Investigation
+                    </span>
+
+                </a>
+
+
+                <a
+                    href="./attack-path.html"
+                    class="nav-item"
+                >
+
+                    <span class="nav-icon">
+                        ⧉
+                    </span>
+
+                    <span>
+                        Attack Path Analysis
+                    </span>
+
+                </a>
+
+
+                <a
+                    href="./ai-investigator.html"
+                    class="nav-item"
+                >
+
+                    <span class="nav-icon">
+                        ✦
+                    </span>
+
+                    <span>
+                        AI Investigator
+                    </span>
+
+                </a>
+
+
+                <a
+                    href="./what-if.html"
+                    class="nav-item"
+                >
+
+                    <span class="nav-icon">
+                        ⇄
+                    </span>
+
+                    <span>
+                        What-If Analysis
+                    </span>
+
+                </a>
+
+            </div>
+
+
+            <!-- INTEGRITY -->
+
+            <div class="nav-section">
+
+                <div class="nav-title">
+                    INTEGRITY
+                </div>
+
+
+                <a
+                    href="./blockchain.html"
+                    class="nav-item"
+                >
+
+                    <span class="nav-icon">
+                        ⛓
+                    </span>
+
+                    <span>
+                        Blockchain Integrity
+                    </span>
+
+                </a>
+
+            </div>
+
+        </nav>
+
+
+        <!-- SIDEBAR FOOTER -->
+
+        <div class="sidebar-footer">
+
+            <div class="system-status">
+
+                <span class="status-dot"></span>
+
+                <span id="sidebarSystemStatus">
+                    SYSTEM ONLINE
+                </span>
+
+            </div>
+
+            <div class="version">
+                CyberTwin v1.0
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <!-- =====================================================
+         MAIN CONTENT
+    ===================================================== -->
+
+    <main class="main-content">
+
+
+        <!-- =================================================
+             TOP BAR
+        ================================================== -->
+
+        <header class="topbar">
+
+            <div class="topbar-item">
+
+                <span class="topbar-label">
+                    ENDPOINT
+                </span>
+
+                <strong id="topbarEndpoint">
+                    —
+                </strong>
+
+            </div>
+
+
+            <div class="topbar-divider"></div>
+
+
+            <div class="topbar-item">
+
+                <span class="topbar-label">
+                    INCIDENT
+                </span>
+
+                <strong id="topbarIncident">
+                    —
+                </strong>
+
+            </div>
+
+
+            <div class="topbar-divider"></div>
+
+
+            <div class="topbar-item">
+
+                <span class="topbar-label">
+                    STATE
+                </span>
+
+                <span
+                    class="state-badge"
+                    id="topbarState"
+                >
+                    —
+                </span>
+
+            </div>
+
+
+            <div class="topbar-risk">
+
+                <span class="topbar-label">
+                    RISK
+                </span>
+
+                <strong id="topbarRisk">
+                    0
+                </strong>
+
+                <span>
+                    /100
+                </span>
+
+            </div>
+
+
+            <div class="system-status">
+
+                <span class="status-dot"></span>
+
+                <span id="topbarSystemStatus">
+                    ONLINE
+                </span>
+
+            </div>
+
+        </header>
+
+
+        <!-- =================================================
+             PAGE CONTENT
+        ================================================== -->
+
+        <section class="page-content">
+
+
+            <!-- =================================================
+                 PAGE HEADER
+            ================================================== -->
+
+            <div class="page-header">
+
+                <div>
+
+                    <div class="eyebrow">
+                        CYBERTWIN / OVERVIEW
+                    </div>
+
+                    <h2>
+                        Investigation Dashboard
+                    </h2>
+
+                    <p>
+                        Complete overview of the current
+                        endpoint and active cybersecurity
+                        investigation.
+                    </p>
+
+
+
+                </div>
+
+
+                <span
+                    class="status-badge online"
+                    id="pageSystemStatus"
+                >
+                    SYSTEM ONLINE
+                </span>
+
+            </div>
+
+
+            <!-- =================================================
+                 SECTION 01
+                 INVESTIGATION OVERVIEW
+            ================================================== -->
+
+            <section class="dashboard-section">
+
+                <div class="section-heading">
+
+                    <span class="section-number">
+                        01
+                    </span>
+
+                    <div>
+
+                        <h3>
+                            Investigation Overview
+                        </h3>
+
+                        <p>
+                            Current endpoint security posture and investigation health.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="overview-grid">
+
+
+                    <!-- ENDPOINT ACTIVE -->
+
+                    <article class="dashboard-card">
+
+                        <span class="card-label">
+                            ENDPOINT ACTIVE
+                        </span>
+
+                        <h4
+                            class="card-value"
+                            id="endpointName"
+                        >
+                            —
+                        </h4>
+
+                        <p>
+                            Linux monitoring endpoint
+                        </p>
+
+                        <span class="status-badge online">
+                            TELEMETRY ACTIVE
+                        </span>
+
+                    </article>
+
+
+                    <!-- INVESTIGATION HEALTH -->
+
+                    <article class="dashboard-card">
+
+                        <div class="card-header">
+
+                            <span class="card-label">
+                                INVESTIGATION HEALTH
+                            </span>
+
+                            <span
+                                class="percentage"
+                                id="evidenceSufficiency"
+                            >
+                                0%
+                            </span>
+
+                        </div>
+
+                        <div class="progress">
+
+                            <div
+                                class="progress-fill"
+                                id="evidenceProgress"
+                                style="width:0%"
+                            ></div>
+
+                        </div>
+
+                        <div class="health-stats">
+
+                            <div>
+
+                                <strong id="supportingEvidence">
+                                    0
+                                </strong>
+
+                                <span>
+                                    Supporting Evidence
+                                </span>
+
+                            </div>
+
+                            <div>
+
+                                <strong id="missingEvidence">
+                                    0
+                                </strong>
+
+                                <span>
+                                    Missing Evidence Types
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </article>
+
+
+                    <!-- SECURITY STATE -->
+
+                    <article class="dashboard-card">
+
+                        <span class="card-label">
+                            SECURITY STATE
+                        </span>
+
+                        <h4
+                            class="state-display"
+                            id="securityState"
+                        >
+                            UNKNOWN
+                        </h4>
+
+                        <p>
+                            Current endpoint security state
+                        </p>
+
+                        <span class="confidence">
+                            AI Confidence:
+                            <strong id="aiConfidence">
+                                0%
+                            </strong>
+                        </span>
+
+                    </article>
+
+
+                    <!-- RISK SCORE -->
+
+                    <article class="dashboard-card">
+
+                        <span class="card-label">
+                            RISK SCORE
+                        </span>
+
+                        <div
+                            class="risk-score"
+                            id="dashboardRiskScore"
+                        >
+                            0
+                        </div>
+
+                        <div class="risk-bar">
+
+                            <div
+                                class="risk-bar-fill"
+                                id="dashboardRiskBar"
+                                style="width:0%"
+                            ></div>
+
+                        </div>
+
+                        <div class="risk-footer">
+
+                            <span
+                                class="severity-badge"
+                                id="riskLevel"
+                            >
+                                —
+                            </span>
+
+                            <span id="riskScoreLabel">
+                                0 / 100
+                            </span>
+
+                        </div>
+
+                    </article>
+
+                </div>
+
+            </section>
+
+                    <!-- =================================================
+                        SECTION 02
+                        LIVE GLOBAL THREAT FEED
+                    ================================================== -->
+
+                    <section
+                        class="dashboard-section cyber-news-section"
+                    >
+
+                        <div class="section-heading">
+
+                            <span class="section-number">
+                                02
+                            </span>
+
+
+                            <div>
+
+                                <h3>
+                                    Live Global Threat Feed
+                                </h3>
+
+                                <p>
+                                    Live cybersecurity news and trending
+                                    incidents from worldwide coverage.
+                                </p>
+
+                            </div>
+
+
+                            <div
+                                class="news-live-status"
+                                id="newsLiveStatus"
+                            >
+
+                                <span class="news-live-dot"></span>
+
+                                LIVE · WORLDWIDE
+
+                            </div>
+
+                        </div>
+
+
+                        <article
+                            class="dashboard-card cyber-news-card"
+                        >
+
+
+                            <div class="cyber-news-toolbar">
+
+                                <span class="card-label">
+                                    GLOBAL NEWS STREAM
+                                </span>
+
+
+                                <span
+                                    class="cyber-news-updated"
+                                    id="cyberNewsUpdated"
+                                >
+                                    Waiting for live feed…
+                                </span>
+
+                            </div>
+
+
+                            <div
+                                class="cyber-news-list"
+                                id="cyberNewsFeed"
+                            >
+
+                                <div class="cyber-news-loading">
+                                    Loading global cybersecurity news…
+                                </div>
+
+                            </div>
+
+
+                        </article>
+
+                    </section>
+
+
+
+            <!-- =================================================
+                 SECTION 03
+                 DIGITAL SECURITY TWIN
+            ================================================== -->
+
+            <section class="dashboard-section">
+
+                <div class="section-heading">
+
+                    <span class="section-number">
+                        03
+                    </span>
+
+                    <div>
+
+                        <h3>
+                            Digital Security Twin
+                        </h3>
+
+                        <p>
+                            Endpoint, incident, evidence and risk
+                            represented around the current security state.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <article class="dashboard-card dashboard-twin-card twin-layout">
+
+
+                    <!-- ENDPOINT FEATURE -->
+
+                    <article class="twin-feature">
+
+                        <span class="card-label">
+                            ENDPOINT
+                        </span>
+
+                        <span
+                            class="twin-feature-value"
+                            id="twinEndpointValue"
+                        >
+                            —
+                        </span>
+
+                        <span
+                            class="twin-feature-meta"
+                            id="twinEndpointMeta"
+                        >
+                            Waiting for endpoint telemetry.
+                        </span>
+
+                        <span class="twin-feature-icon">
+                            EP
+                        </span>
+
+                    </article>
+
+
+                    <!-- INCIDENT FEATURE -->
+
+                    <article class="twin-feature">
+
+                        <span class="card-label">
+                            INCIDENT
+                        </span>
+
+                        <span
+                            class="twin-feature-value"
+                            id="twinIncidentValue"
+                        >
+                            —
+                        </span>
+
+                        <span
+                            class="twin-feature-meta"
+                            id="twinIncidentMeta"
+                        >
+                            No active incident loaded.
+                        </span>
+
+                        <span class="twin-feature-icon">
+                            IN
+                        </span>
+
+                    </article>
+
+
+                    <!-- EVIDENCE FEATURE -->
+
+                    <article class="twin-feature">
+
+                        <span class="card-label">
+                            EVIDENCE
+                        </span>
+
+                        <span
+                            class="twin-feature-value"
+                            id="twinEvidenceValue"
+                        >
+                            —
+                        </span>
+
+                        <span
+                            class="twin-feature-meta"
+                            id="twinEvidenceMeta"
+                        >
+                            Evidence status unavailable.
+                        </span>
+
+                        <span class="twin-feature-icon">
+                            EV
+                        </span>
+
+                    </article>
+
+
+                    <!-- RISK FEATURE -->
+
+                    <article class="twin-feature">
+
+                        <span class="card-label">
+                            RISK
+                        </span>
+
+                        <span
+                            class="twin-feature-value"
+                            id="twinRiskValue"
+                        >
+                            —
+                        </span>
+
+                        <span
+                            class="twin-feature-meta"
+                            id="twinRiskMeta"
+                        >
+                            Risk assessment unavailable.
+                        </span>
+
+                        <span class="twin-feature-icon">
+                            RK
+                        </span>
+
+                    </article>
+
+
+                    <!-- CENTRAL TWIN -->
+
+                    <div class="twin-center">
+
+                        <div class="twin-globe">
+
+                            <div class="twin-grid"></div>
+
+                            <div class="twin-grid vertical"></div>
+
+                            <div class="twin-orbit"></div>
+
+                            <div class="twin-orbit second"></div>
+
+                            <div class="twin-scan"></div>
+
+
+                            <div
+                                class="twin-node endpoint"
+                                id="twinEndpointNode"
+                            >
+                                ENDPOINT
+                            </div>
+
+
+                            <div
+                                class="twin-node incident"
+                                id="twinIncidentNode"
+                            >
+                                INCIDENT
+                            </div>
+
+
+                            <div
+                                class="twin-node evidence"
+                                id="twinEvidenceNode"
+                            >
+                                EVIDENCE
+                            </div>
+
+
+                            <div
+                                class="twin-node risk"
+                                id="twinRiskNode"
+                            >
+                                RISK
+                            </div>
+
+
+                            <div class="twin-core">
+
+                                <strong id="twinCoreState">
+                                    —
+                                </strong>
+
+                                <span>
+                                    SECURITY TWIN
+                                </span>
+
+                                <small id="twinCoreRisk">
+                                    Risk —
+                                </small>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="twin-center-label">
+
+                            <strong id="twinVisualTitle">
+                                CYBERTWIN
+                            </strong>
+
+                            <span id="twinVisualDescription">
+                                Waiting for live security state
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+            </section>
+
+
+           
+        </section>
+
+    </main>
+
+</div>
+
+
+<!-- =========================================================
+     DASHBOARD JAVASCRIPT
+========================================================= -->
+
+<script src="../js/dashboard.js"></script>
+
+</body>
+
+</html>

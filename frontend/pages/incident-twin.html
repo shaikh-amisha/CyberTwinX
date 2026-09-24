@@ -1,0 +1,1010 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="CyberTwin Incident Twin"
+    >
+
+    <title>CyberTwin | Incident Twin</title>
+
+    <link rel="stylesheet" href="../css/style.css">
+
+
+<style>
+/* =========================================================
+   INCIDENT TWIN — EVIDENCE SEVERITY / STATUS COLORS
+   ========================================================= */
+
+#incidentEvidence .severity-badge {
+    transition: border-color .2s ease, background .2s ease, box-shadow .2s ease, color .2s ease;
+}
+
+#incidentEvidence .severity-badge.evidence-low {
+    color: #22c55e;
+    background: rgba(34, 197, 94, 0.10);
+    border: 1px solid rgba(34, 197, 94, 0.35);
+    box-shadow: 0 0 10px rgba(34, 197, 94, 0.08);
+}
+
+#incidentEvidence .severity-badge.evidence-medium {
+    color: #f59e0b;
+    background: rgba(245, 158, 11, 0.10);
+    border: 1px solid rgba(245, 158, 11, 0.35);
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.08);
+}
+
+#incidentEvidence .severity-badge.evidence-high,
+#incidentEvidence .severity-badge.evidence-critical {
+    color: #ff3b3b;
+    background: rgba(255, 59, 59, 0.10);
+    border: 1px solid rgba(255, 59, 59, 0.35);
+    box-shadow: 0 0 10px rgba(255, 59, 59, 0.08);
+}
+
+#incidentEvidence .evidence-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    color: #f59e0b;
+    font-weight: 800;
+    letter-spacing: .45px;
+}
+
+#incidentEvidence .evidence-status::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    box-shadow: 0 0 8px currentColor;
+}
+
+#incidentEvidence .evidence-status.supporting {
+    animation: evidenceSupportingBlink 1.35s ease-in-out infinite;
+}
+
+@keyframes evidenceSupportingBlink {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: .42;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #incidentEvidence .evidence-status.supporting {
+        animation: none;
+    }
+}
+
+.evidence-detail-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 14px;
+
+}
+</style>
+
+</head>
+
+
+<body>
+
+<div class="app">
+
+
+    <!-- =====================================================
+         SIDEBAR
+    ====================================================== -->
+
+    <aside class="sidebar">
+
+
+        <!-- BRAND -->
+
+        <div class="brand">
+
+            <div class="brand-logo">
+                CT
+            </div>
+
+            <div class="brand-content">
+
+                <h1>
+                    CYBERTWIN
+                </h1>
+
+                <span>
+                    Security Intelligence
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- NAVIGATION -->
+
+        <nav class="sidebar-nav">
+
+
+            <!-- OVERVIEW -->
+
+            <div class="nav-section">
+
+                <div class="nav-title">
+                    OVERVIEW
+                </div>
+
+
+                <a
+                    href="./dashboard.html"
+                    class="nav-item"
+                >
+
+                    <span class="nav-icon">
+                        ◧
+                    </span>
+
+                    <span>
+                        Dashboard
+                    </span>
+
+                </a>
+
+            </div>
+
+
+            <!-- INVESTIGATION -->
+
+            <div class="nav-section">
+
+                <div class="nav-title">
+                    INVESTIGATION
+                </div>
+
+
+                <a
+                    href="./endpoint-twin.html"
+                    class="nav-item"
+                >
+
+                    <span class="nav-icon">
+                        ◈
+                    </span>
+
+                    <span>
+                        Endpoint Twin
+                    </span>
+
+                </a>
+
+
+                <a
+                    href="./incident-twin.html"
+                    class="nav-item active"
+                >
+
+                    <span class="nav-icon">
+                        ◈
+                    </span>
+
+                    <span>
+                        Incident Twin
+                    </span>
+
+                </a>
+
+
+                <a
+                    href="./evidence.html"
+                    class="nav-item"
+                >
+
+                    <span class="nav-icon">
+                        ◫
+                    </span>
+
+                    <span>
+                        Evidence Investigation
+                    </span>
+
+                </a>
+
+
+                <a
+                    href="./attack-path.html"
+                    class="nav-item"
+                >
+
+                    <span class="nav-icon">
+                        ⧉
+                    </span>
+
+                    <span>
+                        Attack Path Analysis
+                    </span>
+
+                </a>
+
+
+                <a
+                    href="./ai-investigator.html"
+                    class="nav-item"
+                >
+
+                    <span class="nav-icon">
+                        ✦
+                    </span>
+
+                    <span>
+                        AI Investigator
+                    </span>
+
+                </a>
+
+
+                <a
+                    href="./what-if.html"
+                    class="nav-item"
+                >
+
+                    <span class="nav-icon">
+                        ⇄
+                    </span>
+
+                    <span>
+                        What-If Analysis
+                    </span>
+
+                </a>
+
+            </div>
+
+
+            <!-- INTEGRITY -->
+
+            <div class="nav-section">
+
+                <div class="nav-title">
+                    INTEGRITY
+                </div>
+
+
+                <a
+                    href="./blockchain.html"
+                    class="nav-item"
+                >
+
+                    <span class="nav-icon">
+                        ⛓
+                    </span>
+
+                    <span>
+                        Blockchain Integrity
+                    </span>
+
+                </a>
+
+            </div>
+
+        </nav>
+
+
+        <!-- SIDEBAR FOOTER -->
+
+        <div class="sidebar-footer">
+
+            <div class="system-status">
+
+                <span class="status-dot"></span>
+
+                SYSTEM ONLINE
+
+            </div>
+
+
+            <div class="version">
+                CyberTwin v1.0
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <!-- =====================================================
+         MAIN CONTENT
+    ====================================================== -->
+
+    <main class="main-content">
+
+
+        <!-- =================================================
+             TOP BAR
+        ================================================== -->
+
+        <header class="topbar">
+
+
+            <!-- LINKED ENDPOINT -->
+
+            <div class="topbar-item">
+
+                <span class="topbar-label">
+                    ENDPOINT
+                </span>
+
+                <span
+                    class="topbar-value"
+                    id="topbarEndpoint"
+                >
+                    —
+                </span>
+
+            </div>
+
+
+            <!-- INCIDENT -->
+
+            <div class="topbar-item">
+
+                <span class="topbar-label">
+                    INCIDENT
+                </span>
+
+                <span
+                    class="topbar-value"
+                    id="topbarIncident"
+                >
+                    —
+                </span>
+
+            </div>
+
+
+            <!-- STATE -->
+
+            <div class="topbar-item">
+
+                <span class="topbar-label">
+                    STATE
+                </span>
+
+                <span
+                    class="topbar-value"
+                    id="topbarState"
+                >
+                    —
+                </span>
+
+            </div>
+
+
+            <!-- RISK -->
+
+            <div class="topbar-item">
+
+                <span class="topbar-label">
+                    RISK
+                </span>
+
+                <span
+                    class="topbar-value"
+                    id="topbarRisk"
+                >
+                    — / 100
+                </span>
+
+            </div>
+
+        </header>
+
+
+        <!-- =================================================
+             PAGE CONTENT
+        ================================================== -->
+
+        <section class="page-content">
+
+
+            <!-- PAGE HEADER -->
+
+            <div class="page-header">
+
+                <div>
+
+                    <span class="eyebrow">
+                        SECURITY INVESTIGATION
+                    </span>
+
+                    <h2>
+                        Incident Twin
+                    </h2>
+
+                    <p>
+                        Stateful representation of the
+                        evolving security incident.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+                        <!-- Incident Selector -->
+            <div class="incident-selector" id="incidentSelector">
+
+                <div class="incident-selector-header">
+                    <div>
+                        <span class="section-eyebrow">INCIDENT SELECTOR</span>
+                        <h3>Select Incident</h3>
+                    </div>
+
+                    <span class="incident-selector-count" id="incidentSelectorCount">
+                        0 INCIDENTS
+                    </span>
+                </div>
+
+                <button
+                    type="button"
+                    class="incident-selector-trigger"
+                    id="incidentSelectorButton"
+                    aria-expanded="false"
+                    aria-controls="incidentSelectorMenu"
+                >
+                    <div class="incident-selected-info">
+                        <span class="incident-selected-label">CURRENT INCIDENT</span>
+                        <strong id="selectedIncidentSummary">
+                            Loading incidents...
+                        </strong>
+                    </div>
+
+                    <span class="incident-selector-arrow" id="incidentSelectorArrow">
+                        ▾
+                    </span>
+                </button>
+
+                <div
+                    class="incident-selector-menu"
+                    id="incidentSelectorMenu"
+                    hidden
+                >
+
+                    <div class="incident-search-wrapper">
+                        <span class="incident-search-icon">⌕</span>
+
+                        <input
+                            type="search"
+                            id="incidentSearch"
+                            class="incident-search"
+                            placeholder="Search incident, endpoint, type, state..."
+                            autocomplete="off"
+                        >
+                    </div>
+
+                    <div
+                        class="incident-selector-list"
+                        id="incidentSelectorList"
+                    >
+                        <div class="incident-selector-loading">
+                            Loading incidents...
+                        </div>
+                    </div>
+
+                    <div
+                        class="incident-selector-empty"
+                        id="incidentSelectorEmpty"
+                        hidden
+                    >
+                        No matching incidents found.
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 01 — INCIDENT OVERVIEW
+            ================================================== -->
+
+            <section class="dashboard-section">
+
+
+                <div class="section-heading">
+
+                    <span class="section-number">
+                        01
+                    </span>
+
+                    <div>
+
+                        <h3>
+                            Incident Overview
+                        </h3>
+
+                        <p>
+                            Current identity, severity and
+                            risk of the incident.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="overview-grid">
+
+
+                    <!-- INCIDENT ID -->
+
+                    <article class="dashboard-card">
+
+                        <span class="card-label">
+                            INCIDENT ID
+                        </span>
+
+                        <div
+                            class="card-value"
+                            id="incidentId"
+                        >
+                            —
+                        </div>
+
+                        <p>
+                            Unique identifier for this
+                            investigation.
+                        </p>
+
+                    </article>
+
+
+                    <!-- INCIDENT TYPE -->
+
+                    <article class="dashboard-card">
+
+                        <span class="card-label">
+                            INCIDENT TYPE
+                        </span>
+
+                        <div
+                            class="card-value"
+                            id="incidentType"
+                        >
+                            —
+                        </div>
+
+                        <p>
+                            Classification of the detected
+                            security incident.
+                        </p>
+
+                    </article>
+
+
+                    <!-- SEVERITY -->
+
+                    <article class="dashboard-card">
+
+                        <span class="card-label">
+                            SEVERITY
+                        </span>
+
+                        <div
+                            class="state-display"
+                            id="incidentSeverity"
+                        >
+                            —
+                        </div>
+
+                        <p>
+                            Current incident severity.
+                        </p>
+
+                    </article>
+
+
+                    <!-- RISK -->
+
+                    <article class="dashboard-card">
+
+                        <span class="card-label">
+                            INCIDENT RISK
+                        </span>
+
+                        <div
+                            class="card-value"
+                            id="incidentRisk"
+                        >
+                            0 / 100
+                        </div>
+
+                        <div class="risk-bar">
+
+                            <div
+                                id="incidentRiskBar"
+                                class="risk-bar-fill"
+                            ></div>
+
+                        </div>
+
+                        <p
+                            id="incidentRiskLabel"
+                        >
+                            Current incident risk score.
+                        </p>
+
+                    </article>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 02 — INCIDENT STATE
+            ================================================== -->
+
+            <section class="dashboard-section">
+
+
+                <div class="section-heading">
+
+                    <span class="section-number">
+                        02
+                    </span>
+
+                    <div>
+
+                        <h3>
+                            Incident State
+                        </h3>
+
+                        <p>
+                            Current lifecycle state and
+                            confidence of the incident model.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="two-column-grid">
+
+
+                    <!-- CURRENT STATE -->
+
+                    <article class="dashboard-card">
+
+                        <span class="card-label">
+                            CURRENT STATE
+                        </span>
+
+                        <div
+                            class="state-display"
+                            id="incidentState"
+                        >
+                            —
+                        </div>
+
+                        <div
+                            class="card-value"
+                            id="incidentConfidence"
+                        >
+                            0% CONFIDENCE
+                        </div>
+
+                        <div class="risk-bar">
+
+                            <div
+                                id="incidentConfidenceBar"
+                                class="risk-bar-fill"
+                            ></div>
+
+                        </div>
+
+                        <p>
+                            Confidence in the current
+                            incident classification.
+                        </p>
+
+                    </article>
+
+
+                    <!-- LIFECYCLE -->
+
+                    <article class="dashboard-card">
+
+                        <span class="card-label">
+                            INCIDENT LIFECYCLE
+                        </span>
+
+
+                        <div
+                            id="incidentLifecycle"
+                            class="timeline"
+                        >
+
+                            <div class="timeline-item">
+
+                                <span class="timeline-time">
+                                    —
+                                </span>
+
+                                <div class="timeline-marker"></div>
+
+                                <div>
+
+                                    <strong>
+                                        Waiting for incident data
+                                    </strong>
+
+                                    <p>
+                                        Incident lifecycle will
+                                        be populated dynamically.
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </article>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 03 — INCIDENT EVIDENCE
+            ================================================== -->
+
+            <section class="dashboard-section">
+
+
+                <div class="section-heading">
+
+                    <span class="section-number">
+                        03
+                    </span>
+
+                    <div>
+
+                        <h3>
+                            Incident Evidence
+                        </h3>
+
+                        <p>
+                            Evidence associated with and
+                            supporting the incident.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="incidentEvidence"
+                    class="evidence-detail-grid"
+                >
+
+                    <article class="dashboard-card">
+
+                        <span class="card-label">
+                            EVIDENCE
+                        </span>
+
+                        <h4>
+                            Waiting for evidence
+                        </h4>
+
+                        <p>
+                            Incident evidence will appear
+                            here when available.
+                        </p>
+
+                        <span class="status-success">
+                            WAITING
+                        </span>
+
+                    </article>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 04 — INCIDENT TIMELINE
+            ================================================== -->
+
+            <section class="dashboard-section">
+
+
+                <div class="section-heading">
+
+                    <span class="section-number">
+                        05
+                    </span>
+
+                    <div>
+
+                        <h3>
+                            Incident Timeline
+                        </h3>
+
+                        <p>
+                            Ordered sequence of important
+                            incident events and state changes.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <article class="dashboard-card">
+
+
+                    <div
+                        id="incidentTimeline"
+                        class="timeline"
+                    >
+
+                        <div class="timeline-item">
+
+                            <span class="timeline-time">
+                                —
+                            </span>
+
+                            <div class="timeline-marker"></div>
+
+                            <div>
+
+                                <strong>
+                                    Waiting for timeline
+                                </strong>
+
+                                <p>
+                                    Incident events will appear
+                                    here when received from the
+                                    backend.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+            </section>
+
+
+            <!-- =================================================
+                 05 — LINKED ENDPOINT TWIN
+            ================================================== -->
+
+            <section class="dashboard-section">
+
+
+                <div class="section-heading">
+
+                    <span class="section-number">
+                        06
+                    </span>
+
+                    <div>
+
+                        <h3>
+                            Linked Endpoint Twin
+                        </h3>
+
+                        <p>
+                            Endpoint associated with this
+                            security incident.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="two-column-grid">
+
+
+                    <!-- ENDPOINT -->
+
+                    <article class="dashboard-card">
+
+                        <span class="card-label">
+                            LINKED ENDPOINT
+                        </span>
+
+                        <h3 id="linkedEndpoint">
+                            —
+                        </h3>
+
+                        <p>
+                            Endpoint associated with the
+                            current incident.
+                        </p>
+
+                        <a
+                            href="./endpoint-twin.html"
+                            class="card-button"
+                        >
+                            Open Endpoint Twin →
+                        </a>
+
+                    </article>
+
+
+                    <!-- ENDPOINT STATE -->
+
+                    <article class="dashboard-card">
+
+                        <span class="card-label">
+                            ENDPOINT STATE
+                        </span>
+
+                        <div
+                            class="state-display"
+                            id="linkedEndpointState"
+                        >
+                            —
+                        </div>
+
+                        <p
+                            id="linkedEndpointDescription"
+                        >
+                            Current security state of the
+                            linked endpoint.
+                        </p>
+
+                    </article>
+
+                </div>
+
+            </section>
+
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<!-- =====================================================
+     INCIDENT TWIN JAVASCRIPT
+====================================================== -->
+
+<script src="../js/incident-twin.js"></script>
+
+
+</body>
+
+</html>

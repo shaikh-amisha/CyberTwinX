@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>CyberTwin | Attack Path Analysis</title>
+
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- =====================================================
+         SIDEBAR
+    ====================================================== -->
+    <aside class="sidebar">
+
+        <div class="brand">
+            <div class="brand-logo">CT</div>
+
+            <div class="brand-content">
+                <h1>CYBERTWIN</h1>
+                <span>Security Intelligence</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+
+            <div class="nav-section">
+                <div class="nav-title">OVERVIEW</div>
+
+                <a href="./dashboard.html" class="nav-item">
+                    <span class="nav-icon">◧</span>
+                    <span>Dashboard</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-title">INVESTIGATION</div>
+
+                <a href="./endpoint-twin.html" class="nav-item">
+                    <span class="nav-icon">◈</span>
+                    <span>Endpoint Twin</span>
+                </a>
+
+                <a href="./incident-twin.html" class="nav-item">
+                    <span class="nav-icon">◈</span>
+                    <span>Incident Twin</span>
+                </a>
+
+                <a href="./evidence.html" class="nav-item">
+                    <span class="nav-icon">◫</span>
+                    <span>Evidence Investigation</span>
+                </a>
+
+                <a href="./attack-path.html" class="nav-item active">
+                    <span class="nav-icon">⧉</span>
+                    <span>Attack Path Analysis</span>
+                </a>
+
+                <a href="./ai-investigator.html" class="nav-item">
+                    <span class="nav-icon">✦</span>
+                    <span>AI Investigator</span>
+                </a>
+
+                <a href="./what-if.html" class="nav-item">
+                    <span class="nav-icon">⇄</span>
+                    <span>What-If Analysis</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-title">INTEGRITY</div>
+
+                <a href="./blockchain.html" class="nav-item">
+                    <span class="nav-icon">⛓</span>
+                    <span>Blockchain Integrity</span>
+                </a>
+            </div>
+
+        </nav>
+
+        <div class="sidebar-footer">
+
+            <div class="system-status" id="sidebarSystemStatus">
+                <span class="status-dot"></span>
+                <span>SYSTEM ONLINE</span>
+            </div>
+
+            <div class="version">
+                CyberTwin v1.0
+            </div>
+
+        </div>
+
+    </aside>
+
+
+
+    <!-- =====================================================
+         MAIN CONTENT
+    ====================================================== -->
+    <main class="main-content">
+
+        <!-- =================================================
+             TOPBAR
+        ================================================== -->
+        <header class="topbar">
+
+            <div class="topbar-item">
+                <span class="topbar-label">ENDPOINT</span>
+                <strong id="topbarEndpoint">—</strong>
+            </div>
+
+            <div class="topbar-divider"></div>
+
+            <div class="topbar-item">
+                <span class="topbar-label">INCIDENT</span>
+                <strong id="topbarIncident">—</strong>
+            </div>
+
+            <div class="topbar-divider"></div>
+
+            <div class="topbar-item">
+                <span class="topbar-label">STATE</span>
+                <span class="state-badge" id="topbarState">—</span>
+            </div>
+
+            <div class="topbar-spacer"></div>
+
+            <div class="topbar-risk">
+                <strong id="topbarRisk">0</strong>
+                <span>RISK</span>
+            </div>
+
+            <div class="topbar-divider"></div>
+
+            <div class="system-status">
+                <span class="status-dot"></span>
+                <span id="topbarSystemStatus">LIVE</span>
+            </div>
+
+        </header>
+
+
+
+        <!-- =================================================
+             PAGE
+        ================================================== -->
+        <section class="page-content attack-path-page">
+
+            <!-- =================================================
+                 PAGE HEADER
+            ================================================== -->
+            <div class="attack-page-header">
+
+                <div>
+
+                    <div class="eyebrow">
+                        CYBERTWIN / INVESTIGATION
+                    </div>
+
+                    <h2>
+                        Attack Path Analysis
+                    </h2>
+
+                    <p>
+                        Investigate relationships between endpoints,
+                        threats, processes, users, and supporting evidence.
+                    </p>
+
+                </div>
+
+                <span
+                    class="severity-badge"
+                    id="activePathBadge"
+                >
+                    OBSERVED PATH
+                </span>
+
+            </div>
+
+
+
+            <!-- =================================================
+                 SECTION 00 — SCOPE
+            ================================================== -->
+            <section class="dashboard-section">
+
+                <div class="section-heading">
+
+                    <span class="section-number">
+                        00
+                    </span>
+
+                    <div>
+
+                        <h3>
+                            Attack Path Scope
+                        </h3>
+
+                        <p>
+                            Select the incident used to build the investigation graph.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+
+                <article class="dashboard-card attack-path-controls">
+
+                    <div class="scope-control">
+
+                        <label for="attackPathMode">
+                            VIEW MODE
+                        </label>
+
+                        <select id="attackPathMode">
+
+                            <option value="incident">
+                                INCIDENT PATH
+                            </option>
+
+                            <option value="overall">
+                                ALL INCIDENTS
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+
+                    <div
+                        class="scope-control"
+                        id="incidentSelectorContainer"
+                    >
+
+                        <label for="incidentSelector">
+                            INCIDENT
+                        </label>
+
+                        <select id="incidentSelector">
+
+                            <option value="">
+                                Loading incidents...
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </article>
+
+            </section>
+
+
+
+            <!-- =================================================
+                 SECTION 01 — ATTACK GRAPH
+            ================================================== -->
+            <section class="dashboard-section">
+
+                <div class="section-heading">
+
+                    <span class="section-number">
+                        01
+                    </span>
+
+                    <div>
+
+                        <h3>
+                            Interactive Attack Graph
+                        </h3>
+
+                        <p>
+                            Explore evidence-backed relationships and
+                            potential attack progression.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="attack-graph-layout">
+
+                    <!-- =========================================
+                         GRAPH PANEL
+                    ========================================== -->
+                    <article class="dashboard-card attack-graph-panel">
+
+                        <div class="graph-header">
+
+                            <div class="graph-mode-bar">
+
+                                <span class="graph-mode-item observed">
+
+                                    <span class="graph-mode-dot"></span>
+
+                                    OBSERVED
+
+                                </span>
+
+
+                                <span class="graph-mode-item potential">
+
+                                    <span class="graph-mode-line"></span>
+
+                                    POTENTIAL
+
+                                </span>
+
+                            </div>
+
+
+
+                            <div class="graph-tools">
+
+                                <button
+                                    type="button"
+                                    class="graph-tool"
+                                    id="graphZoomOut"
+                                    title="Zoom out"
+                                >
+                                    −
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="graph-tool"
+                                    id="graphZoomIn"
+                                    title="Zoom in"
+                                >
+                                    +
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="graph-tool"
+                                    id="graphReset"
+                                    title="Reset graph"
+                                >
+                                    ↻
+                                </button>
+
+                            </div>
+
+                        </div>
+
+
+
+                        <!-- =====================================
+                             GRAPH CANVAS
+                        ====================================== -->
+                        <div
+                            id="attackGraph"
+                            class="attack-graph"
+                        >
+
+                            <div class="graph-empty-state">
+
+                                <div class="graph-loading-indicator">
+                                    <span></span>
+                                    <span></span>
+                                    <span></span>
+                                </div>
+
+                                <span>
+                                    Loading attack graph...
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+
+                        <!-- =====================================
+                             GRAPH FOOTER
+                        ====================================== -->
+                        <div class="graph-footer">
+
+                            <div class="graph-footer-left">
+
+                                <span class="legend-line confirmed"></span>
+                                <span>OBSERVED</span>
+
+                                <span class="legend-line potential"></span>
+                                <span>POTENTIAL</span>
+
+                            </div>
+
+                            <span
+                                class="graph-count"
+                                id="graphCount"
+                            >
+                                0 NODES · 0 LINKS
+                            </span>
+
+                        </div>
+
+                    </article>
+
+
+
+                    <!-- =========================================
+                         NODE INVESTIGATION PANEL
+                    ========================================== -->
+                    <aside
+                        class="node-investigation-panel"
+                        id="nodeDetailPanel"
+                    >
+
+                        <div class="node-investigation-header">
+
+                            <div>
+
+                                <span class="node-panel-kicker">
+                                    NODE INVESTIGATION
+                                </span>
+
+                                <h3 id="nodeDetailTitle">
+                                    Select a node
+                                </h3>
+
+                            </div>
+
+                            <button
+                                type="button"
+                                class="node-panel-action"
+                                id="nodeDetailClose"
+                                aria-label="Close node details"
+                            >
+                                ×
+                            </button>
+
+                        </div>
+
+
+
+                        <div
+                            class="node-investigation-content"
+                            id="nodeDetailBody"
+                        >
+
+                            <div class="node-detail-empty">
+
+                                <div class="node-empty-icon">
+                                    ◈
+                                </div>
+
+                                <h4>
+                                    No Node Selected
+                                </h4>
+
+                                <p>
+                                    Select a node in the graph to inspect
+                                    its state, relationships, and supporting
+                                    evidence.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </aside>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =================================================
+                 SECTION 02 — ALL INCIDENTS
+            ================================================== -->
+            <section
+                class="dashboard-section"
+                id="overallIncidentExplorer"
+                style="display:none;"
+            >
+
+                <div class="section-heading">
+
+                    <span class="section-number">
+                        02
+                    </span>
+
+                    <div>
+
+                        <h3>
+                            All Incidents
+                        </h3>
+
+                        <p>
+                            Select another Incident Twin for investigation.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- =============================================
+                     INCIDENT FILTERS
+                ============================================== -->
+                <article
+                    class="dashboard-card overall-path-controls"
+                    id="overallPathControls"
+                >
+
+                    <div>
+
+                        <label for="incidentSearch">
+                            SEARCH
+                        </label>
+
+                        <input
+                            type="search"
+                            id="incidentSearch"
+                            placeholder="Search incidents..."
+                        >
+
+                    </div>
+
+
+
+                    <div>
+
+                        <label for="incidentStateFilter">
+                            STATE
+                        </label>
+
+                        <select id="incidentStateFilter">
+
+                            <option value="ALL">
+                                ALL
+                            </option>
+
+                            <option value="DETECTED">
+                                DETECTED
+                            </option>
+
+                            <option value="SUSPICIOUS">
+                                SUSPICIOUS
+                            </option>
+
+                            <option value="COMPROMISED">
+                                COMPROMISED
+                            </option>
+
+                            <option value="CONTAINED">
+                                CONTAINED
+                            </option>
+
+                            <option value="RESOLVED">
+                                RESOLVED
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+
+                    <div>
+
+                        <label for="incidentSeverityFilter">
+                            SEVERITY
+                        </label>
+
+                        <select id="incidentSeverityFilter">
+
+                            <option value="ALL">
+                                ALL
+                            </option>
+
+                            <option value="LOW">
+                                LOW
+                            </option>
+
+                            <option value="MEDIUM">
+                                MEDIUM
+                            </option>
+
+                            <option value="HIGH">
+                                HIGH
+                            </option>
+
+                            <option value="CRITICAL">
+                                CRITICAL
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+
+                    <div>
+
+                        <label for="incidentSort">
+                            SORT
+                        </label>
+
+                        <select id="incidentSort">
+
+                            <option value="risk-desc">
+                                RISK ↓
+                            </option>
+
+                            <option value="risk-asc">
+                                RISK ↑
+                            </option>
+
+                            <option value="newest">
+                                NEWEST
+                            </option>
+
+                            <option value="oldest">
+                                OLDEST
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </article>
+
+
+
+                <!-- =============================================
+                     INCIDENT LIST
+                ============================================== -->
+                <article class="dashboard-card incident-explorer-card">
+
+                    <div class="incident-record-header">
+
+                        <span>
+                            INCIDENT
+                        </span>
+
+                        <span>
+                            TYPE
+                        </span>
+
+                        <span>
+                            ENDPOINT
+                        </span>
+
+                        <span>
+                            STATE
+                        </span>
+
+                        <span>
+                            SEVERITY
+                        </span>
+
+                        <span>
+                            RISK
+                        </span>
+
+                    </div>
+
+
+
+                    <div
+                        id="overallIncidentList"
+                        class="overall-incident-list"
+                    ></div>
+
+
+
+                    <div
+                        id="overallPagination"
+                        class="overall-pagination"
+                    ></div>
+
+                </article>
+
+            </section>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+
+<!-- =========================================================
+     ATTACK GRAPH
+     Cytoscape will be initialized from attack-path.js
+========================================================= -->
+
+<script
+    src="https://unpkg.com/cytoscape@3.31.2/dist/cytoscape.min.js">
+</script>
+
+<script src="../js/attack-path.js"></script>
+
+</body>
+</html>

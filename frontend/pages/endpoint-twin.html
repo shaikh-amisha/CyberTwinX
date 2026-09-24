@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="CyberTwin Endpoint Twin"
+    >
+
+    <title>CyberTwin | Endpoint Twin</title>
+
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/endpoint-alerts.css">
+    <link rel="stylesheet" href="../css/threat-feed.css">
+
+</head>
+
+
+<body>
+
+
+<div class="app">
+
+
+    <!-- =====================================================
+         SIDEBAR
+    ====================================================== -->
+
+    <aside class="sidebar">
+
+        <div class="brand">
+
+            <div class="brand-logo">
+                CT
+            </div>
+
+            <div class="brand-content">
+
+                <h1>
+                    CYBERTWIN
+                </h1>
+
+                <span>
+                    Security Intelligence
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <nav class="sidebar-nav">
+
+
+            <!-- OVERVIEW -->
+
+            <div class="nav-section">
+
+                <div class="nav-title">
+                    OVERVIEW
+                </div>
+
+                <a
+                    href="./dashboard.html"
+                    class="nav-item"
+                >
+                    <span class="nav-icon">◧</span>
+                    <span>Dashboard</span>
+                </a>
+
+            </div>
+
+
+            <!-- INVESTIGATION -->
+
+            <div class="nav-section">
+
+                <div class="nav-title">
+                    INVESTIGATION
+                </div>
+
+
+                <a
+                    href="./endpoint-twin.html"
+                    class="nav-item active"
+                >
+                    <span class="nav-icon">◈</span>
+                    <span>Endpoint Twin</span>
+                </a>
+
+
+                <a
+                    href="./incident-twin.html"
+                    class="nav-item"
+                >
+                    <span class="nav-icon">◈</span>
+                    <span>Incident Twin</span>
+                </a>
+
+
+                <a
+                    href="./evidence.html"
+                    class="nav-item"
+                >
+                    <span class="nav-icon">◫</span>
+                    <span>Evidence Investigation</span>
+                </a>
+
+
+                <a
+                    href="./attack-path.html"
+                    class="nav-item"
+                >
+                    <span class="nav-icon">⧉</span>
+                    <span>Attack Path Analysis</span>
+                </a>
+
+
+                <a
+                    href="./ai-investigator.html"
+                    class="nav-item"
+                >
+                    <span class="nav-icon">✦</span>
+                    <span>AI Investigator</span>
+                </a>
+
+
+                <a
+                    href="./what-if.html"
+                    class="nav-item"
+                >
+                    <span class="nav-icon">⇄</span>
+                    <span>What-If Analysis</span>
+                </a>
+
+            </div>
+
+
+            <!-- INTEGRITY -->
+
+            <div class="nav-section">
+
+                <div class="nav-title">
+                    INTEGRITY
+                </div>
+
+
+                <a
+                    href="./blockchain.html"
+                    class="nav-item"
+                >
+                    <span class="nav-icon">⛓</span>
+                    <span>Blockchain Integrity</span>
+                </a>
+
+            </div>
+
+        </nav>
+
+
+        <div class="sidebar-footer">
+
+            <div class="system-status">
+
+                <span class="status-dot"></span>
+
+                <span id="sidebarSystemStatus">
+                    SYSTEM ONLINE
+                </span>
+
+            </div>
+
+            <div class="version">
+                CyberTwin v1.0
+            </div>
+
+        </div>
+
+    </aside>
+
+
+
+    <!-- =====================================================
+         MAIN CONTENT
+    ====================================================== -->
+
+    <main class="main-content">
+
+
+        <!-- =================================================
+             TOPBAR
+        ================================================== -->
+
+        <header class="topbar">
+
+
+            <div class="topbar-item">
+
+                <span class="topbar-label">
+                    ENDPOINT
+                </span>
+
+                <strong id="topbarEndpoint">
+                    —
+                </strong>
+
+            </div>
+
+
+            <div class="topbar-item">
+
+                <span class="topbar-label">
+                    INCIDENT
+                </span>
+
+                <strong id="topbarIncident">
+                    NO ACTIVE INCIDENT
+                </strong>
+
+            </div>
+
+
+            <div class="topbar-item">
+
+                <span class="topbar-label">
+                    ENDPOINT STATE
+                </span>
+
+                <span
+                    class="severity-badge"
+                    id="topbarState"
+                >
+                    UNKNOWN
+                </span>
+
+            </div>
+
+
+            <div class="topbar-spacer"></div>
+
+
+            <div class="topbar-item">
+
+                <span class="topbar-label">
+                    RISK
+                </span>
+
+                <strong>
+                    <span id="topbarRisk">
+                        0
+                    </span>
+                    / 100
+                </strong>
+
+            </div>
+
+
+            <div class="topbar-item">
+
+                <span class="status-dot"></span>
+
+                <strong id="topbarSystemStatus">
+                    OFFLINE
+                </strong>
+
+            </div>
+
+        </header>
+
+
+
+        <!-- =================================================
+             PAGE
+        ================================================== -->
+
+        <section class="page-content">
+
+           
+
+            <!-- PAGE HEADER -->
+
+            <div class="page-header">
+
+                <div>
+
+                    <span class="card-label">
+                        CYBERTWIN STATE MODEL
+                    </span>
+
+                    <h2>
+                        Endpoint Twin
+                    </h2>
+
+                    <p>
+                        Live digital representation of the
+                        monitored Linux endpoint.
+                    </p>
+
+
+                </div>
+
+
+                <div>
+
+                    <span
+                        class="severity-badge"
+                        id="telemetryStatus"
+                    >
+                        CONNECTING
+                    </span>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- =================================================
+                 HERO — SECURITY STATE + RISK GAUGE
+            ================================================== -->
+
+            <section class="dashboard-section">
+
+                <article class="dashboard-card hero-card">
+
+                    <div class="hero-gauge-block">
+
+                        <div
+                            class="risk-gauge success"
+                            id="riskGauge"
+                            style="--pct:0"
+                        >
+
+                            <div class="risk-gauge-inner">
+
+                                <div
+                                    class="risk-gauge-value"
+                                    id="riskGaugeValue"
+                                >
+                                    0
+                                </div>
+
+                                <div class="risk-gauge-label">
+                                    RISK / 100
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="hero-state-tag">
+
+                            <span
+                                class="state-display"
+                                id="securityState"
+                            >
+                                UNKNOWN
+                            </span>
+
+                            <span
+                                class="severity-badge"
+                                id="riskLevel"
+                            >
+                                LOW
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="hero-detail-block">
+
+                        <p
+                            id="stateDescription"
+                            class="hero-description"
+                        >
+                            Waiting for endpoint security
+                            assessment.
+                        </p>
+
+
+                        <div class="hero-confidence-row">
+
+                            <div class="hero-confidence-label">
+
+                                <span>STATE CONFIDENCE</span>
+
+                                <strong id="stateConfidence">
+                                    0%
+                                </strong>
+
+                            </div>
+
+                            <div class="progress-bar">
+
+                                <div
+                                    id="confidenceBar"
+                                    class="progress-fill"
+                                    style="width:0%"
+                                ></div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- kept for scripts / legacy width binding -->
+                        <div
+                            class="risk-bar visually-hidden"
+                            aria-hidden="true"
+                        >
+
+                            <div
+                                class="risk-bar-fill"
+                                id="riskBar"
+                                style="width:0%"
+                            ></div>
+
+                        </div>
+
+
+                        <div
+                            id="riskScore"
+                            class="visually-hidden"
+                            aria-hidden="true"
+                        >
+                            0 / 100
+                        </div>
+
+
+                        <div class="hero-mini-stats">
+
+                            <div class="mini-stat">
+
+                                <strong id="supportingEvidence">
+                                    0
+                                </strong>
+
+                                <span>
+                                    Supporting Evidence
+                                </span>
+
+                            </div>
+
+
+                            <div class="mini-stat">
+
+                                <strong id="missingEvidence">
+                                    0
+                                </strong>
+
+                                <span>
+                                    Missing Evidence
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="hero-identity-block">
+
+
+                        <div class="identity-row">
+
+                            <span class="identity-icon">&#128421;</span>
+
+                            <div class="identity-text">
+                                <span class="card-label">HOSTNAME</span>
+                                <strong id="hostname">—</strong>
+                            </div>
+
+                            <span
+                                class="severity-badge success"
+                                id="hostnameStatus"
+                            >
+                                MONITORED
+                            </span>
+
+                        </div>
+
+
+                        <div class="identity-row">
+
+                            <span class="identity-icon">&#128187;</span>
+
+                            <div class="identity-text">
+                                <span class="card-label">OPERATING SYSTEM</span>
+                                <strong id="operatingSystem">—</strong>
+                            </div>
+
+                        </div>
+
+
+                        <div class="identity-row">
+
+                            <span class="identity-icon">&#127760;</span>
+
+                            <div class="identity-text">
+                                <span class="card-label">IP ADDRESS</span>
+                                <strong id="ipAddress">—</strong>
+                            </div>
+
+                        </div>
+
+
+                        <div class="identity-row">
+
+                            <span class="identity-icon">&#128225;</span>
+
+                            <div class="identity-text">
+                                <span class="card-label">TELEMETRY AGENT</span>
+                                <strong
+                                    class="status-success"
+                                    id="telemetryAgent"
+                                >
+                                    UNKNOWN
+                                </strong>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+            </section>
+
+
+
+            <!-- =================================================
+                 03 — ENDPOINT TELEMETRY
+            ================================================== -->
+
+            <section class="dashboard-section">
+
+
+                <div class="section-heading">
+
+                    <span class="section-icon">&#128225;</span>
+
+                    <div>
+
+                        <h3>
+                            Endpoint Telemetry
+                        </h3>
+
+                        <p>
+                            Current activity observed by the
+                            telemetry layer.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="overview-grid">
+
+
+                    <!-- AUTHENTICATION -->
+
+                    <article class="dashboard-card telemetry-card">
+
+                        <span class="card-label">
+                            AUTHENTICATION
+                        </span>
+
+                        <div
+                            class="card-value"
+                            id="authenticationEvents"
+                        >
+                            0
+                        </div>
+
+                        <div class="mini-bar">
+
+                            <div
+                                class="mini-bar-fill"
+                                id="authenticationBar"
+                                style="width:0%"
+                            ></div>
+
+                        </div>
+
+                        <p>
+                            Authentication-related signals
+                            represented by current findings.
+                        </p>
+
+                        <span
+                            class="severity-badge"
+                            id="authenticationStatus"
+                        >
+                            NO DATA
+                        </span>
+
+                    </article>
+
+
+                    <!-- PROCESSES -->
+
+                    <article class="dashboard-card telemetry-card">
+
+                        <span class="card-label">
+                            PROCESSES
+                        </span>
+
+                        <div
+                            class="card-value"
+                            id="processCount"
+                        >
+                            0
+                        </div>
+
+                        <div class="mini-bar">
+
+                            <div
+                                class="mini-bar-fill accent"
+                                id="processBar"
+                                style="width:0%"
+                            ></div>
+
+                        </div>
+
+                        <p>
+                            Processes currently observed
+                            on the endpoint.
+                        </p>
+
+                        <span class="severity-badge success">
+                            MONITORED
+                        </span>
+
+                    </article>
+
+
+                    <!-- NETWORK -->
+
+                    <article class="dashboard-card telemetry-card">
+
+                        <span class="card-label">
+                            NETWORK CONNECTIONS
+                        </span>
+
+                        <div
+                            class="card-value"
+                            id="networkConnections"
+                        >
+                            0
+                        </div>
+
+                        <div class="mini-bar">
+
+                            <div
+                                class="mini-bar-fill accent"
+                                id="networkBar"
+                                style="width:0%"
+                            ></div>
+
+                        </div>
+
+                        <p>
+                            Current network connection count.
+                        </p>
+
+                        <span
+                            class="severity-badge"
+                            id="networkStatus"
+                        >
+                            NO DATA
+                        </span>
+
+                    </article>
+
+
+                    <!-- LOGS -->
+
+                    <article class="dashboard-card telemetry-card">
+
+                        <span class="card-label">
+                            LOG EVENTS
+                        </span>
+
+                        <div
+                            class="card-value"
+                            id="logEvents"
+                        >
+                            0
+                        </div>
+
+                        <div class="mini-bar">
+
+                            <div
+                                class="mini-bar-fill accent"
+                                id="logBar"
+                                style="width:0%"
+                            ></div>
+
+                        </div>
+
+                        <p>
+                            Aggregate logs reported by the
+                            telemetry agent.
+                        </p>
+
+                        <span class="severity-badge success">
+                            MONITORED
+                        </span>
+
+                    </article>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =================================================
+                 04 — SECURITY ACTIVITY
+            ================================================== -->
+
+            <section class="dashboard-section">
+
+
+                <div class="section-heading">
+
+                    <span class="section-icon">&#128737;</span>
+
+                    <div>
+
+                        <h3>
+                            Security Activity
+                        </h3>
+
+                        <p>
+                            Live findings generated by the
+                            Security State Engine.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- FEATURE 04 SUMMARY -->
+
+                <div class="overview-grid two-up">
+
+
+                    <article class="dashboard-card">
+
+                        <span class="card-label">
+                            ACTIVE FINDINGS
+                        </span>
+
+                        <div
+                            class="card-value"
+                            id="securityActivityCount"
+                        >
+                            0
+                        </div>
+
+                        <p>
+                            Security findings currently
+                            contributing to endpoint risk.
+                        </p>
+
+                    </article>
+
+
+                    <article class="dashboard-card">
+
+                        <span class="card-label">
+                            ACTIVITY RISK
+                        </span>
+
+                        <div
+                            class="card-value"
+                            id="securityActivityRisk"
+                        >
+                            +0
+                        </div>
+
+                        <p>
+                            Total risk contribution from
+                            current security findings.
+                        </p>
+
+                    </article>
+
+                </div>
+
+
+                <!-- DYNAMIC FINDINGS -->
+
+                <div
+                    id="securityActivity"
+                    class="two-column-grid"
+                >
+
+                    <article class="dashboard-card">
+
+                        <span class="card-label">
+                            SECURITY FINDINGS
+                        </span>
+
+                        <h3>
+                            Loading...
+                        </h3>
+
+                        <p>
+                            Fetching the latest findings from
+                            the Security State Engine.
+                        </p>
+
+                    </article>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =================================================
+                 05 — ENDPOINT STATE HISTORY
+            ================================================== -->
+
+            <section class="dashboard-section">
+
+
+                <div class="section-heading">
+
+                    <span class="section-icon">&#8635;</span>
+
+                    <div>
+
+                        <h3>
+                            Endpoint State History
+                        </h3>
+
+                        <p>
+                            Security state observations captured
+                            while this page is active.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- HISTORY SUMMARY -->
+
+                <div class="overview-grid">
+
+
+                    <!-- CURRENT STATE -->
+
+                    <article class="dashboard-card">
+
+                        <span class="card-label">
+                            CURRENT STATE
+                        </span>
+
+                        <div
+                            class="state-display"
+                            id="historyCurrentState"
+                        >
+                            UNKNOWN
+                        </div>
+
+                        <p>
+                            Most recently observed endpoint
+                            security state.
+                        </p>
+
+                    </article>
+
+
+                    <!-- CURRENT RISK -->
+
+                    <article class="dashboard-card">
+
+                        <span class="card-label">
+                            CURRENT RISK
+                        </span>
+
+                        <div
+                            class="card-value"
+                            id="historyCurrentRisk"
+                        >
+                            0 / 100
+                        </div>
+
+                        <p>
+                            Risk score associated with the
+                            current state.
+                        </p>
+
+                    </article>
+
+
+                    <!-- CONFIDENCE -->
+
+                    <article class="dashboard-card">
+
+                        <span class="card-label">
+                            CONFIDENCE
+                        </span>
+
+                        <div
+                            class="card-value"
+                            id="historyCurrentConfidence"
+                        >
+                            0%
+                        </div>
+
+                        <p>
+                            Confidence in the current state
+                            calculation.
+                        </p>
+
+                    </article>
+
+
+                    <!-- OBSERVED STATES -->
+
+                    <article class="dashboard-card">
+
+                        <span class="card-label">
+                            OBSERVED STATES
+                        </span>
+
+                        <div
+                            class="card-value"
+                            id="historyStateCount"
+                        >
+                            0
+                        </div>
+
+                        <p>
+                            State changes observed by this page.
+                        </p>
+
+                    </article>
+
+                </div>
+
+
+                <!-- STATE HISTORY TIMELINE -->
+
+                <article class="dashboard-card timeline-card">
+
+                    <div
+                        id="stateHistory"
+                    >
+
+                        <div class="timeline">
+
+                            <div class="timeline-item">
+
+                                <div class="timeline-time">—</div>
+
+                                <div class="timeline-marker"></div>
+
+                                <div class="timeline-content">
+
+                                    <h3>Waiting for data</h3>
+
+                                    <p>
+                                        The page will record a state
+                                        when the Endpoint Twin reports
+                                        one.
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+
+            </section>
+
+
+
+            <!-- =================================================
+                 06 — SHARED TWIN INFORMATION
+            ================================================== -->
+
+            <section class="dashboard-section">
+
+
+                <div class="section-heading">
+
+                    <span class="section-icon">&#128279;</span>
+
+                    <div>
+
+                        <h3>
+                            Shared Twin Information
+                        </h3>
+
+                        <p>
+                            Information currently available to
+                            share with the Incident Twin and
+                            Evidence layer.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="two-column-grid">
+
+
+                    <!-- INCIDENT -->
+
+                    <article class="dashboard-card">
+
+                        <span class="card-label">
+                            LINKED INCIDENT
+                        </span>
+
+                        <h3 id="linkedIncident">
+                            NO ACTIVE INCIDENT
+                        </h3>
+
+                        <p id="linkedIncidentDescription">
+                            No incident identifier is currently
+                            exposed by the Endpoint Twin API.
+                        </p>
+
+                        <a
+                            href="./incident-twin.html"
+                            class="card-button"
+                        >
+                            Open Incident Twin →
+                        </a>
+
+                    </article>
+
+
+                    <!-- EVIDENCE -->
+
+                    <article class="dashboard-card">
+
+                        <span class="card-label">
+                            SHARED EVIDENCE
+                        </span>
+
+                        <h3>
+
+                            <span id="sharedEvidenceCount">
+                                0
+                            </span>
+
+                            Supporting Items
+
+                        </h3>
+
+                        <p id="sharedEvidenceDescription">
+                            Evidence items are derived from
+                            the current risk breakdown.
+                        </p>
+
+                        <a
+                            href="./evidence.html"
+                            class="card-button"
+                        >
+                            View Evidence →
+                        </a>
+
+                    </article>
+
+                </div>
+
+            </section>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<script src="../js/endpoint-twin.js"></script>
+
+</body>
+
+</html>

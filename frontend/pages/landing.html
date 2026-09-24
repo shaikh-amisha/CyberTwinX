@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="description" content="CyberTwinX — understand the state, investigate the incident, model what happens next." />
+<title>CyberTwinX / Security Investigation Platform</title>
+<link rel="stylesheet" href="../css/landing.css" />
+</head>
+<body>
+<div class="app">
+  <div class="announce" id="announce">
+    <span id="announce-text"></span>
+    <button id="announce-close" aria-label="Dismiss announcement">×</button>
+  </div>
+  <header class="site-nav">
+    <a class="brand" href="#top"><span class="logo">CX</span><span>CYBERTWINX</span><i class="dot"></i></a>
+    <button class="menu-toggle" aria-label="Toggle navigation">☰</button>
+    <nav class="nav-links">
+      <a href="#platform">Platform</a><a href="#twin">Twin</a><a href="#attack-path">Attack Path</a><a href="#evidence">Evidence</a>
+    </nav>
+    <div class="nav-actions"><a href="#footer">Docs</a><a href="#footer">GitHub</a><a class="button primary" href="dashboard.html">Launch Dashboard <span>→</span></a></div>
+  </header>
+
+  <div class="ticker">
+    <div class="ticker-track" id="ticker-track"></div>
+  </div>
+
+  <main id="top">
+    <section class="hero wrap">
+      <div class="hero-copy reveal">
+        <span class="eyebrow">CYBERTWINX / SECURITY INVESTIGATION PLATFORM</span>
+        <h1>Understand the <em>state.</em><br />Investigate the <em>incident.</em><br />Model what happens <em>next.</em></h1>
+        <p>CyberTwinX unifies live Linux state, evidence correlation, attack-path tracing, and counterfactual analysis in one investigation environment.</p>
+        <div class="hero-actions"><a class="button primary" href="#platform">Explore Platform <span>→</span></a><a class="button secondary" href="#product">Launch Dashboard <span>〉</span></a></div>
+        <div class="hero-meta"><span>✓ LINUX MONITORING</span><span>✓ EVIDENCE-LINKED</span><span>✓ AI-ASSISTED</span><span>✓ COUNTERFACTUAL</span></div>
+      </div>
+      <div class="hero-console panel reveal">
+        <div class="panel-head"><span class="cyan"><i class="dot"></i> LIVE SYSTEM SNAPSHOT</span><span class="mono">host: lx-prod-07</span></div>
+        <div class="state-strip"><div class="split"><span class="eyebrow">SECURITY STATE</span><strong class="amber">SUSPICIOUS</strong></div><div class="state-track"><i></i><span style="left:0">NORMAL</span><span class="active" style="left:50%">SUSPICIOUS</span><span style="left:100%">COMPROMISED</span></div></div>
+        <div class="metrics"><div><span class="eyebrow">RISK SCORE</span><strong class="risk-number"><b data-count="61">61</b><small>/100</small></strong><div class="risk-bar"><i style="width:61%"></i></div></div><div class="metric"><span class="eyebrow">TELEMETRY</span><strong data-count="14208">14,208</strong><small>events / 24h</small></div><div class="metric"><span class="eyebrow">FINDINGS</span><strong class="amber" data-count="7">07</strong><small>2 requiring review</small></div></div>
+        <div class="finding"><span>F-204</span><span>Privileged shell spawned by web process</span><b class="amber">REVIEW</b></div>
+        <div class="finding"><span>F-205</span><span>Outbound connection to untrusted ASN</span><b class="red">CRITICAL</b></div>
+        <div class="console-foot"><span>⌁ 8 collectors active</span><span>confidence <b>91.7%</b></span></div>
+      </div>
+    </section>
+
+    <section class="marquee-section wrap reveal" id="platform">
+      <div class="section-heading"><div><span class="eyebrow">PLATFORM / SIX CAPABILITIES</span><h2>One console.<br /><em>Six ways in.</em></h2></div></div>
+      <div class="marquee">
+        <div class="marquee-track" id="marquee-track"></div>
+      </div>
+    </section>
+
+    <section class="section wrap reveal" id="twin">
+      <div class="section-heading"><div><span class="eyebrow">01 / TWIN — ENDPOINT &amp; INCIDENT</span><h2>See the system<br /><em>as a state.</em></h2></div><p>One evolving model of host state, built from the sequence of events that produced it.</p></div>
+      <div class="two-col">
+        <div class="panel state-machine">
+          <div class="panel-head"><span class="eyebrow">STATE TRANSITION MODEL</span><span class="mono">MODEL / LX-07</span></div>
+          <div class="state-nodes" data-state-buttons>
+            <button data-state="normal">● <small>01</small><b>NORMAL</b></button><i>→</i>
+            <button data-state="suspicious" class="selected">● <small>02</small><b>SUSPICIOUS</b></button><i>→</i>
+            <button data-state="critical">● <small>03</small><b>COMPROMISED</b></button><i>→</i>
+            <button data-state="contained">● <small>04</small><b>CONTAINED</b></button>
+          </div>
+          <div class="mini-timeline">
+            <div><time>09:31</time><span>AUTHENTICATION ANOMALY</span></div>
+            <div><time>09:32</time><span>PRIVILEGED ACTIVITY</span></div>
+            <div><time>09:33</time><span>OUTBOUND CONNECTION</span></div>
+            <div><time>09:34</time><span class="red">PERSISTENCE FOUND</span></div>
+          </div>
+        </div>
+        <div class="panel detail">
+          <div class="split"><span class="eyebrow">SELECTED STATE</span><b class="risk-chip" data-state-label>SUSPICIOUS</b></div>
+          <h3><i class="dot suspicious"></i><span data-state-heading>SUSPICIOUS</span></h3>
+          <div class="detail-grid"><div><span class="eyebrow">RISK</span><strong data-state-risk data-count="61">61</strong></div><div><span class="eyebrow">CONFIDENCE</span><strong data-state-confidence>91.7%</strong></div></div>
+          <span class="eyebrow">FINDINGS ATTACHED</span>
+          <div class="detail-findings" data-state-findings></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section wrap reveal" id="attack-path">
+      <div class="section-heading split"><div><span class="eyebrow">02 / ATTACK PATH &amp; WHAT-IF</span><h2>Trace the path.<br /><em>Test the response.</em></h2></div></div>
+      <div class="panel attack-panel">
+        <div class="panel-head"><span class="eyebrow">ATTACK PATH / PATH-04A</span><span class="mono">6 NODES</span></div>
+        <div class="attack-chain" data-attack-chain></div>
+        <div class="attack-detail"><span class="eyebrow">SELECTED / <b data-attack-label>SUSPICIOUS PROCESS</b></span><div><b>EVENT</b><span data-attack-event>Process execution under anomalous parent</span><b>TIMESTAMP</b><span class="mono" data-attack-time>09:32:25 UTC</span><b>STATE IMPACT</b><span class="red" data-attack-impact>Elevated to COMPROMISED</span></div></div>
+      </div>
+      <div class="panel what-if">
+        <div><span class="eyebrow">CURRENT INCIDENT</span><h3 class="amber">● SUSPICIOUS</h3><div class="stat"><span>RISK SCORE</span><b data-count="61">61<small>/100</small></b></div><div class="stat"><span>CONFIDENCE</span><b>91.7%</b></div></div>
+        <div class="action"><span class="eyebrow">SIMULATE ACTION</span><label for="response-action">RESPONSE CONTROL</label><select id="response-action"><option>Isolate Endpoint</option><option>Block Connection</option><option>Disable User</option><option>Kill Process</option><option>Collect Evidence</option></select><button class="button primary" id="simulate">▶ SIMULATE RESPONSE</button><small>No live changes will be made</small></div>
+        <div class="result" id="simulation-result"><span class="eyebrow">SIMULATED RESULT</span><div class="empty">→ <span>Select an action<br />to model the outcome</span></div></div>
+      </div>
+    </section>
+
+    <section class="section wrap reveal" id="evidence">
+      <div class="section-heading"><div><span class="eyebrow">03 / EVIDENCE — BLOCKCHAIN-VERIFIED</span><h2>Every conclusion<br /><em>has a trail.</em></h2></div></div>
+      <div class="panel table-panel">
+        <div class="panel-head"><span class="eyebrow">EVIDENCE REGISTER / ILLUSTRATIVE DATA</span></div>
+        <div class="table-scroll"><table><thead><tr><th>Evidence ID</th><th>Source</th><th>Type</th><th>Timestamp</th><th>Integrity</th></tr></thead><tbody>
+          <tr><td>EV-8821</td><td>/var/log/auth.log</td><td>AUTH LOG</td><td>09:31:04</td><td class="green">● VERIFIED</td></tr>
+          <tr><td>EV-8822</td><td>proc:4821 / bash</td><td>PROCESS</td><td>09:32:18</td><td class="green">● VERIFIED</td></tr>
+          <tr><td>EV-8823</td><td>netflow:eth0</td><td>NETWORK</td><td>09:33:42</td><td class="green">● VERIFIED</td></tr>
+          <tr><td>EV-8824</td><td>/etc/cron.d/.cache</td><td>FILE</td><td>09:34:06</td><td class="amber">● PENDING</td></tr>
+        </tbody></table></div>
+        <div class="checkpoint"><div class="split"><span class="eyebrow">CHECKPOINT / CP-00042</span><b class="green">✓ VERIFIED</b></div><p class="mono">a9f2 3c11 8b72 4fd0 9c61 0a2e 7d44 · prev CP-00041</p></div>
+      </div>
+    </section>
+
+    <section class="section wrap reveal" id="investigation">
+      <div class="section-heading"><div><span class="eyebrow">04 / AI-ASSISTED INVESTIGATION</span><h2>Ask the model.<br /><em>Keep the receipts.</em></h2></div></div>
+      <div class="panel assistant">
+        <div class="assistant-head"><b>▣ CYBERTWINX INVESTIGATOR</b><span class="green">● READY</span></div>
+        <div class="chat"><small>ANALYST / 09:38:11</small><p class="analyst">What changed the endpoint from suspicious to compromised?</p><small class="cyan">CYBERTWINX / 09:38:12</small><p>The model crossed the compromise threshold when <mark>EV-8823</mark> linked the privileged shell to an outbound connection from an untrusted ASN. Risk rose from <b>61</b> to <b>88</b>.</p></div>
+        <div class="assistant-tags"><span>▣ EVIDENCE USED <b>03</b></span><span>◈ STATE <b>COMPROMISED</b></span><span>ϟ RISK FACTORS <b>04</b></span></div>
+      </div>
+    </section>
+
+    <section class="section wrap reveal" id="product">
+      <div class="section-heading split"><div><span class="eyebrow">LIVE PRODUCT / ROTATING VIEW</span><h2>See the console.<br /><em>Screen by screen.</em></h2></div><p>The landing page shares the same surfaces, language, and density as the CyberTwinX dashboard.</p></div>
+      <div class="panel product">
+        <aside id="product-aside">
+          <b>▣ CYBERTWINX</b>
+          <span>OVERVIEW</span><a data-nav="overview">◈ Overview</a>
+          <span>INVESTIGATION</span><a data-nav="investigation">⌕ Incidents</a><a data-nav="attackpath">⌁ Attack Paths</a><a data-nav="whatif">▶ What-If</a>
+          <span>INTEGRITY</span><a data-nav="integrity">⌁ Checkpoints</a>
+        </aside>
+        <div class="product-main">
+          <div class="product-top"><span class="green">● AGENT CONNECTED</span><span>STATE <b class="amber">SUSPICIOUS</b></span><span>RISK <b class="red">61</b></span></div>
+          <div class="product-slides" id="product-slides"></div>
+          <div class="carousel-controls product-controls"><div data-dots></div><button class="pause" data-pause aria-label="Pause slideshow">Ⅱ</button></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta wrap reveal"><div><span class="eyebrow">CYBERTWINX / INVESTIGATION PLATFORM</span><h2>From telemetry<br /><em>to understanding.</em></h2><p>Step into the console built for the moment when an alert becomes an investigation.</p><a class="button primary" href="dashboard.html">Launch CyberTwinX →</a></div></section>
+  </main>
+
+  <footer id="footer">
+    <div class="footer-main"><a class="brand" href="#top"><span class="logo">CX</span><span>CYBERTWINX</span></a><p>A Linux security-investigation platform for understanding what happened — and what happens next.</p><div class="footer-links"><a href="#platform">Platform</a><a href="#twin">Twin</a><a href="#attack-path">Attack Path</a><a href="#evidence">Evidence</a></div></div>
+    <div class="footer-bottom"><span>© 2026 CyberTwinX</span><b class="green">● SYSTEM STATUS / OPERATIONAL</b><span class="mono">ALL DATA SHOWN IS ILLUSTRATIVE</span></div>
+  </footer>
+</div>
+<script src="../js/landing.js"></script>
+</body>
+</html>

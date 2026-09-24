@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>CyberTwin | Evidence Investigation</title>
+
+    <link rel="stylesheet" href="../css/style.css">
+
+</head>
+
+
+<body>
+
+<div class="app">
+
+
+    <!-- =====================================================
+         SIDEBAR
+    ====================================================== -->
+
+    <aside class="sidebar">
+
+        <div class="brand">
+
+            <div class="brand-logo">
+                CT
+            </div>
+
+            <div class="brand-content">
+
+                <h1>
+                    CYBERTWIN
+                </h1>
+
+                <span>
+                    Security Intelligence
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <nav class="sidebar-nav">
+
+            <div class="nav-section">
+
+                <div class="nav-title">
+                    OVERVIEW
+                </div>
+
+                <a
+                    href="./dashboard.html"
+                    class="nav-item"
+                >
+                    <span class="nav-icon">
+                        ◧
+                    </span>
+
+                    <span>
+                        Dashboard
+                    </span>
+                </a>
+
+            </div>
+
+
+            <div class="nav-section">
+
+                <div class="nav-title">
+                    INVESTIGATION
+                </div>
+
+
+                <a
+                    href="./endpoint-twin.html"
+                    class="nav-item"
+                >
+                    <span class="nav-icon">
+                        ◈
+                    </span>
+
+                    <span>
+                        Endpoint Twin
+                    </span>
+                </a>
+
+
+                <a
+                    href="./incident-twin.html"
+                    class="nav-item"
+                >
+                    <span class="nav-icon">
+                        ◈
+                    </span>
+
+                    <span>
+                        Incident Twin
+                    </span>
+                </a>
+
+
+                <a
+                    href="./evidence.html"
+                    class="nav-item active"
+                >
+                    <span class="nav-icon">
+                        ◫
+                    </span>
+
+                    <span>
+                        Evidence Investigation
+                    </span>
+                </a>
+
+
+                <a
+                    href="./attack-path.html"
+                    class="nav-item"
+                >
+                    <span class="nav-icon">
+                        ⧉
+                    </span>
+
+                    <span>
+                        Attack Path Analysis
+                    </span>
+                </a>
+
+
+                <a
+                    href="./ai-investigator.html"
+                    class="nav-item"
+                >
+                    <span class="nav-icon">
+                        ✦
+                    </span>
+
+                    <span>
+                        AI Investigator
+                    </span>
+                </a>
+
+
+                <a
+                    href="./what-if.html"
+                    class="nav-item"
+                >
+                    <span class="nav-icon">
+                        ⇄
+                    </span>
+
+                    <span>
+                        What-If Analysis
+                    </span>
+                </a>
+
+            </div>
+
+
+            <div class="nav-section">
+
+                <div class="nav-title">
+                    INTEGRITY
+                </div>
+
+                <a
+                    href="./blockchain.html"
+                    class="nav-item"
+                >
+                    <span class="nav-icon">
+                        ⛓
+                    </span>
+
+                    <span>
+                        Blockchain Integrity
+                    </span>
+                </a>
+
+            </div>
+
+        </nav>
+
+
+        <div class="sidebar-footer">
+
+            <div class="system-status">
+
+                <span class="status-dot"></span>
+
+                <span id="sidebarSystemStatus">
+                    SYSTEM ONLINE
+                </span>
+
+            </div>
+
+
+            <div class="version">
+                CyberTwin v1.0
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <!-- =====================================================
+         MAIN
+    ====================================================== -->
+
+    <main class="main-content">
+
+
+        <!-- TOPBAR -->
+
+        <header class="topbar">
+
+            <div class="topbar-item">
+
+                <span class="topbar-label">
+                    ENDPOINT
+                </span>
+
+                <strong id="topbarEndpoint">
+                    SERVER-01
+                </strong>
+
+            </div>
+
+
+            <div class="topbar-divider"></div>
+
+
+            <div class="topbar-item">
+
+                <span class="topbar-label">
+                    INCIDENT
+                </span>
+
+                <strong id="topbarIncident">
+                    INC-001
+                </strong>
+
+            </div>
+
+
+            <div class="topbar-divider"></div>
+
+
+            <div class="topbar-item">
+
+                <span class="topbar-label">
+                    STATE
+                </span>
+
+                <span
+                    class="state-badge compromised"
+                    id="topbarState"
+                >
+                    COMPROMISED
+                </span>
+
+            </div>
+
+
+            <div class="topbar-risk">
+
+                <span class="topbar-label">
+                    RISK
+                </span>
+
+                <strong id="topbarRisk">
+                    78
+                </strong>
+
+                <span>
+                    /100
+                </span>
+
+            </div>
+
+
+            <div class="system-status">
+
+                <span class="status-dot"></span>
+
+                <span id="topbarSystemStatus">
+                    ONLINE
+                </span>
+
+            </div>
+
+        </header>
+
+
+        <!-- =====================================================
+             PAGE
+        ====================================================== -->
+
+        <section class="page-content">
+
+
+            <!-- PAGE HEADER -->
+
+            <div class="page-header">
+
+                <div>
+
+                    <div class="eyebrow">
+                        CYBERTWIN / INVESTIGATION
+                    </div>
+
+
+                    <h2>
+                        Evidence Investigation
+                    </h2>
+
+
+                    <p>
+                        Understand why CyberTwin considers the
+                        endpoint suspicious or compromised.
+                    </p>
+
+                </div>
+
+
+                <span
+                    class="percentage"
+                    id="evidenceHeaderSufficiency"
+                >
+                  
+                </span>
+
+            </div>
+
+
+            <!-- =================================================
+                 SECTION 00 — INCIDENT SELECTOR
+            ================================================== -->
+
+            <section class="dashboard-section">
+
+                <div class="section-heading">
+
+                    <span class="section-number">
+                        00
+                    </span>
+
+                    <div>
+
+                        <h3>
+                            Incident Selector
+                        </h3>
+
+                        <p>
+                            Select an incident to investigate its
+                            supporting evidence.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    class="scope-control"
+                    id="incidentSelectorContainer"
+                >
+
+                    <label>
+                        INCIDENT
+                    </label>
+
+
+                    <!-- Incident Twin style custom selector -->
+
+                    <div
+                        class="incident-selector"
+                        id="incidentSelector"
+                    >
+
+                        <div
+                            class="incident-selector-current"
+                            id="selectedIncidentLabel"
+                        >
+                            
+                        </div>
+
+
+                        <span class="incident-selector-arrow">
+                            ▾
+                        </span>
+
+
+                        <div
+                            class="incident-selector-panel"
+                            id="incidentSelectorPanel"
+                        >
+
+                            <div class="incident-selector-empty">
+                                Loading incidents...
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 SECTION 01 — EVIDENCE SUMMARY
+            ================================================== -->
+
+            <section class="dashboard-section">
+
+                <div class="section-heading">
+
+                    <span class="section-number">
+                        01
+                    </span>
+
+                    <div>
+
+                        <h3>
+                            Evidence Summary
+                        </h3>
+
+                        <p>
+                            Current evidence supporting the
+                            endpoint security state.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="overview-grid">
+
+
+                    <article class="dashboard-card">
+
+                        <span class="card-label">
+                            SUPPORTING EVIDENCE
+                        </span>
+
+
+                        <div
+                            class="card-value"
+                            id="supportingEvidence"
+                        >
+                            0
+                        </div>
+
+
+                        <p>
+                            Evidence items currently linked
+                            to the incident.
+                        </p>
+
+                    </article>
+
+
+                    <article class="dashboard-card">
+
+                        <span class="card-label">
+                            MISSING EVIDENCE
+                        </span>
+
+
+                        <div
+                            class="card-value"
+                            id="missingEvidence"
+                        >
+                            0
+                        </div>
+
+
+                        <p>
+                            Evidence types that could improve
+                            investigation confidence.
+                        </p>
+
+                    </article>
+
+
+                    <article class="dashboard-card">
+
+                        <span class="card-label">
+                            EVIDENCE SUFFICIENCY
+                        </span>
+
+
+                        <div
+                            class="risk-score"
+                            id="evidenceSufficiency"
+                        >
+                            0%
+                        </div>
+
+
+                        <div class="progress">
+
+                            <div
+                                class="progress-fill"
+                                id="evidenceProgress"
+                                style="width:0%"
+                            ></div>
+
+                        </div>
+
+                    </article>
+
+
+                    <article class="dashboard-card">
+
+                        <span class="card-label">
+                            CURRENT STATE
+                        </span>
+
+
+                        <div
+                            class="state-display"
+                            id="currentState"
+                        >
+                            LOADING
+                        </div>
+
+                    </article>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 SECTION 02 — EVIDENCE TIMELINE
+            ================================================== -->
+
+            <section class="dashboard-section">
+
+                <div class="section-heading">
+
+                    <span class="section-number">
+                        02
+                    </span>
+
+                    <div>
+
+                        <h3>
+                            Evidence Timeline
+                        </h3>
+
+                        <p>
+                            Chronological evidence collected
+                            during the incident.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <article class="dashboard-card">
+
+                    <div
+                        class="timeline"
+                        id="evidenceTimeline"
+                    >
+
+                        <div class="timeline-empty">
+                            Loading evidence timeline...
+                        </div>
+
+                    </div>
+
+                </article>
+
+            </section>
+
+
+            <!-- =================================================
+                 SECTION 03 — EVIDENCE DETAILS
+            ================================================== -->
+
+            <section class="dashboard-section">
+
+                <div class="section-heading">
+
+                    <span class="section-number">
+                        03
+                    </span>
+
+                    <div>
+
+                        <h3>
+                            Evidence Details
+                        </h3>
+
+                        <p>
+                            Supporting evidence connected to
+                            the current security state.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    class="evidence-detail-grid"
+                    id="evidenceDetails"
+                >
+
+                    <!-- Dynamic evidence records are rendered here -->
+
+                    <div
+                        class="evidence-list"
+                        id="evidenceList"
+                    >
+
+                        <div class="evidence-empty">
+                            Loading evidence...
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 SECTION 04 — MISSING EVIDENCE
+            ================================================== -->
+
+            <section class="dashboard-section">
+
+                <div class="section-heading">
+
+                    <span class="section-number">
+                        04
+                    </span>
+
+                    <div>
+
+                        <h3>
+                            Missing Evidence
+                        </h3>
+
+                        <p>
+                            Additional evidence that may improve
+                            investigation confidence.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <article class="dashboard-card">
+
+                    <div
+                        class="missing-evidence-list"
+                        id="missingEvidenceList"
+                    >
+
+                        <div class="missing-empty">
+                            Loading missing evidence...
+                        </div>
+
+                    </div>
+
+                </article>
+
+            </section>
+
+
+            <!-- =================================================
+                 SECTION 05 — RE-EVALUATION
+            ================================================== -->
+
+            <section class="dashboard-section">
+
+                <article class="dashboard-card reevaluation-card">
+
+                    <div>
+
+                        <span class="card-label">
+                            STATE RE-EVALUATION
+                        </span>
+
+
+                        <h3>
+                            Re-evaluate Security State
+                        </h3>
+
+
+                        <p id="reevaluationMessage">
+                            Reassess the current endpoint state after
+                            collecting additional evidence.
+                        </p>
+
+                    </div>
+
+
+                    <button
+                        class="primary-button"
+                        id="reevaluateButton"
+                        type="button"
+                    >
+                        Re-evaluate State
+                    </button>
+
+                </article>
+
+            </section>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<script src="../js/evidence.js"></script>
+
+</body>
+
+</html>
