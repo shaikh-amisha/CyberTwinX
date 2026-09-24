@@ -29,14 +29,13 @@ const dashboardState = {
         aiConfidence: 0
     },
 
-    evidence: {
-        sufficiency: 0,
-        supporting: 0,
-        missing: 0
+    investigation: {
+        healthScore: 0
     },
 
     twin: {
         health: "UNKNOWN",
+        healthScore: 0,
         incidentCount: 0,
         blockchainHealth: "UNKNOWN"
     },
@@ -114,8 +113,29 @@ const dashboardElements = {
     incidentSeverity:
         document.getElementById("incidentSeverity"),
 
-    twinHealth:
-        document.getElementById("twinHealth"),
+    investigationHealthScore:
+        document.getElementById("investigationHealthScore"),
+
+    investigationHealthLabel:
+        document.getElementById("investigationHealthLabel"),
+
+    investigationHealthBar:
+        document.getElementById("investigationHealthBar"),
+
+    investigationHealthLevel:
+        document.getElementById("investigationHealthLevel"),
+
+    twinHealthScore:
+        document.getElementById("twinHealthScore"),
+
+    twinHealthLabel:
+        document.getElementById("twinHealthLabel"),
+
+    twinHealthBar:
+        document.getElementById("twinHealthBar"),
+
+    twinHealthLevel:
+        document.getElementById("twinHealthLevel"),
 
     aiConfidence:
         document.getElementById("aiConfidence"),
@@ -405,6 +425,9 @@ function updateDashboardState(data) {
             data.twinHealth ||
             "UNKNOWN";
 
+        dashboardState.twin.healthScore =
+            Number(data.twinHealthScore) || 0;
+
     }
 
 
@@ -428,19 +451,11 @@ function updateDashboardState(data) {
 
     if (data.evidence) {
 
-        dashboardState.evidence.sufficiency =
+        dashboardState.investigation.healthScore =
             Number(
-                data.evidence.sufficiency || 0
-            );
-
-        dashboardState.evidence.supporting =
-            Number(
-                data.evidence.supporting || 0
-            );
-
-        dashboardState.evidence.missing =
-            Number(
-                data.evidence.missing || 0
+                data.investigationHealthScore ??
+                data.evidence.sufficiency ??
+                0
             );
 
     }
@@ -527,10 +542,7 @@ function updateOverview() {
         dashboardState.incident.severity
     );
 
-    setText(
-        dashboardElements.twinHealth,
-        dashboardState.twin.health
-    );
+
 
     setText(
         dashboardElements.aiConfidence,
@@ -584,28 +596,39 @@ function updateRisk() {
 
 function updateEvidence() {
 
-    const sufficiency =
-        dashboardState.evidence.sufficiency;
+    const score =
+        Math.max(
+            0,
+            Math.min(
+                100,
+                Number(
+                    dashboardState.investigation.healthScore
+                ) || 0
+            )
+        );
+
+    const level =
+        getHealthLevel(score);
 
     setText(
-        dashboardElements.evidenceSufficiency,
-        `${sufficiency}%`
+        dashboardElements.investigationHealthScore,
+        Math.round(score)
     );
 
     setText(
-        dashboardElements.supportingEvidence,
-        dashboardState.evidence.supporting
+        dashboardElements.investigationHealthLabel,
+        `${Math.round(score)} / 100`
     );
 
     setText(
-        dashboardElements.missingEvidence,
-        dashboardState.evidence.missing
+        dashboardElements.investigationHealthLevel,
+        level
     );
 
-    if (dashboardElements.evidenceProgress) {
+    if (dashboardElements.investigationHealthBar) {
 
-        dashboardElements.evidenceProgress.style.width =
-            `${sufficiency}%`;
+        dashboardElements.investigationHealthBar.style.width =
+            `${score}%`;
 
     }
 
@@ -854,6 +877,47 @@ function updateDigitalSecurityTwin() {
         dashboardState.evidence;
 
     /*
+        Twin Health Score
+    */
+
+    const twinHealthScore =
+        Math.max(
+            0,
+            Math.min(
+                100,
+                Number(
+                    dashboardState.twin.healthScore
+                ) || 0
+            )
+        );
+
+    const twinHealthLevel =
+        getHealthLevel(twinHealthScore);
+
+    setText(
+        dashboardElements.twinHealthScore,
+        Math.round(twinHealthScore)
+    );
+
+    setText(
+        dashboardElements.twinHealthLabel,
+        `${Math.round(twinHealthScore)} / 100`
+    );
+
+    setText(
+        dashboardElements.twinHealthLevel,
+        twinHealthLevel
+    );
+
+    if (dashboardElements.twinHealthBar) {
+
+        dashboardElements.twinHealthBar.style.width =
+            `${twinHealthScore}%`;
+
+    }
+
+
+        /*
         Endpoint
     */
 
@@ -963,6 +1027,24 @@ function updateDigitalSecurityTwin() {
         `${security.state || "UNKNOWN"} security state · ${incident.id && incident.id !== "—" ? incident.id : "No active incident"}`
     );
 
+}
+
+
+function getHealthLevel(score) {
+
+    if (score >= 80) {
+        return "HEALTHY";
+    }
+
+    if (score >= 60) {
+        return "GOOD";
+    }
+
+    if (score >= 40) {
+        return "DEGRADED";
+    }
+
+    return "POOR";
 }
 
 
