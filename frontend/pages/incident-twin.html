@@ -327,26 +327,21 @@
 
         <header class="topbar">
 
-
-            <!-- LINKED ENDPOINT -->
-
             <div class="topbar-item">
 
                 <span class="topbar-label">
                     ENDPOINT
                 </span>
 
-                <span
-                    class="topbar-value"
-                    id="topbarEndpoint"
-                >
+                <strong id="topbarEndpoint">
                     —
-                </span>
+                </strong>
 
             </div>
 
 
-            <!-- INCIDENT -->
+            <div class="topbar-divider"></div>
+
 
             <div class="topbar-item">
 
@@ -354,17 +349,15 @@
                     INCIDENT
                 </span>
 
-                <span
-                    class="topbar-value"
-                    id="topbarIncident"
-                >
+                <strong id="topbarIncident">
                     —
-                </span>
+                </strong>
 
             </div>
 
 
-            <!-- STATE -->
+            <div class="topbar-divider"></div>
+
 
             <div class="topbar-item">
 
@@ -373,7 +366,7 @@
                 </span>
 
                 <span
-                    class="topbar-value"
+                    class="state-badge"
                     id="topbarState"
                 >
                     —
@@ -382,19 +375,29 @@
             </div>
 
 
-            <!-- RISK -->
-
-            <div class="topbar-item">
+            <div class="topbar-risk">
 
                 <span class="topbar-label">
                     RISK
                 </span>
 
-                <span
-                    class="topbar-value"
-                    id="topbarRisk"
-                >
-                    — / 100
+                <strong id="topbarRisk">
+                    —
+                </strong>
+
+                <span>
+                    /100
+                </span>
+
+            </div>
+
+
+            <div class="system-status">
+
+                <span class="status-dot"></span>
+
+                <span id="topbarSystemStatus">
+                    ONLINE
                 </span>
 
             </div>
