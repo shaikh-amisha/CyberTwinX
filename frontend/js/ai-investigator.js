@@ -391,11 +391,24 @@ function addChatMessage(
             : "CYBERTWIN AI";
 
 
+    const avatar =
+        role === "user"
+            ? '<i class="bi bi-person-fill" aria-hidden="true"></i>'
+            : '<i class="bi bi-stars" aria-hidden="true"></i>';
+
     messageContainer.innerHTML = `
 
-        <span class="chat-role">
-            ${roleName}
-        </span>
+        <div class="chat-message-header">
+
+            <span class="chat-avatar" aria-hidden="true">
+                ${avatar}
+            </span>
+
+            <span class="chat-role">
+                ${roleName}
+            </span>
+
+        </div>
 
         <p>
             ${escapeHTML(message)}
