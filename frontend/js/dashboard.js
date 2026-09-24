@@ -232,9 +232,6 @@ const dashboardElements = {
     twinVisualTitle:
         document.getElementById("twinVisualTitle"),
 
-    twinVisualDescription:
-        document.getElementById("twinVisualDescription"),
-
     cyberNewsFeed:
         document.getElementById("cyberNewsFeed"),
 
@@ -1007,10 +1004,6 @@ function updateDigitalSecurityTwin() {
             : "CYBERTWIN"
     );
 
-    setText(
-        dashboardElements.twinVisualDescription,
-        `${security.state || "UNKNOWN"} security state · ${incident.id && incident.id !== "—" ? incident.id : "No active incident"}`
-    );
 
 }
 
