@@ -1712,7 +1712,7 @@ function getResponseIcon(
         )
     ) {
 
-        return "◈";
+        return '<i class="bi bi-diagram-3-fill" aria-hidden="true"></i>';
     }
 
 
@@ -1722,7 +1722,7 @@ function getResponseIcon(
         )
     ) {
 
-        return "⊘";
+        return '<i class="bi bi-ban" aria-hidden="true"></i>';
     }
 
 
@@ -1732,7 +1732,7 @@ function getResponseIcon(
         )
     ) {
 
-        return "◉";
+        return '<i class="bi bi-record-circle-fill" aria-hidden="true"></i>';
     }
 
 
@@ -1742,11 +1742,11 @@ function getResponseIcon(
         )
     ) {
 
-        return "×";
+        return '<i class="bi bi-x-circle-fill" aria-hidden="true"></i>';
     }
 
 
-    return "◆";
+    return '<i class="bi bi-gem" aria-hidden="true"></i>';
 }
 
 
