@@ -45,7 +45,11 @@ const aiInvestigatorState = {
 
     recommendations: [],
 
-    currentIncidentId: ""
+    currentIncidentId: "",
+
+    allIncidents: [],
+
+    selectedIncident: null
 
 };
 
