@@ -1,629 +1,275 @@
 /* =========================================================
-   CYBERTWIN
-   BLOCKCHAIN EVIDENCE INTEGRITY
-   ========================================================= */
-
-
-/* =========================================================
-   01. BLOCKCHAIN STATE
+   CYBERTWINX — BLOCKCHAIN INTEGRITY
+   Page 1 UI layer
+   Demo state will later be replaced by backend/blockchain data.
    ========================================================= */
 
 const blockchainState = {
-
     endpoint: "SERVER-01",
-
     incident: "INC-001",
-
     securityState: "COMPROMISED",
-
     riskScore: 78,
-
     systemStatus: "ONLINE",
 
+    integrity: {
+        evidenceCount: 4,
+        rootVersion: "v3",
+        status: "VERIFIED",
+        network: "Hardhat Local",
+        contract: "0x71a...c92",
+        transaction: "0x9d3...a41",
+        block: "#1842",
+        merkleRoot: "8f91a2c7e4d6b9f0c42a1e7b5d3f8a6c"
+    },
 
-    checkpoint: {
+    evidence: [
+        {
+            id: "EVID-001",
+            type: "Authentication",
+            hash: "9f6c8e3d1a72b5e43d7a8c9b1f2e4a6c"
+        },
+        {
+            id: "EVID-002",
+            type: "Network",
+            hash: "a72b41c9d83e6f108b52c7d14e1a18f2"
+        },
+        {
+            id: "EVID-003",
+            type: "Process",
+            hash: "c31d8e52f4a967b102c6d8e31f9272e8"
+        },
+        {
+            id: "EVID-004",
+            type: "File Integrity",
+            hash: "f84a2c19d73b6e408d11a2c94e7f9b11"
+        }
+    ],
 
-        id: "CP-INC001-007",
-
-        blockchainStatus: "CONFIRMED",
-
-        verificationStatus: "VERIFIED",
-
-        evidenceHash:
-            "9f6c8e3d1a72b5e43d7a8c9b1f2e4a6c",
-
-        merkleRoot:
-            "8f91a2c7e4d6b9f0c42a1e7b5d3f8a6c",
-
-        network:
-            "CyberTwin Integrity Chain",
-
-        blockNumber:
-            "#0001842",
-
-        timestamp:
-            "2026-08-23 09:26:12",
-
-        evidenceItems:
-            4
-
-    }
-
+    rootHistory: [
+        {
+            version: "v1",
+            items: 3,
+            root: "6a13f4b9d821c7e0...91d2",
+            registered: "09:12:21",
+            status: "REGISTERED"
+        },
+        {
+            version: "v2",
+            items: 4,
+            root: "73c8a91e2d64f5b0...47aa",
+            registered: "09:18:43",
+            status: "REGISTERED"
+        },
+        {
+            version: "v3",
+            items: 4,
+            root: "8f91a2c7e4d6b9f0...8a6c",
+            registered: "09:24:11",
+            status: "VERIFIED"
+        }
+    ]
 };
-
-
-/* =========================================================
-   02. DOM REFERENCES
-   ========================================================= */
 
 const elements = {
+    topbarEndpoint: document.getElementById("topbarEndpoint"),
+    topbarIncident: document.getElementById("topbarIncident"),
+    topbarState: document.getElementById("topbarState"),
+    topbarRisk: document.getElementById("topbarRisk"),
+    topbarSystemStatus: document.getElementById("topbarSystemStatus"),
+    sidebarSystemStatus: document.getElementById("sidebarSystemStatus"),
 
-    /* Topbar */
+    pageLiveStatus: document.getElementById("pageLiveStatus"),
 
-    topbarEndpoint:
-        document.getElementById(
-            "topbarEndpoint"
-        ),
+    incidentKpi: document.getElementById("incidentKpi"),
+    evidenceCountKpi: document.getElementById("evidenceCountKpi"),
+    rootVersionKpi: document.getElementById("rootVersionKpi"),
+    integrityStatusKpi: document.getElementById("integrityStatusKpi"),
 
-    topbarIncident:
-        document.getElementById(
-            "topbarIncident"
-        ),
+    evidenceHashList: document.getElementById("evidenceHashList"),
+    merkleRootChip: document.getElementById("merkleRootChip"),
+    merkleRootSvg: document.getElementById("merkleRootSvg"),
 
-    topbarState:
-        document.getElementById(
-            "topbarState"
-        ),
+    anchorNetwork: document.getElementById("anchorNetwork"),
+    anchorContract: document.getElementById("anchorContract"),
+    anchorRoot: document.getElementById("anchorRoot"),
+    anchorTransaction: document.getElementById("anchorTransaction"),
+    anchorBlock: document.getElementById("anchorBlock"),
+    anchorStatus: document.getElementById("anchorStatus"),
 
-    topbarRisk:
-        document.getElementById(
-            "topbarRisk"
-        ),
+    reconstructedRoot: document.getElementById("reconstructedRoot"),
+    verificationOnChainRoot: document.getElementById("verificationOnChainRoot"),
+    verificationResult: document.getElementById("verificationResult"),
+    verificationMessage: document.getElementById("verificationMessage"),
+    verifyIntegrityButton: document.getElementById("verifyIntegrityButton"),
 
-    topbarSystemStatus:
-        document.getElementById(
-            "topbarSystemStatus"
-        ),
-
-
-    /* Sidebar */
-
-    sidebarSystemStatus:
-        document.getElementById(
-            "sidebarSystemStatus"
-        ),
-
-
-    /* Header */
-
-    verificationHeaderStatus:
-        document.getElementById(
-            "verificationHeaderStatus"
-        ),
-
-
-    /* Checkpoint */
-
-    checkpointId:
-        document.getElementById(
-            "checkpointId"
-        ),
-
-    incidentId:
-        document.getElementById(
-            "incidentId"
-        ),
-
-    blockchainStatus:
-        document.getElementById(
-            "blockchainStatus"
-        ),
-
-    verificationStatus:
-        document.getElementById(
-            "verificationStatus"
-        ),
-
-
-    /* Cryptographic proof */
-
-    evidenceHash:
-        document.getElementById(
-            "evidenceHash"
-        ),
-
-    merkleRoot:
-        document.getElementById(
-            "merkleRoot"
-        ),
-
-
-    /* Blockchain record */
-
-    blockchainNetwork:
-        document.getElementById(
-            "blockchainNetwork"
-        ),
-
-    blockNumber:
-        document.getElementById(
-            "blockNumber"
-        ),
-
-    checkpointTimestamp:
-        document.getElementById(
-            "checkpointTimestamp"
-        ),
-
-    evidenceItemCount:
-        document.getElementById(
-            "evidenceItemCount"
-        ),
-
-    recordStatus:
-        document.getElementById(
-            "recordStatus"
-        ),
-
-
-    /* Verification */
-
-    verificationResult:
-        document.getElementById(
-            "verificationResult"
-        ),
-
-    verificationMessage:
-        document.getElementById(
-            "verificationMessage"
-        ),
-
-    verifyCheckpointButton:
-        document.getElementById(
-            "verifyCheckpointButton"
-        )
-
+    rootHistory: document.getElementById("rootHistory")
 };
 
-
-/* =========================================================
-   03. SAFE TEXT UPDATE
-   ========================================================= */
-
 function setText(element, value) {
-
-    if (!element) {
-        return;
+    if (element) {
+        element.textContent = value;
     }
-
-    element.textContent = value;
-
 }
 
-
-/* =========================================================
-   04. UPDATE TOPBAR
-   ========================================================= */
+function shortHash(hash, start = 8, end = 6) {
+    if (!hash) return "";
+    if (hash.length <= start + end + 3) return hash;
+    return `${hash.slice(0, start)}...${hash.slice(-end)}`;
+}
 
 function updateTopbar() {
-
-    setText(
-        elements.topbarEndpoint,
-        blockchainState.endpoint
-    );
-
-
-    setText(
-        elements.topbarIncident,
-        blockchainState.incident
-    );
-
-
-    setText(
-        elements.topbarState,
-        blockchainState.securityState
-    );
-
-
-    setText(
-        elements.topbarRisk,
-        blockchainState.riskScore
-    );
-
-
-    setText(
-        elements.topbarSystemStatus,
-        blockchainState.systemStatus
-    );
-
-
-    setText(
-        elements.sidebarSystemStatus,
-        `SYSTEM ${blockchainState.systemStatus}`
-    );
-
+    setText(elements.topbarEndpoint, blockchainState.endpoint);
+    setText(elements.topbarIncident, blockchainState.incident);
+    setText(elements.topbarState, blockchainState.securityState);
+    setText(elements.topbarRisk, blockchainState.riskScore);
+    setText(elements.topbarSystemStatus, blockchainState.systemStatus);
+    setText(elements.sidebarSystemStatus, `SYSTEM ${blockchainState.systemStatus}`);
 }
 
+function renderOverview() {
+    const integrity = blockchainState.integrity;
 
-/* =========================================================
-   05. UPDATE CHECKPOINT
-   ========================================================= */
-
-function updateCheckpoint() {
-
-    const checkpoint =
-        blockchainState.checkpoint;
-
-
-    setText(
-        elements.checkpointId,
-        checkpoint.id
-    );
-
-
-    setText(
-        elements.incidentId,
-        blockchainState.incident
-    );
-
-
-    setText(
-        elements.blockchainStatus,
-        checkpoint.blockchainStatus
-    );
-
-
-    setText(
-        elements.verificationStatus,
-        checkpoint.verificationStatus
-    );
-
-
-    setText(
-        elements.verificationHeaderStatus,
-        checkpoint.verificationStatus
-    );
-
+    setText(elements.incidentKpi, blockchainState.incident);
+    setText(elements.evidenceCountKpi, integrity.evidenceCount);
+    setText(elements.rootVersionKpi, integrity.rootVersion);
+    setText(elements.integrityStatusKpi, integrity.status);
 }
 
+function renderEvidenceHashes() {
+    if (!elements.evidenceHashList) return;
 
-/* =========================================================
-   06. UPDATE CRYPTOGRAPHIC PROOF
-   ========================================================= */
-
-function updateCryptographicProof() {
-
-    const checkpoint =
-        blockchainState.checkpoint;
-
-
-    /*
-        Add a visual break to long hashes.
-    */
-
-    setText(
-        elements.evidenceHash,
-        checkpoint.evidenceHash
-    );
-
-
-    setText(
-        elements.merkleRoot,
-        checkpoint.merkleRoot
-    );
-
+    elements.evidenceHashList.innerHTML = blockchainState.evidence.map(item => `
+        <div class="evidence-hash-row">
+            <div>
+                <div class="evidence-id">${item.id}</div>
+            </div>
+            <div>
+                <div class="evidence-hash" title="${item.hash}">${shortHash(item.hash, 12, 8)}</div>
+                <span class="evidence-hash-meta">${item.type} · SHA-256</span>
+            </div>
+        </div>
+    `).join("");
 }
 
+function renderMerkleRoot() {
+    const root = blockchainState.integrity.merkleRoot;
+    const short = shortHash(root, 8, 6);
 
-/* =========================================================
-   07. UPDATE BLOCKCHAIN RECORD
-   ========================================================= */
-
-function updateBlockchainRecord() {
-
-    const checkpoint =
-        blockchainState.checkpoint;
-
-
-    setText(
-        elements.blockchainNetwork,
-        checkpoint.network
-    );
-
-
-    setText(
-        elements.blockNumber,
-        checkpoint.blockNumber
-    );
-
-
-    setText(
-        elements.checkpointTimestamp,
-        checkpoint.timestamp
-    );
-
-
-    setText(
-        elements.evidenceItemCount,
-        checkpoint.evidenceItems
-    );
-
-
-    setText(
-        elements.recordStatus,
-        checkpoint.blockchainStatus
-    );
-
+    setText(elements.merkleRootChip, `ROOT: ${short}`);
+    setText(elements.merkleRootSvg, short);
 }
 
+function renderAnchor() {
+    const integrity = blockchainState.integrity;
 
-/* =========================================================
-   08. VERIFY CHECKPOINT
-   ========================================================= */
+    setText(elements.anchorNetwork, integrity.network);
+    setText(elements.anchorContract, integrity.contract);
+    setText(elements.anchorRoot, shortHash(integrity.merkleRoot, 10, 8));
+    setText(elements.anchorTransaction, integrity.transaction);
+    setText(elements.anchorBlock, integrity.block);
+    setText(elements.anchorStatus, "CONFIRMED");
+}
 
-function verifyCheckpoint() {
+function renderVerification() {
+    const root = shortHash(blockchainState.integrity.merkleRoot, 10, 8);
 
-    if (
-        !elements.verifyCheckpointButton
-    ) {
+    setText(elements.reconstructedRoot, root);
+    setText(elements.verificationOnChainRoot, root);
+    setText(elements.verificationResult, "INTEGRITY VERIFIED");
+    setText(
+        elements.verificationMessage,
+        "The reconstructed Merkle Root matches the root anchored on-chain for the current evidence set."
+    );
+}
 
-        return;
+function renderRootHistory() {
+    if (!elements.rootHistory) return;
 
-    }
+    elements.rootHistory.innerHTML = blockchainState.rootHistory.map(item => `
+        <div class="root-history-row">
+            <span class="mono">${item.version}</span>
+            <span>${item.items}</span>
+            <span class="root-value" title="${item.root}">${item.root}</span>
+            <span class="mono">${item.registered}</span>
+            <span class="root-status">${item.status}</span>
+        </div>
+    `).join("");
+}
 
-
-    const button =
-        elements.verifyCheckpointButton;
-
+function verifyIntegrity() {
+    const button = elements.verifyIntegrityButton;
+    if (!button) return;
 
     button.disabled = true;
+    button.innerHTML = '<i class="bi bi-hourglass-split"></i> Verifying...';
 
-    button.textContent =
-        "VERIFYING...";
+    setTimeout(() => {
+        /*
+         * Demo verification only.
+         * Later this will call the backend verification endpoint,
+         * which will calculate the evidence hash, Merkle proof/root,
+         * and compare it with the on-chain root.
+         */
+        const integrityValid = true;
 
-
-    /*
-        Simulate cryptographic verification.
-
-        Later this will call the backend:
-
-        POST /api/blockchain/verify
-    */
-
-    setTimeout(
-        () => {
-
-            /*
-                Current frontend simulation assumes
-                the calculated hash matches the stored
-                checkpoint.
-            */
-
-            const integrityValid =
-                true;
-
-
-            if (integrityValid) {
-
-                blockchainState.checkpoint
-                    .verificationStatus =
-                    "VERIFIED";
-
-
-                setText(
-                    elements.verificationResult,
-                    "EVIDENCE VERIFIED"
-                );
-
-
-                setText(
-                    elements.verificationStatus,
-                    "VERIFIED"
-                );
-
-
-                setText(
-                    elements.verificationHeaderStatus,
-                    "VERIFIED"
-                );
-
-
-                setText(
-                    elements.verificationMessage,
-
-                    "The calculated evidence hash matches the recorded cryptographic checkpoint. No integrity mismatch was detected."
-                );
-
-            } else {
-
-                blockchainState.checkpoint
-                    .verificationStatus =
-                    "MISMATCH";
-
-
-                setText(
-                    elements.verificationResult,
-                    "INTEGRITY MISMATCH"
-                );
-
-
-                setText(
-                    elements.verificationStatus,
-                    "MISMATCH"
-                );
-
-
-                setText(
-                    elements.verificationHeaderStatus,
-                    "MISMATCH"
-                );
-
-
-                setText(
-                    elements.verificationMessage,
-
-                    "The calculated evidence hash does not match the recorded checkpoint."
-                );
-
-            }
-
-
-            button.disabled = false;
-
-            button.textContent =
-                "Verify Checkpoint";
-
-
-            console.log(
-                "[CyberTwin] Checkpoint verification completed."
+        if (integrityValid) {
+            blockchainState.integrity.status = "VERIFIED";
+            setText(elements.integrityStatusKpi, "VERIFIED");
+            setText(elements.verificationResult, "INTEGRITY VERIFIED");
+            setText(
+                elements.verificationMessage,
+                "The reconstructed Merkle Root matches the root anchored on-chain for the current evidence set."
             );
+        } else {
+            blockchainState.integrity.status = "MISMATCH";
+            setText(elements.integrityStatusKpi, "MISMATCH");
+            setText(elements.verificationResult, "INTEGRITY MISMATCH");
+            setText(
+                elements.verificationMessage,
+                "The reconstructed Merkle Root does not match the root anchored on-chain."
+            );
+        }
 
-        },
-
-        900
-    );
-
+        button.disabled = false;
+        button.innerHTML = '<i class="bi bi-shield-check"></i> Verify Integrity';
+    }, 900);
 }
-
-
-/* =========================================================
-   09. INITIALIZE VERIFICATION
-   ========================================================= */
-
-function initializeVerification() {
-
-    if (
-        !elements.verifyCheckpointButton
-    ) {
-
-        return;
-
-    }
-
-
-    elements.verifyCheckpointButton
-        .addEventListener(
-            "click",
-            verifyCheckpoint
-        );
-
-}
-
-
-/* =========================================================
-   10. NAVIGATION
-   ========================================================= */
 
 function initializeNavigation() {
-
-    const navItems =
-        document.querySelectorAll(
-            ".nav-item"
-        );
-
-
-    navItems.forEach(item => {
-
-        item.addEventListener(
-            "click",
-            function () {
-
-
-                navItems.forEach(nav => {
-
-                    nav.classList.remove(
-                        "active"
-                    );
-
-                });
-
-
-                this.classList.add(
-                    "active"
-                );
-
-            }
-        );
-
+    document.querySelectorAll(".nav-item").forEach(item => {
+        item.addEventListener("click", function () {
+            document.querySelectorAll(".nav-item").forEach(nav => nav.classList.remove("active"));
+            this.classList.add("active");
+        });
     });
-
 }
-
-
-/* =========================================================
-   11. PAGE VISIBILITY
-   ========================================================= */
-
-function initializeVisibilityHandler() {
-
-    document.addEventListener(
-        "visibilitychange",
-        function () {
-
-            if (!document.hidden) {
-
-                refreshBlockchainPage();
-
-            }
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   12. REFRESH
-   ========================================================= */
 
 function refreshBlockchainPage() {
-
     updateTopbar();
-
-    updateCheckpoint();
-
-    updateCryptographicProof();
-
-    updateBlockchainRecord();
-
+    renderOverview();
+    renderEvidenceHashes();
+    renderMerkleRoot();
+    renderAnchor();
+    renderVerification();
+    renderRootHistory();
 }
 
-
-/* =========================================================
-   13. INITIALIZE
-   ========================================================= */
-
 function initializeBlockchainPage() {
-
-    console.log(
-        "[CyberTwin] Blockchain Integrity initializing..."
-    );
-
-
     refreshBlockchainPage();
 
-
-    initializeVerification();
-
+    if (elements.verifyIntegrityButton) {
+        elements.verifyIntegrityButton.addEventListener("click", verifyIntegrity);
+    }
 
     initializeNavigation();
 
+    document.addEventListener("visibilitychange", () => {
+        if (!document.hidden) {
+            refreshBlockchainPage();
+        }
+    });
 
-    initializeVisibilityHandler();
-
-
-    console.log(
-        "[CyberTwin] Blockchain Integrity initialized successfully."
-    );
-
+    console.log("[CyberTwin] Blockchain Integrity page initialized.");
 }
 
-
-/* =========================================================
-   14. START
-   ========================================================= */
-
-document.addEventListener(
-    "DOMContentLoaded",
-    initializeBlockchainPage
-);
+document.addEventListener("DOMContentLoaded", initializeBlockchainPage);
