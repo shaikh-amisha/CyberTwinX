@@ -182,42 +182,93 @@
                         </div>
 
                         <div class="merkle-svg-wrap">
-                            <svg class="merkle-svg" viewBox="0 0 760 350" role="img" aria-label="Merkle tree visualization">
-                                <line class="merkle-line" x1="190" y1="255" x2="285" y2="180"></line>
-                                <line class="merkle-line" x1="380" y1="255" x2="285" y2="180"></line>
-                                <line class="merkle-line" x1="380" y1="255" x2="475" y2="180"></line>
-                                <line class="merkle-line" x1="570" y1="255" x2="475" y2="180"></line>
-                                <line class="merkle-line" x1="285" y1="180" x2="380" y2="100"></line>
-                                <line class="merkle-line" x1="475" y1="180" x2="380" y2="100"></line>
 
-                                <rect class="merkle-node root" x="315" y="67" width="130" height="43" rx="7"></rect>
-                                <text class="merkle-node-label" x="380" y="82">MERKLE ROOT</text>
-                                <text class="merkle-root-text" x="380" y="99" id="merkleRootSvg">8f91...8a6c</text>
+                            <svg
+                                class="merkle-svg"
+                                viewBox="0 0 760 430"
+                                role="img"
+                                aria-label="Animated Merkle Tree visualization"
+                            >
 
-                                <rect class="merkle-node" x="225" y="158" width="120" height="43" rx="7"></rect>
-                                <text class="merkle-node-label" x="285" y="173">PARENT H12</text>
-                                <text class="merkle-node-text" x="285" y="190">a91e...2c4d</text>
+                                <!-- EVIDENCE → PARENT CONNECTIONS -->
 
-                                <rect class="merkle-node" x="415" y="158" width="120" height="43" rx="7"></rect>
-                                <text class="merkle-node-label" x="475" y="173">PARENT H34</text>
-                                <text class="merkle-node-text" x="475" y="190">b73f...91aa</text>
+                                <line class="merkle-line" x1="120" y1="105" x2="270" y2="195"></line>
+                                <line class="merkle-line" x1="270" y1="105" x2="270" y2="195"></line>
+                                <line class="merkle-line" x1="490" y1="105" x2="490" y2="195"></line>
+                                <line class="merkle-line" x1="640" y1="105" x2="490" y2="195"></line>
 
-                                <rect class="merkle-node leaf" x="130" y="245" width="120" height="43" rx="7"></rect>
-                                <text class="merkle-node-label" x="190" y="260">EVID-001</text>
-                                <text class="merkle-node-text" x="190" y="277">9f6c...4a6c</text>
+                                <!-- PARENT → ROOT CONNECTIONS -->
 
-                                <rect class="merkle-node leaf" x="320" y="245" width="120" height="43" rx="7"></rect>
-                                <text class="merkle-node-label" x="380" y="260">EVID-002</text>
-                                <text class="merkle-node-text" x="380" y="277">a72b...18f2</text>
+                                <line class="merkle-line" x1="270" y1="245" x2="380" y2="330"></line>
+                                <line class="merkle-line" x1="490" y1="245" x2="380" y2="330"></line>
 
-                                <rect class="merkle-node leaf" x="415" y="245" width="120" height="43" rx="7"></rect>
-                                <text class="merkle-node-label" x="475" y="260">EVID-003</text>
-                                <text class="merkle-node-text" x="475" y="277">c31d...72e8</text>
+                                <!-- MOVING HASH PARTICLES -->
 
-                                <rect class="merkle-node leaf" x="510" y="245" width="120" height="43" rx="7"></rect>
-                                <text class="merkle-node-label" x="570" y="260">EVID-004</text>
-                                <text class="merkle-node-text" x="570" y="277">f84a...9b11</text>
+                                <circle class="merkle-particle particle-1" r="4" cx="120" cy="105"></circle>
+                                <circle class="merkle-particle particle-2" r="4" cx="270" cy="105"></circle>
+                                <circle class="merkle-particle particle-3" r="4" cx="490" cy="105"></circle>
+                                <circle class="merkle-particle particle-4" r="4" cx="640" cy="105"></circle>
+
+                                <!-- EVIDENCE 001 -->
+
+                                <g class="merkle-evidence-node">
+                                    <rect class="merkle-node leaf" x="55" y="55" width="130" height="50" rx="8"></rect>
+                                    <text class="merkle-node-label" x="120" y="75">EVID-001</text>
+                                    <text class="merkle-node-text" x="120" y="95">9f6c...4a6c</text>
+                                </g>
+
+                                <!-- EVIDENCE 002 -->
+
+                                <g class="merkle-evidence-node">
+                                    <rect class="merkle-node leaf" x="205" y="55" width="130" height="50" rx="8"></rect>
+                                    <text class="merkle-node-label" x="270" y="75">EVID-002</text>
+                                    <text class="merkle-node-text" x="270" y="95">a72b...18f2</text>
+                                </g>
+
+                                <!-- EVIDENCE 003 -->
+
+                                <g class="merkle-evidence-node">
+                                    <rect class="merkle-node leaf" x="425" y="55" width="130" height="50" rx="8"></rect>
+                                    <text class="merkle-node-label" x="490" y="75">EVID-003</text>
+                                    <text class="merkle-node-text" x="490" y="95">c31d...72e8</text>
+                                </g>
+
+                                <!-- EVIDENCE 004 -->
+
+                                <g class="merkle-evidence-node">
+                                    <rect class="merkle-node leaf" x="575" y="55" width="130" height="50" rx="8"></rect>
+                                    <text class="merkle-node-label" x="640" y="75">EVID-004</text>
+                                    <text class="merkle-node-text" x="640" y="95">f84a...9b11</text>
+                                </g>
+
+                                <!-- PARENT H12 -->
+
+                                <g class="merkle-parent-node">
+                                    <rect class="merkle-node" x="205" y="195" width="130" height="50" rx="8"></rect>
+                                    <text class="merkle-node-label" x="270" y="215">PARENT H12</text>
+                                    <text class="merkle-node-text" x="270" y="235">a91e...2c4d</text>
+                                </g>
+
+                                <!-- PARENT H34 -->
+
+                                <g class="merkle-parent-node">
+                                    <rect class="merkle-node" x="425" y="195" width="130" height="50" rx="8"></rect>
+                                    <text class="merkle-node-label" x="490" y="215">PARENT H34</text>
+                                    <text class="merkle-node-text" x="490" y="235">b73f...91aa</text>
+                                </g>
+
+                                <!-- MERKLE ROOT -->
+
+                                <g class="merkle-root-node">
+                                    <rect class="merkle-node root" x="295" y="330" width="170" height="65" rx="10"></rect>
+                                    <text class="merkle-node-label" x="380" y="353">MERKLE ROOT</text>
+                                    <text class="merkle-root-text" x="380" y="379" id="merkleRootSvg">8f91...8a6c</text>
+                                </g>
+
+                                <circle class="merkle-root-pulse" cx="380" cy="362" r="18"></circle>
+
                             </svg>
+
                         </div>
                     </article>
                 </div>
