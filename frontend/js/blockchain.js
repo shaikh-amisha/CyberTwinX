@@ -91,11 +91,13 @@ const elements = {
     merkleRootSvg: document.getElementById("merkleRootSvg"),
 
     anchorNetwork: document.getElementById("anchorNetwork"),
+    anchorNetworkOutput: document.getElementById("anchorNetworkOutput"),
     anchorContract: document.getElementById("anchorContract"),
     anchorRoot: document.getElementById("anchorRoot"),
     anchorTransaction: document.getElementById("anchorTransaction"),
     anchorBlock: document.getElementById("anchorBlock"),
     anchorStatus: document.getElementById("anchorStatus"),
+    anchorOutputStatus: document.getElementById("anchorOutputStatus"),
 
     reconstructedRoot: document.getElementById("reconstructedRoot"),
     verificationOnChainRoot: document.getElementById("verificationOnChainRoot"),
@@ -250,6 +252,7 @@ function renderAnchor() {
     const anchorStatus = String(integrity.anchorStatus || "PENDING").toUpperCase();
 
     setText(elements.anchorNetwork, integrity.network);
+    setText(elements.anchorNetworkOutput, integrity.network);
     setText(elements.anchorContract, integrity.contract);
     setText(elements.anchorRoot, shortHash(integrity.merkleRoot, 10, 8));
     setText(elements.anchorTransaction, integrity.transaction);
@@ -262,6 +265,11 @@ function renderAnchor() {
 
         elements.anchorStatus.dataset.status = statusClass;
         elements.anchorStatus.querySelector(".anchor-status-text").textContent = anchorStatus;
+
+        if (elements.anchorOutputStatus) {
+            elements.anchorOutputStatus.dataset.status = statusClass;
+            elements.anchorOutputStatus.querySelector(".anchor-status-text").textContent = anchorStatus;
+        }
     }
 }
 
