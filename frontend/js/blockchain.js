@@ -19,7 +19,8 @@ const blockchainState = {
         contract: "0x71a...c92",
         transaction: "0x9d3...a41",
         block: "#1842",
-        merkleRoot: "8f91a2c7e4d6b9f0c42a1e7b5d3f8a6c"
+        merkleRoot: "8f91a2c7e4d6b9f0c42a1e7b5d3f8a6c",
+        anchorStatus: "CONFIRMED"
     },
 
     evidence: [
@@ -246,13 +247,22 @@ function renderMerkleRoot() {
 
 function renderAnchor() {
     const integrity = blockchainState.integrity;
+    const anchorStatus = String(integrity.anchorStatus || "PENDING").toUpperCase();
 
     setText(elements.anchorNetwork, integrity.network);
     setText(elements.anchorContract, integrity.contract);
     setText(elements.anchorRoot, shortHash(integrity.merkleRoot, 10, 8));
     setText(elements.anchorTransaction, integrity.transaction);
     setText(elements.anchorBlock, integrity.block);
-    setText(elements.anchorStatus, "CONFIRMED");
+
+    if (elements.anchorStatus) {
+        const statusClass = ["CONFIRMED", "PENDING", "FAILED"].includes(anchorStatus)
+            ? anchorStatus
+            : "PENDING";
+
+        elements.anchorStatus.dataset.status = statusClass;
+        elements.anchorStatus.querySelector(".anchor-status-text").textContent = anchorStatus;
+    }
 }
 
 function renderVerification() {
