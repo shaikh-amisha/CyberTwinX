@@ -139,9 +139,6 @@ function renderEvidenceHashes() {
     if (!elements.evidenceHashList) return;
 
     elements.evidenceHashList.innerHTML = blockchainState.evidence.map((item, index) => {
-        const hashGroups = item.hash.match(/.{1,8}/g) || [item.hash];
-        const hashVisual = hashGroups.map(group => `<span>${group}</span>`).join("");
-
         return `
             <div class="evidence-hash-card" style="--hash-delay: ${index * 0.14}s">
 
@@ -166,7 +163,17 @@ function renderEvidenceHashes() {
                     </div>
 
                     <div class="evidence-hash-value">
-                        ${hashVisual}
+                        <span class="evidence-hash-text" title="${item.hash}">${item.hash}</span>
+                        <button
+                            class="copy-hash-button"
+                            type="button"
+                            data-hash="${item.hash}"
+                            aria-label="Copy ${item.id} hash"
+                            title="Copy full SHA-256 hash"
+                        >
+                            <i class="bi bi-copy"></i>
+                            <span>COPY</span>
+                        </button>
                     </div>
 
                     <div class="evidence-hash-meta-row">
@@ -192,6 +199,41 @@ function renderEvidenceHashes() {
             </div>
         `;
     }).join("");
+
+    initializeHashCopyButtons();
+}
+
+async function copyEvidenceHash(button) {
+    const hash = button.dataset.hash;
+    if (!hash) return;
+
+    try {
+        await navigator.clipboard.writeText(hash);
+    } catch (error) {
+        const textArea = document.createElement("textarea");
+        textArea.value = hash;
+        textArea.setAttribute("readonly", "");
+        textArea.style.position = "fixed";
+        textArea.style.opacity = "0";
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand("copy");
+        textArea.remove();
+    }
+
+    button.classList.add("copied");
+    button.innerHTML = '<i class="bi bi-check2"></i><span>COPIED</span>';
+
+    window.setTimeout(() => {
+        button.classList.remove("copied");
+        button.innerHTML = '<i class="bi bi-copy"></i><span>COPY</span>';
+    }, 1400);
+}
+
+function initializeHashCopyButtons() {
+    document.querySelectorAll(".copy-hash-button").forEach(button => {
+        button.addEventListener("click", () => copyEvidenceHash(button));
+    });
 }
 
 function renderMerkleRoot() {
