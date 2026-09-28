@@ -1,887 +1,361 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>
-        CyberTwin | Blockchain Evidence Integrity
-    </title>
-
-    <link
-        rel="stylesheet"
-        href="../css/style.css"
-    >
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberTwin | Blockchain Integrity</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/blockchain.css">
 </head>
-
-
 <body>
-
 <div class="app">
 
-
-    <!-- =====================================================
-         SIDEBAR
-    ====================================================== -->
-
     <aside class="sidebar">
-
-
         <div class="brand">
-
-            <div class="brand-logo">
-                CT
-            </div>
-
-
+            <div class="brand-logo">CT</div>
             <div class="brand-content">
-
-                <h1>
-                    CYBERTWIN
-                </h1>
-
-                <span>
-                    Security Intelligence
-                </span>
-
+                <h1>CYBERTWIN</h1>
+                <span>Security Intelligence</span>
             </div>
-
         </div>
-
 
         <nav class="sidebar-nav">
-
-
-            <!-- OVERVIEW -->
-
             <div class="nav-section">
-
-                <div class="nav-title">
-                    OVERVIEW
-                </div>
-
-
-                <a
-                    href="./dashboard.html"
-                    class="nav-item"
-                >
-
-                    <span class="nav-icon"><i class="bi bi-grid-1x2-fill" aria-hidden="true"></i></span>
-
-                    <span>
-                        Dashboard
-                    </span>
-
+                <div class="nav-title">OVERVIEW</div>
+                <a href="./dashboard.html" class="nav-item">
+                    <span class="nav-icon"><i class="bi bi-grid-1x2-fill"></i></span>
+                    <span>Dashboard</span>
                 </a>
-
             </div>
 
-
-            <!-- INVESTIGATION -->
-
             <div class="nav-section">
-
-                <div class="nav-title">
-                    INVESTIGATION
-                </div>
-
-
-                <a
-                    href="./endpoint-twin.html"
-                    class="nav-item"
-                >
-
-                    <span class="nav-icon"><i class="bi bi-diagram-3-fill" aria-hidden="true"></i></span>
-
-                    <span>
-                        Endpoint Twin
-                    </span>
-
+                <div class="nav-title">INVESTIGATION</div>
+                <a href="./endpoint-twin.html" class="nav-item">
+                    <span class="nav-icon"><i class="bi bi-diagram-3-fill"></i></span>
+                    <span>Endpoint Twin</span>
                 </a>
-
-
-                <a
-                    href="./incident-twin.html"
-                    class="nav-item"
-                >
-
-                    <span class="nav-icon"><i class="bi bi-shield-exclamation" aria-hidden="true"></i></span>
-
-                    <span>
-                        Incident Twin
-                    </span>
-
+                <a href="./incident-twin.html" class="nav-item">
+                    <span class="nav-icon"><i class="bi bi-shield-exclamation"></i></span>
+                    <span>Incident Twin</span>
                 </a>
-
-
-                <a
-                    href="./evidence.html"
-                    class="nav-item"
-                >
-
-                    <span class="nav-icon"><i class="bi bi-file-earmark-text-fill" aria-hidden="true"></i></span>
-
-                    <span>
-                        Evidence Investigation
-                    </span>
-
+                <a href="./evidence.html" class="nav-item">
+                    <span class="nav-icon"><i class="bi bi-file-earmark-text-fill"></i></span>
+                    <span>Evidence Investigation</span>
                 </a>
-
-
-                <a
-                    href="./attack-path.html"
-                    class="nav-item"
-                >
-
-                    <span class="nav-icon"><i class="bi bi-diagram-2-fill" aria-hidden="true"></i></span>
-
-                    <span>
-                        Attack Path Analysis
-                    </span>
-
+                <a href="./attack-path.html" class="nav-item">
+                    <span class="nav-icon"><i class="bi bi-diagram-2-fill"></i></span>
+                    <span>Attack Path Analysis</span>
                 </a>
-
-
-                <a
-                    href="./ai-investigator.html"
-                    class="nav-item"
-                >
-
-                    <span class="nav-icon"><i class="bi bi-stars" aria-hidden="true"></i></span>
-
-                    <span>
-                        AI Investigator
-                    </span>
-
+                <a href="./ai-investigator.html" class="nav-item">
+                    <span class="nav-icon"><i class="bi bi-stars"></i></span>
+                    <span>AI Investigator</span>
                 </a>
-
-
-                <a
-                    href="./what-if.html"
-                    class="nav-item"
-                >
-
-                    <span class="nav-icon"><i class="bi bi-arrow-left-right" aria-hidden="true"></i></span>
-
-                    <span>
-                        What-If Analysis
-                    </span>
-
+                <a href="./what-if.html" class="nav-item">
+                    <span class="nav-icon"><i class="bi bi-arrow-left-right"></i></span>
+                    <span>What-If Analysis</span>
                 </a>
-
             </div>
 
-
-            <!-- INTEGRITY -->
-
             <div class="nav-section">
-
-                <div class="nav-title">
-                    INTEGRITY
-                </div>
-
-
-                <a
-                    href="./blockchain.html"
-                    class="nav-item active"
-                >
-
-                    <span class="nav-icon"><i class="bi bi-link-45deg" aria-hidden="true"></i></span>
-
-                    <span>
-                        Blockchain Integrity
-                    </span>
-
+                <div class="nav-title">INTEGRITY</div>
+                <a href="./blockchain.html" class="nav-item active">
+                    <span class="nav-icon"><i class="bi bi-link-45deg"></i></span>
+                    <span>Blockchain Integrity</span>
                 </a>
-
             </div>
-
         </nav>
 
-
-        <!-- SIDEBAR FOOTER -->
-
         <div class="sidebar-footer">
-
             <div class="system-status">
-
                 <span class="status-dot"></span>
-
-                <span id="sidebarSystemStatus">
-                    SYSTEM ONLINE
-                </span>
-
+                <span id="sidebarSystemStatus">SYSTEM ONLINE</span>
             </div>
-
-
-            <div class="version">
-                CyberTwin v1.0
-            </div>
-
+            <div class="version">CyberTwin v1.0</div>
         </div>
-
     </aside>
 
-
-    <!-- =====================================================
-         MAIN CONTENT
-    ====================================================== -->
-
     <main class="main-content">
-
-
-        <!-- TOPBAR -->
-
         <header class="topbar">
-
             <div class="topbar-item">
-
-                <span class="topbar-label">
-                    ENDPOINT
-                </span>
-
-                <strong id="topbarEndpoint">
-                    SERVER-01
-                </strong>
-
+                <span class="topbar-label">ENDPOINT</span>
+                <strong id="topbarEndpoint">SERVER-01</strong>
             </div>
-
-
             <div class="topbar-divider"></div>
-
-
             <div class="topbar-item">
-
-                <span class="topbar-label">
-                    INCIDENT
-                </span>
-
-                <strong id="topbarIncident">
-                    INC-001
-                </strong>
-
+                <span class="topbar-label">INCIDENT</span>
+                <strong id="topbarIncident">INC-001</strong>
             </div>
-
-
             <div class="topbar-divider"></div>
-
-
             <div class="topbar-item">
-
-                <span class="topbar-label">
-                    STATE
-                </span>
-
-                <span
-                    class="state-badge compromised"
-                    id="topbarState"
-                >
-                    COMPROMISED
-                </span>
-
+                <span class="topbar-label">STATE</span>
+                <span class="state-badge compromised" id="topbarState">COMPROMISED</span>
             </div>
-
-
             <div class="topbar-risk">
-
-                <span class="topbar-label">
-                    RISK
-                </span>
-
-                <strong id="topbarRisk">
-                    78
-                </strong>
-
-                <span>
-                    /100
-                </span>
-
+                <span class="topbar-label">RISK</span>
+                <strong id="topbarRisk">78</strong>
+                <span>/100</span>
             </div>
-
-
             <div class="system-status">
-
                 <span class="status-dot"></span>
-
-                <span id="topbarSystemStatus">
-                    ONLINE
-                </span>
-
+                <span id="topbarSystemStatus">ONLINE</span>
             </div>
-
         </header>
 
-
-        <!-- =====================================================
-             PAGE
-        ====================================================== -->
-
-        <section class="page-content">
-
-
-            <!-- PAGE HEADER -->
+        <section class="page-content blockchain-page">
 
             <div class="page-header">
-
-
                 <div>
-
-                    <div class="eyebrow">
-                        CYBERTWIN / INTEGRITY
-                    </div>
-
-
-                    <h2>
-                        Blockchain Evidence Integrity
-                    </h2>
-
-
-                    <p>
-                        Protect and verify the integrity of important
-                        security evidence through cryptographic
-                        checkpoints.
-                    </p>
-
+                    <div class="eyebrow">CYBERTWIN / INTEGRITY</div>
+                    <h2>Blockchain Integrity</h2>
+                    <p>Cryptographic evidence integrity anchored through SHA-256 hashing, Merkle Tree aggregation and an immutable on-chain Merkle Root.</p>
                 </div>
-
-
-                <span
-                    class="status-badge online"
-                    id="verificationHeaderStatus"
-                >
-                    VERIFIED
-                </span>
-
+                <div class="blockchain-live-badge">
+                    <span class="status-dot"></span>
+                    <span id="pageLiveStatus">INTEGRITY ACTIVE</span>
+                </div>
             </div>
 
-
-            <!-- =================================================
-                 SECTION 01
-            ================================================== -->
-
+            <!-- 01 INTEGRITY OVERVIEW -->
             <section class="dashboard-section">
-
-
                 <div class="section-heading">
-
-                    <span class="section-number">
-                        01
-                    </span>
-
-
+                    <span class="section-number">01</span>
                     <div>
-
-                        <h3>
-                            Evidence Checkpoint
-                        </h3>
-
-
-                        <p>
-                            Cryptographic checkpoint for the
-                            current incident state.
-                        </p>
-
+                        <h3>Integrity Overview</h3>
+                        <p>Current evidence set and cryptographic anchor state.</p>
                     </div>
-
                 </div>
 
-
-                <div class="overview-grid">
-
-
-                    <article class="dashboard-card">
-
-                        <span class="card-label">
-                            CHECKPOINT ID
-                        </span>
-
-
-                        <div
-                            class="card-value mono"
-                            id="checkpointId"
-                        >
-                            CP-INC001-007
-                        </div>
-
-
-                        <p>
-                            Current evidence checkpoint
-                        </p>
-
+                <div class="integrity-kpi-grid">
+                    <article class="dashboard-card integrity-kpi">
+                        <span class="card-label">INCIDENT</span>
+                        <div class="card-value mono" id="incidentKpi">INC-001</div>
+                        <div class="kpi-sub">Active investigation</div>
                     </article>
 
-
-                    <article class="dashboard-card">
-
-                        <span class="card-label">
-                            INCIDENT
-                        </span>
-
-
-                        <div
-                            class="card-value"
-                            id="incidentId"
-                        >
-                            INC-001
-                        </div>
-
-
-                        <p>
-                            Active investigation
-                        </p>
-
+                    <article class="dashboard-card integrity-kpi">
+                        <span class="card-label">EVIDENCE ITEMS</span>
+                        <div class="card-value" id="evidenceCountKpi">4</div>
+                        <div class="kpi-sub">Included in current root</div>
                     </article>
 
-
-                    <article class="dashboard-card">
-
-                        <span class="card-label">
-                            BLOCKCHAIN STATUS
-                        </span>
-
-
-                        <div
-                            class="status-success large-status"
-                            id="blockchainStatus"
-                        >
-                            CONFIRMED
-                        </div>
-
-
-                        <p>
-                            Checkpoint recorded
-                        </p>
-
+                    <article class="dashboard-card integrity-kpi">
+                        <span class="card-label">ROOT VERSION</span>
+                        <div class="card-value mono" id="rootVersionKpi">v3</div>
+                        <div class="kpi-sub">Latest registered evidence set</div>
                     </article>
 
-
-                    <article class="dashboard-card">
-
-                        <span class="card-label">
-                            VERIFICATION
-                        </span>
-
-
-                        <div
-                            class="status-success large-status"
-                            id="verificationStatus"
-                        >
-                            VERIFIED
-                        </div>
-
-
-                        <p>
-                            Evidence integrity valid
-                        </p>
-
+                    <article class="dashboard-card integrity-kpi">
+                        <span class="card-label">INTEGRITY STATUS</span>
+                        <div class="status-success large-status" id="integrityStatusKpi">VERIFIED</div>
+                        <div class="kpi-sub">Merkle Root matches on-chain anchor</div>
                     </article>
-
                 </div>
-
             </section>
 
-
-            <!-- =================================================
-                 SECTION 02
-            ================================================== -->
-
+            <!-- 02 EVIDENCE + MERKLE -->
             <section class="dashboard-section">
-
-
                 <div class="section-heading">
-
-                    <span class="section-number">
-                        02
-                    </span>
-
-
+                    <span class="section-number">02</span>
                     <div>
-
-                        <h3>
-                            Cryptographic Proof
-                        </h3>
-
-
-                        <p>
-                            Hash and Merkle root associated with
-                            the evidence checkpoint.
-                        </p>
-
+                        <h3>Evidence Hashes &amp; Merkle Tree</h3>
+                        <p>Individual evidence hashes are aggregated into a single root representing the integrity of the complete evidence set.</p>
                     </div>
-
                 </div>
 
+                <div class="merkle-layout">
+                    <article class="dashboard-card">
+                        <div class="card-header">
+                            <span class="card-label">EVIDENCE HASHES</span>
+                            <span class="simulation-badge">DEMO DATA</span>
+                        </div>
+                        <div class="evidence-hash-list" id="evidenceHashList"></div>
+                    </article>
 
-                <article class="dashboard-card">
-
-
-                    <div class="hash-block">
-
-
-                        <div>
-
-                            <span class="card-label">
-                                EVIDENCE HASH
-                            </span>
-
-
-                            <div
-                                class="hash-value mono"
-                                id="evidenceHash"
-                            >
-                                9f6c8e3d1a72b5e4
-                                3d7a8c9b1f2e4a6c
+                    <article class="dashboard-card merkle-visual-card">
+                        <div class="merkle-visual-header">
+                            <div>
+                                <strong>Merkle Tree</strong>
+                                <span>SHA-256 leaf aggregation</span>
                             </div>
-
+                            <div class="merkle-root-chip" id="merkleRootChip">ROOT: 8f91...8a6c</div>
                         </div>
 
+                        <div class="merkle-svg-wrap">
+                            <svg class="merkle-svg" viewBox="0 0 760 350" role="img" aria-label="Merkle tree visualization">
+                                <line class="merkle-line" x1="190" y1="255" x2="285" y2="180"></line>
+                                <line class="merkle-line" x1="380" y1="255" x2="285" y2="180"></line>
+                                <line class="merkle-line" x1="380" y1="255" x2="475" y2="180"></line>
+                                <line class="merkle-line" x1="570" y1="255" x2="475" y2="180"></line>
+                                <line class="merkle-line" x1="285" y1="180" x2="380" y2="100"></line>
+                                <line class="merkle-line" x1="475" y1="180" x2="380" y2="100"></line>
 
-                        <div>
+                                <rect class="merkle-node root" x="315" y="67" width="130" height="43" rx="7"></rect>
+                                <text class="merkle-node-label" x="380" y="82">MERKLE ROOT</text>
+                                <text class="merkle-root-text" x="380" y="99" id="merkleRootSvg">8f91...8a6c</text>
 
-                            <span class="card-label">
-                                MERKLE ROOT
-                            </span>
+                                <rect class="merkle-node" x="225" y="158" width="120" height="43" rx="7"></rect>
+                                <text class="merkle-node-label" x="285" y="173">PARENT H12</text>
+                                <text class="merkle-node-text" x="285" y="190">a91e...2c4d</text>
 
+                                <rect class="merkle-node" x="415" y="158" width="120" height="43" rx="7"></rect>
+                                <text class="merkle-node-label" x="475" y="173">PARENT H34</text>
+                                <text class="merkle-node-text" x="475" y="190">b73f...91aa</text>
 
-                            <div
-                                class="hash-value mono"
-                                id="merkleRoot"
-                            >
-                                8f91a2c7e4d6b9f0
-                                c42a1e7b5d3f8a6c
+                                <rect class="merkle-node leaf" x="130" y="245" width="120" height="43" rx="7"></rect>
+                                <text class="merkle-node-label" x="190" y="260">EVID-001</text>
+                                <text class="merkle-node-text" x="190" y="277">9f6c...4a6c</text>
+
+                                <rect class="merkle-node leaf" x="320" y="245" width="120" height="43" rx="7"></rect>
+                                <text class="merkle-node-label" x="380" y="260">EVID-002</text>
+                                <text class="merkle-node-text" x="380" y="277">a72b...18f2</text>
+
+                                <rect class="merkle-node leaf" x="415" y="245" width="120" height="43" rx="7"></rect>
+                                <text class="merkle-node-label" x="475" y="260">EVID-003</text>
+                                <text class="merkle-node-text" x="475" y="277">c31d...72e8</text>
+
+                                <rect class="merkle-node leaf" x="510" y="245" width="120" height="43" rx="7"></rect>
+                                <text class="merkle-node-label" x="570" y="260">EVID-004</text>
+                                <text class="merkle-node-text" x="570" y="277">f84a...9b11</text>
+                            </svg>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <!-- 03 ON-CHAIN ANCHOR -->
+            <section class="dashboard-section">
+                <div class="section-heading">
+                    <span class="section-number">03</span>
+                    <div>
+                        <h3>On-Chain Integrity Anchor</h3>
+                        <p>The current Merkle Root recorded by the CyberTwinX integrity smart contract.</p>
+                    </div>
+                </div>
+
+                <article class="dashboard-card">
+                    <div class="anchor-grid">
+                        <div class="anchor-item">
+                            <span>Network</span>
+                            <strong id="anchorNetwork">Hardhat Local</strong>
+                        </div>
+                        <div class="anchor-item">
+                            <span>Contract</span>
+                            <strong class="anchor-mono" id="anchorContract">0x71a...c92</strong>
+                        </div>
+                        <div class="anchor-item">
+                            <span>Merkle Root</span>
+                            <strong class="anchor-mono" id="anchorRoot">8f91a2c7...8a6c</strong>
+                        </div>
+                        <div class="anchor-item">
+                            <span>Transaction</span>
+                            <strong class="anchor-mono" id="anchorTransaction">0x9d3...a41</strong>
+                        </div>
+                        <div class="anchor-item">
+                            <span>Block</span>
+                            <strong class="anchor-mono" id="anchorBlock">#1842</strong>
+                        </div>
+                        <div class="anchor-item confirmed">
+                            <span>Status</span>
+                            <strong id="anchorStatus">CONFIRMED</strong>
+                        </div>
+                    </div>
+                </article>
+            </section>
+
+            <!-- 04 VERIFICATION -->
+            <section class="dashboard-section">
+                <div class="section-heading">
+                    <span class="section-number">04</span>
+                    <div>
+                        <h3>Integrity Verification</h3>
+                        <p>Reconstruct the evidence root and compare it with the immutable on-chain anchor.</p>
+                    </div>
+                </div>
+
+                <div class="verification-grid">
+                    <article class="dashboard-card">
+                        <div class="card-header">
+                            <span class="card-label">VERIFICATION PATH</span>
+                        </div>
+                        <div class="verification-flow">
+                            <div class="verification-step">
+                                <div class="verification-step-number">01</div>
+                                <div>
+                                    <strong>Evidence Hash</strong>
+                                    <span>Recalculate SHA-256 from the evidence snapshot.</span>
+                                </div>
+                                <span class="match">READY</span>
                             </div>
-
+                            <div class="verification-step">
+                                <div class="verification-step-number">02</div>
+                                <div>
+                                    <strong>Merkle Proof</strong>
+                                    <span>Use the evidence leaf and its proof path.</span>
+                                </div>
+                                <span class="match">READY</span>
+                            </div>
+                            <div class="verification-step">
+                                <div class="verification-step-number">03</div>
+                                <div>
+                                    <strong>Reconstructed Root</strong>
+                                    <span id="reconstructedRoot">8f91a2c7...8a6c</span>
+                                </div>
+                                <span class="match">MATCH</span>
+                            </div>
+                            <div class="verification-step">
+                                <div class="verification-step-number">04</div>
+                                <div>
+                                    <strong>On-Chain Root</strong>
+                                    <span id="verificationOnChainRoot">8f91a2c7...8a6c</span>
+                                </div>
+                                <span class="match">MATCH</span>
+                            </div>
                         </div>
+                    </article>
 
-                    </div>
-
-                </article>
-
+                    <article class="dashboard-card verification-summary">
+                        <div class="verification-result-box">
+                            <span class="result-label">CURRENT RESULT</span>
+                            <h3 id="verificationResult">INTEGRITY VERIFIED</h3>
+                            <p id="verificationMessage">The reconstructed Merkle Root matches the root anchored on-chain for the current evidence set.</p>
+                        </div>
+                        <button class="primary-button verify-integrity-button" id="verifyIntegrityButton" type="button">
+                            <i class="bi bi-shield-check"></i>
+                            Verify Integrity
+                        </button>
+                    </article>
+                </div>
             </section>
 
-
-            <!-- =================================================
-                 SECTION 03
-            ================================================== -->
-
+            <!-- 05 ROOT HISTORY -->
             <section class="dashboard-section">
-
-
                 <div class="section-heading">
-
-                    <span class="section-number">
-                        03
-                    </span>
-
-
+                    <span class="section-number">05</span>
                     <div>
-
-                        <h3>
-                            Blockchain Record
-                        </h3>
-
-
-                        <p>
-                            Recorded checkpoint metadata.
-                        </p>
-
+                        <h3>Merkle Root History</h3>
+                        <p>Versioned roots preserve historical integrity states instead of overwriting earlier anchors.</p>
                     </div>
-
                 </div>
-
 
                 <article class="dashboard-card">
-
-
-                    <div class="blockchain-record">
-
-
-                        <div>
-
-                            <span>
-                                Network
-                            </span>
-
-                            <strong id="blockchainNetwork">
-                                CyberTwin Integrity Chain
-                            </strong>
-
+                    <div class="root-history-table">
+                        <div class="root-history-head">
+                            <span>VERSION</span>
+                            <span>ITEMS</span>
+                            <span>MERKLE ROOT</span>
+                            <span>REGISTERED</span>
+                            <span>STATUS</span>
                         </div>
-
-
-                        <div>
-
-                            <span>
-                                Block
-                            </span>
-
-                            <strong
-                                class="mono"
-                                id="blockNumber"
-                            >
-                                #0001842
-                            </strong>
-
-                        </div>
-
-
-                        <div>
-
-                            <span>
-                                Timestamp
-                            </span>
-
-                            <strong id="checkpointTimestamp">
-                                2026-08-23 09:26:12
-                            </strong>
-
-                        </div>
-
-
-                        <div>
-
-                            <span>
-                                Evidence Items
-                            </span>
-
-                            <strong id="evidenceItemCount">
-                                4
-                            </strong>
-
-                        </div>
-
-
-                        <div>
-
-                            <span>
-                                Status
-                            </span>
-
-                            <strong
-                                class="status-success"
-                                id="recordStatus"
-                            >
-                                CONFIRMED
-                            </strong>
-
-                        </div>
-
+                        <div id="rootHistory"></div>
                     </div>
-
                 </article>
-
-            </section>
-
-
-            <!-- =================================================
-                 SECTION 04
-            ================================================== -->
-
-            <section class="dashboard-section">
-
-
-                <div class="section-heading">
-
-                    <span class="section-number">
-                        04
-                    </span>
-
-
-                    <div>
-
-                        <h3>
-                            Evidence Verification
-                        </h3>
-
-
-                        <p>
-                            Verify that the stored evidence matches
-                            the cryptographic checkpoint.
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-                <article class="dashboard-card verification-card">
-
-
-                    <div>
-
-                        <span class="card-label">
-                            VERIFICATION RESULT
-                        </span>
-
-
-                        <h2
-                            class="status-success"
-                            id="verificationResult"
-                        >
-                            EVIDENCE VERIFIED
-                        </h2>
-
-
-                        <p id="verificationMessage">
-                            The calculated evidence hash matches
-                            the recorded cryptographic checkpoint.
-                            No integrity mismatch was detected.
-                        </p>
-
-                    </div>
-
-
-                    <button
-                        class="primary-button"
-                        id="verifyCheckpointButton"
-                        type="button"
-                    >
-                        Verify Checkpoint
-                    </button>
-
-                </article>
-
-            </section>
-
-
-            <!-- =================================================
-                 SECTION 05
-            ================================================== -->
-
-            <section class="dashboard-section">
-
-
-                <div class="section-heading">
-
-                    <span class="section-number">
-                        05
-                    </span>
-
-
-                    <div>
-
-                        <h3>
-                            Integrity Workflow
-                        </h3>
-
-                    </div>
-
-                </div>
-
-
-                <article class="dashboard-card">
-
-
-                    <div class="pipeline">
-
-
-                        <div class="pipeline-node">
-
-                            <span>
-                                01
-                            </span>
-
-                            <strong>
-                                Evidence
-                            </strong>
-
-                        </div>
-
-
-                        <b>
-                            →
-                        </b>
-
-
-                        <div class="pipeline-node">
-
-                            <span>
-                                02
-                            </span>
-
-                            <strong>
-                                Hash
-                            </strong>
-
-                        </div>
-
-
-                        <b>
-                            →
-                        </b>
-
-
-                        <div class="pipeline-node">
-
-                            <span>
-                                03
-                            </span>
-
-                            <strong>
-                                Merkle Root
-                            </strong>
-
-                        </div>
-
-
-                        <b>
-                            →
-                        </b>
-
-
-                        <div class="pipeline-node">
-
-                            <span>
-                                04
-                            </span>
-
-                            <strong>
-                                Checkpoint
-                            </strong>
-
-                        </div>
-
-
-                        <b>
-                            →
-                        </b>
-
-
-                        <div class="pipeline-node">
-
-                            <span>
-                                05
-                            </span>
-
-                            <strong>
-                                Verify
-                            </strong>
-
-                        </div>
-
-                    </div>
-
-                </article>
-
             </section>
 
         </section>
-
     </main>
-
 </div>
 
-
 <script src="../js/blockchain.js"></script>
-
 </body>
-
 </html>
