@@ -221,24 +221,175 @@
 }
 
 /* =========================================================
-   ON-CHAIN ANCHOR
+   ON-CHAIN ANCHOR — HORIZONTAL FLOW
    ========================================================= */
 
-.anchor-grid {
+.onchain-anchor-card {
+    overflow: hidden;
+    border-color: rgba(34, 211, 238, 0.18);
+}
+
+.anchor-flow {
     display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
+    grid-template-columns: minmax(190px, 0.75fr) minmax(150px, 0.6fr) minmax(260px, 1fr);
+    gap: 18px;
+    align-items: center;
+    min-height: 118px;
+}
+
+.anchor-root-node,
+.anchor-contract-node {
+    position: relative;
+    min-width: 0;
+    padding: 18px;
+    border: 1px solid rgba(34, 211, 238, 0.22);
+    border-radius: 9px;
+    background: linear-gradient(135deg, rgba(34, 211, 238, 0.055), rgba(7, 12, 18, 0.9));
+}
+
+.anchor-root-node::before,
+.anchor-contract-node::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: linear-gradient(110deg, transparent, rgba(34, 211, 238, 0.055), transparent);
+    transform: translateX(-110%);
+    animation: anchorNodeSweep 4.2s ease-in-out infinite;
+}
+
+.anchor-flow-label {
+    display: block;
+    color: #8394a3;
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: 1.1px;
+}
+
+.anchor-root-node .anchor-mono {
+    display: block;
+    margin-top: 9px;
+    color: #22d3ee;
+    font-family: "Cascadia Code", "Fira Code", Consolas, monospace;
+    font-size: 12px;
+    font-weight: 800;
+    overflow-wrap: anywhere;
+}
+
+.anchor-flow-sub {
+    display: block;
+    margin-top: 6px;
+    color: #637684;
+    font-size: 8px;
+}
+
+.anchor-flow-connector {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 52px;
+}
+
+.anchor-flow-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 23px;
+    height: 1px;
+    background: repeating-linear-gradient(
+        90deg,
+        rgba(34, 211, 238, 0.38) 0 5px,
+        transparent 5px 10px
+    );
+}
+
+.anchor-flow-particle {
+    position: absolute;
+    top: 19px;
+    left: 0;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #22d3ee;
+    box-shadow: 0 0 10px rgba(34, 211, 238, 0.9);
+    animation: anchorFlowParticle 2.2s linear infinite;
+}
+
+.anchor-flow-arrow {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 25px;
+    height: 25px;
+    border: 1px solid rgba(34, 211, 238, 0.28);
+    border-radius: 50%;
+    background: #0b1219;
+    color: #22d3ee;
+    font-size: 20px;
+    line-height: 1;
+    box-shadow: 0 0 15px rgba(34, 211, 238, 0.08);
+}
+
+.anchor-flow-caption {
+    position: absolute;
+    top: 35px;
+    color: #4f6877;
+    font-size: 7px;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    white-space: nowrap;
+}
+
+.anchor-contract-node {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    border-color: rgba(34, 211, 238, 0.32);
+}
+
+.anchor-contract-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 38px;
+    width: 38px;
+    height: 38px;
+    border: 1px solid rgba(34, 211, 238, 0.3);
+    border-radius: 8px;
+    background: rgba(34, 211, 238, 0.06);
+    color: #22d3ee;
+    font-size: 18px;
+    box-shadow: 0 0 18px rgba(34, 211, 238, 0.06);
+    animation: anchorIconPulse 2.8s ease-in-out infinite;
+}
+
+.anchor-contract-node strong {
+    display: block;
+    margin-top: 7px;
+    color: #e1ebf0;
+    font-size: 11px;
+}
+
+.anchor-metadata {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 10px;
+    margin-top: 12px;
 }
 
 .anchor-item {
     min-width: 0;
-    padding: 14px;
+    padding: 12px 14px;
     border: 1px solid var(--border);
     border-radius: 7px;
     background: rgba(7, 11, 16, 0.72);
 }
 
-.anchor-item span {
+.anchor-item > span {
     display: block;
     color: #8394a3;
     font-size: 8px;
@@ -247,11 +398,11 @@
     text-transform: uppercase;
 }
 
-.anchor-item strong {
+.anchor-item > strong {
     display: block;
     margin-top: 7px;
     color: #dfe8ee;
-    font-size: 11px;
+    font-size: 10px;
     line-height: 1.5;
     overflow-wrap: anywhere;
 }
@@ -262,12 +413,87 @@
     font-size: 9px;
 }
 
-.anchor-item.confirmed {
-    border-color: rgba(34, 197, 94, 0.22);
+.anchor-status-item {
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
-.anchor-item.confirmed strong {
-    color: #22c55e;
+.anchor-status-badge {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 6px;
+    width: fit-content;
+    padding: 5px 8px;
+    border: 1px solid rgba(34, 197, 94, 0.28);
+    border-radius: 5px;
+    background: rgba(34, 197, 94, 0.055);
+    color: #22c55e !important;
+    font-size: 8px !important;
+    font-weight: 800;
+    letter-spacing: 0.7px;
+    transition: color 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+}
+
+.anchor-status-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: currentColor;
+    box-shadow: 0 0 7px currentColor;
+    animation: anchorStatusPulse 1.8s ease-in-out infinite;
+}
+
+.anchor-status-badge[data-status="CONFIRMED"] {
+    color: #22c55e !important;
+    border-color: rgba(34, 197, 94, 0.3);
+    background: rgba(34, 197, 94, 0.06);
+}
+
+.anchor-status-badge[data-status="PENDING"] {
+    color: #f59e0b !important;
+    border-color: rgba(245, 158, 11, 0.3);
+    background: rgba(245, 158, 11, 0.06);
+}
+
+.anchor-status-badge[data-status="FAILED"] {
+    color: #ef4444 !important;
+    border-color: rgba(239, 68, 68, 0.3);
+    background: rgba(239, 68, 68, 0.06);
+}
+
+.anchor-status-badge[data-status="FAILED"] .anchor-status-dot {
+    animation: none;
+}
+
+@keyframes anchorFlowParticle {
+    0% {
+        left: 0;
+        opacity: 0;
+    }
+    12% {
+        opacity: 1;
+    }
+    82% {
+        opacity: 1;
+    }
+    100% {
+        left: calc(100% - 8px);
+        opacity: 0;
+    }
+}
+
+@keyframes anchorNodeSweep {
+    0%, 20% { transform: translateX(-110%); }
+    55%, 100% { transform: translateX(110%); }
+}
+
+@keyframes anchorIconPulse {
+    0%, 100% { box-shadow: 0 0 12px rgba(34, 211, 238, 0.04); }
+    50% { box-shadow: 0 0 20px rgba(34, 211, 238, 0.13); }
+}
+
+@keyframes anchorStatusPulse {
+    0%, 100% { opacity: 0.55; transform: scale(0.85); }
+    50% { opacity: 1; transform: scale(1.15); }
 }
 
 /* =========================================================
@@ -434,8 +660,13 @@
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    .anchor-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+    .anchor-flow {
+        grid-template-columns: minmax(170px, 0.8fr) minmax(110px, 0.5fr) minmax(220px, 1fr);
+        gap: 12px;
+    }
+
+    .anchor-metadata {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
 
@@ -445,8 +676,43 @@
         grid-template-columns: 1fr;
     }
 
-    .anchor-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+    .anchor-flow {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .anchor-flow-connector {
+        min-height: 42px;
+    }
+
+    .anchor-flow-line {
+        left: 50%;
+        right: auto;
+        top: 0;
+        bottom: 0;
+        width: 1px;
+        height: auto;
+        background: repeating-linear-gradient(
+            180deg,
+            rgba(34, 211, 238, 0.38) 0 5px,
+            transparent 5px 10px
+        );
+    }
+
+    .anchor-flow-particle {
+        top: 0;
+        left: calc(50% - 4px);
+        animation: anchorFlowParticleVertical 2.2s linear infinite;
+    }
+
+    .anchor-flow-caption {
+        top: 50%;
+        left: calc(50% + 14px);
+        transform: translateY(-50%);
+    }
+
+    .anchor-metadata {
+        grid-template-columns: 1fr;
     }
 }
 
@@ -982,6 +1248,34 @@
     .evidence-hash-card::before,
     .evidence-hash-scan,
     .hash-status-dot {
+        animation: none;
+    }
+}
+
+
+@keyframes anchorFlowParticleVertical {
+    0% {
+        top: 0;
+        opacity: 0;
+    }
+    12% {
+        opacity: 1;
+    }
+    82% {
+        opacity: 1;
+    }
+    100% {
+        top: calc(100% - 8px);
+        opacity: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .anchor-flow-particle,
+    .anchor-root-node::before,
+    .anchor-contract-node::before,
+    .anchor-contract-icon,
+    .anchor-status-dot {
         animation: none;
     }
 }
