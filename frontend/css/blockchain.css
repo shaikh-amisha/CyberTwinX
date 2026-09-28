@@ -696,3 +696,250 @@
         min-width: 720px;
     }
 }
+
+
+/* =========================================================
+   EVIDENCE HASHES — ANIMATED CRYPTOGRAPHIC CARDS
+   ========================================================= */
+
+.evidence-hashes-card { overflow: hidden; }
+
+.evidence-hashes-header { align-items: flex-start; }
+
+.evidence-hashes-subtitle {
+    display: block;
+    margin-top: 5px;
+    color: #718292;
+    font-size: 8px;
+    line-height: 1.4;
+}
+
+.evidence-hash-list {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+}
+
+.evidence-hash-card {
+    --hash-delay: 0s;
+    position: relative;
+    display: grid;
+    grid-template-columns: 34px minmax(0, 1fr);
+    gap: 10px;
+    padding: 10px 11px;
+    overflow: hidden;
+    border: 1px solid rgba(75, 95, 110, 0.45);
+    border-radius: 8px;
+    background: linear-gradient(105deg, rgba(34, 211, 238, 0.045), rgba(8, 14, 20, 0.88) 42%, rgba(34, 211, 238, 0.025));
+    animation: evidenceCardIn 0.55s ease both;
+    animation-delay: var(--hash-delay);
+    transition: border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.evidence-hash-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(34, 211, 238, 0.055), transparent);
+    transform: translateX(-110%);
+    animation: hashSweep 3.6s ease-in-out infinite;
+    animation-delay: calc(var(--hash-delay) + 0.7s);
+    pointer-events: none;
+}
+
+.evidence-hash-card:hover {
+    transform: translateX(3px);
+    border-color: rgba(34, 211, 238, 0.55);
+    box-shadow: 0 0 18px rgba(34, 211, 238, 0.07), inset 0 0 18px rgba(34, 211, 238, 0.025);
+}
+
+.evidence-hash-index {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    margin-top: 1px;
+    border: 1px solid rgba(34, 211, 238, 0.28);
+    border-radius: 7px;
+    background: rgba(34, 211, 238, 0.055);
+    color: #22d3ee;
+    font-family: "Cascadia Code", "Fira Code", Consolas, monospace;
+    font-size: 9px;
+    font-weight: 800;
+}
+
+.evidence-hash-main { min-width: 0; }
+
+.evidence-hash-topline {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.evidence-hash-identity {
+    min-width: 0;
+    display: flex;
+    align-items: baseline;
+    gap: 7px;
+}
+
+.evidence-hash-identity strong {
+    color: #e1ebf0;
+    font-size: 10px;
+    letter-spacing: 0.45px;
+}
+
+.evidence-hash-identity span {
+    color: #718292;
+    font-size: 8px;
+}
+
+.evidence-hash-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+    color: #22c55e;
+    font-size: 7px;
+    font-weight: 800;
+    letter-spacing: 0.7px;
+}
+
+.hash-status-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #22c55e;
+    box-shadow: 0 0 7px rgba(34, 197, 94, 0.7);
+    animation: hashStatusPulse 1.8s ease-in-out infinite;
+}
+
+.evidence-hash-value {
+    display: flex;
+    gap: 5px;
+    margin-top: 8px;
+    padding: 7px 8px;
+    border: 1px solid rgba(48, 67, 80, 0.6);
+    border-radius: 5px;
+    background: rgba(3, 8, 13, 0.82);
+    overflow: hidden;
+}
+
+.evidence-hash-value span {
+    position: relative;
+    color: #22d3ee;
+    font-family: "Cascadia Code", "Fira Code", Consolas, monospace;
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    opacity: 0.92;
+}
+
+.evidence-hash-value span:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    right: -3px;
+    top: 2px;
+    width: 1px;
+    height: 9px;
+    background: rgba(34, 211, 238, 0.2);
+}
+
+.evidence-hash-meta-row {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-top: 6px;
+    color: #667784;
+    font-size: 7px;
+    font-weight: 700;
+    letter-spacing: 0.35px;
+}
+
+.evidence-hash-meta-row span {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.evidence-hash-meta-row i {
+    color: #718b9b;
+    font-size: 8px;
+}
+
+.evidence-hash-meta-row .hash-length {
+    margin-left: auto;
+    color: #4f6473;
+}
+
+.evidence-hash-scan {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 2px;
+    height: 100%;
+    background: #22d3ee;
+    box-shadow: 0 0 10px rgba(34, 211, 238, 0.75);
+    transform: translateY(-110%);
+    animation: hashVerticalScan 3.4s ease-in-out infinite;
+    animation-delay: var(--hash-delay);
+    pointer-events: none;
+}
+
+.hash-stream-footer {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-top: 12px;
+    color: #526674;
+    font-size: 7px;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+}
+
+.hash-stream-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #22d3ee;
+    box-shadow: 0 0 7px rgba(34, 211, 238, 0.7);
+}
+
+.hash-stream-line {
+    flex: 1;
+    height: 1px;
+    background: repeating-linear-gradient(90deg, rgba(34, 211, 238, 0.3) 0 4px, transparent 4px 8px);
+}
+
+@keyframes evidenceCardIn {
+    from { opacity: 0; transform: translateX(-12px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes hashSweep {
+    0% { transform: translateX(-110%); }
+    45%, 100% { transform: translateX(110%); }
+}
+
+@keyframes hashVerticalScan {
+    0%, 15% { transform: translateY(-110%); opacity: 0; }
+    25% { opacity: 1; }
+    55% { opacity: 1; }
+    70%, 100% { transform: translateY(110%); opacity: 0; }
+}
+
+@keyframes hashStatusPulse {
+    0%, 100% { opacity: 0.55; transform: scale(0.85); }
+    50% { opacity: 1; transform: scale(1.15); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .evidence-hash-card,
+    .evidence-hash-card::before,
+    .evidence-hash-scan,
+    .hash-status-dot {
+        animation: none;
+    }
+}
