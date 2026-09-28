@@ -293,31 +293,57 @@
                     </div>
                 </div>
 
-                <article class="dashboard-card">
-                    <div class="anchor-grid">
-                        <div class="anchor-item">
-                            <span>Network</span>
-                            <strong id="anchorNetwork">Hardhat Local</strong>
+                <article class="dashboard-card onchain-anchor-card">
+                    <div class="anchor-flow">
+
+                        <div class="anchor-root-node">
+                            <span class="anchor-flow-label">MERKLE ROOT</span>
+                            <strong class="anchor-mono" id="anchorRoot">8f91a2c7...8a6c</strong>
+                            <span class="anchor-flow-sub">Current evidence set</span>
                         </div>
+
+                        <div class="anchor-flow-connector" aria-hidden="true">
+                            <span class="anchor-flow-line"></span>
+                            <span class="anchor-flow-particle"></span>
+                            <span class="anchor-flow-arrow">›</span>
+                            <span class="anchor-flow-caption">ANCHORED ON-CHAIN</span>
+                        </div>
+
+                        <div class="anchor-contract-node">
+                            <div class="anchor-contract-icon">
+                                <i class="bi bi-link-45deg"></i>
+                            </div>
+                            <div>
+                                <span class="anchor-flow-label">ON-CHAIN INTEGRITY ANCHOR</span>
+                                <strong>CyberTwinX Integrity Contract</strong>
+                                <span class="anchor-flow-sub" id="anchorNetwork">Hardhat Local</span>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="anchor-metadata">
                         <div class="anchor-item">
                             <span>Contract</span>
                             <strong class="anchor-mono" id="anchorContract">0x71a...c92</strong>
                         </div>
-                        <div class="anchor-item">
-                            <span>Merkle Root</span>
-                            <strong class="anchor-mono" id="anchorRoot">8f91a2c7...8a6c</strong>
-                        </div>
+
                         <div class="anchor-item">
                             <span>Transaction</span>
                             <strong class="anchor-mono" id="anchorTransaction">0x9d3...a41</strong>
                         </div>
+
                         <div class="anchor-item">
                             <span>Block</span>
                             <strong class="anchor-mono" id="anchorBlock">#1842</strong>
                         </div>
-                        <div class="anchor-item confirmed">
-                            <span>Status</span>
-                            <strong id="anchorStatus">CONFIRMED</strong>
+
+                        <div class="anchor-item anchor-status-item">
+                            <span>Anchor Status</span>
+                            <strong class="anchor-status-badge" id="anchorStatus" data-status="PENDING">
+                                <span class="anchor-status-dot"></span>
+                                <span class="anchor-status-text">PENDING</span>
+                            </strong>
                         </div>
                     </div>
                 </article>
