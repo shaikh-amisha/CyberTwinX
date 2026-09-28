@@ -138,17 +138,60 @@ function renderOverview() {
 function renderEvidenceHashes() {
     if (!elements.evidenceHashList) return;
 
-    elements.evidenceHashList.innerHTML = blockchainState.evidence.map(item => `
-        <div class="evidence-hash-row">
-            <div>
-                <div class="evidence-id">${item.id}</div>
+    elements.evidenceHashList.innerHTML = blockchainState.evidence.map((item, index) => {
+        const hashGroups = item.hash.match(/.{1,8}/g) || [item.hash];
+        const hashVisual = hashGroups.map(group => `<span>${group}</span>`).join("");
+
+        return `
+            <div class="evidence-hash-card" style="--hash-delay: ${index * 0.14}s">
+
+                <div class="evidence-hash-index">
+                    <span>0${index + 1}</span>
+                </div>
+
+                <div class="evidence-hash-main">
+
+                    <div class="evidence-hash-topline">
+
+                        <div class="evidence-hash-identity">
+                            <strong>${item.id}</strong>
+                            <span>${item.type}</span>
+                        </div>
+
+                        <div class="evidence-hash-status">
+                            <span class="hash-status-dot"></span>
+                            HASHED
+                        </div>
+
+                    </div>
+
+                    <div class="evidence-hash-value">
+                        ${hashVisual}
+                    </div>
+
+                    <div class="evidence-hash-meta-row">
+                        <span>
+                            <i class="bi bi-fingerprint"></i>
+                            SHA-256
+                        </span>
+
+                        <span>
+                            <i class="bi bi-diagram-3"></i>
+                            MERKLE LEAF
+                        </span>
+
+                        <span class="hash-length">
+                            256-BIT
+                        </span>
+                    </div>
+
+                </div>
+
+                <div class="evidence-hash-scan"></div>
+
             </div>
-            <div>
-                <div class="evidence-hash" title="${item.hash}">${shortHash(item.hash, 12, 8)}</div>
-                <span class="evidence-hash-meta">${item.type} · SHA-256</span>
-            </div>
-        </div>
-    `).join("");
+        `;
+    }).join("");
 }
 
 function renderMerkleRoot() {
