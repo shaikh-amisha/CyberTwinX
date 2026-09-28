@@ -164,12 +164,21 @@
                 </div>
 
                 <div class="merkle-layout">
-                    <article class="dashboard-card">
-                        <div class="card-header">
-                            <span class="card-label">EVIDENCE HASHES</span>
+                    <article class="dashboard-card evidence-hashes-card">
+                        <div class="card-header evidence-hashes-header">
+                            <div>
+                                <span class="card-label">EVIDENCE HASHES</span>
+                                <span class="evidence-hashes-subtitle">Cryptographic fingerprints generated from evidence snapshots</span>
+                            </div>
                             <span class="simulation-badge">DEMO DATA</span>
                         </div>
                         <div class="evidence-hash-list" id="evidenceHashList"></div>
+                        <div class="hash-stream-footer">
+                            <span class="hash-stream-dot"></span>
+                            <span>SHA-256 HASH STREAM</span>
+                            <span class="hash-stream-line"></span>
+                            <span>4 LEAVES</span>
+                        </div>
                     </article>
 
                     <article class="dashboard-card merkle-visual-card">
