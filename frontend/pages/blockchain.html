@@ -315,41 +315,64 @@
                             </div>
                             <div>
                                 <span class="anchor-flow-label">ON-CHAIN INTEGRITY ANCHOR</span>
-                                <strong>CyberTwinX Integrity Contract</strong>
-                                <span class="anchor-flow-sub" id="anchorNetwork">Hardhat Local</span>
+                                <strong class="anchor-anchor-status">
+                                    <span class="anchor-status-dot"></span>
+                                    <span class="anchor-status-text" id="anchorStatus">CONFIRMED</span>
+                                </strong>
+                                <span class="anchor-flow-sub">CyberTwinX Integrity Contract</span>
                             </div>
                         </div>
 
                     </div>
 
-                    <div class="anchor-output-flow">
-                        <div class="anchor-item">
-                            <span>Contract</span>
-                            <strong class="anchor-mono" id="anchorContract">0x71a...c92</strong>
-                        </div>
+                    <div class="anchor-output-area">
+                        <span class="anchor-branch-line" aria-hidden="true"></span>
 
-                        <span class="anchor-output-arrow" aria-hidden="true">›</span>
+                        <div class="anchor-output-grid">
 
-                        <div class="anchor-item">
-                            <span>Transaction</span>
-                            <strong class="anchor-mono" id="anchorTransaction">0x9d3...a41</strong>
-                        </div>
+                            <div class="anchor-output-node">
+                                <span class="anchor-output-arrow" aria-hidden="true">▼</span>
+                                <div class="anchor-item">
+                                    <span>Network</span>
+                                    <strong class="anchor-mono" id="anchorNetworkOutput">Hardhat Local</strong>
+                                </div>
+                            </div>
 
-                        <span class="anchor-output-arrow" aria-hidden="true">›</span>
+                            <div class="anchor-output-node">
+                                <span class="anchor-output-arrow" aria-hidden="true">▼</span>
+                                <div class="anchor-item">
+                                    <span>Contract</span>
+                                    <strong class="anchor-mono" id="anchorContract">0x71a...c92</strong>
+                                </div>
+                            </div>
 
-                        <div class="anchor-item">
-                            <span>Block</span>
-                            <strong class="anchor-mono" id="anchorBlock">#1842</strong>
-                        </div>
+                            <div class="anchor-output-node">
+                                <span class="anchor-output-arrow" aria-hidden="true">▼</span>
+                                <div class="anchor-item">
+                                    <span>Transaction</span>
+                                    <strong class="anchor-mono" id="anchorTransaction">0x9d3...a41</strong>
+                                </div>
+                            </div>
 
-                        <span class="anchor-output-arrow" aria-hidden="true">›</span>
+                            <div class="anchor-output-node">
+                                <span class="anchor-output-arrow" aria-hidden="true">▼</span>
+                                <div class="anchor-item">
+                                    <span>Block</span>
+                                    <strong class="anchor-mono" id="anchorBlock">#1842</strong>
+                                </div>
+                            </div>
 
-                        <div class="anchor-item anchor-status-item">
-                            <span>Anchor Status</span>
-                            <strong class="anchor-status-badge" id="anchorStatus" data-status="PENDING">
-                                <span class="anchor-status-dot"></span>
-                                <span class="anchor-status-text">PENDING</span>
-                            </strong>
+                            <div class="anchor-output-node">
+                                <span class="anchor-output-arrow" aria-hidden="true">▼</span>
+                                <div class="anchor-item anchor-status-item">
+                                    <span>Status</span>
+                                    <strong class="anchor-status-badge" id="anchorOutputStatus" data-status="PENDING">
+                                        <span class="anchor-status-dot"></span>
+                                        <span class="anchor-status-text">PENDING</span>
+                                    </strong>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                 </article>
