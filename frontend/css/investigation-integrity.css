@@ -1710,3 +1710,395 @@
         flex: 1;
     }
 }
+
+
+/* =========================================================
+   LIVE INTEGRITY INVESTIGATION MODAL
+   ========================================================= */
+
+.integrity-investigation-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 3000;
+    display: grid;
+    place-items: center;
+    padding: 28px;
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 220ms ease, visibility 220ms ease;
+}
+
+.integrity-investigation-modal.is-open {
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.integrity-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(2, 6, 10, 0.82);
+    backdrop-filter: blur(7px);
+}
+
+.integrity-modal {
+    position: relative;
+    width: min(1040px, 94vw);
+    max-height: min(760px, 90vh);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid rgba(99, 243, 255, 0.2);
+    border-radius: 16px;
+    background:
+        radial-gradient(circle at 85% 0%, rgba(99, 243, 255, 0.055), transparent 32%),
+        linear-gradient(180deg, #111923 0%, #0a1017 100%);
+    box-shadow:
+        0 30px 100px rgba(0, 0, 0, 0.55),
+        0 0 50px rgba(99, 243, 255, 0.05);
+    transform: translateY(14px) scale(.985);
+    transition: transform 240ms cubic-bezier(.2,.8,.2,1);
+}
+
+.integrity-investigation-modal.is-open .integrity-modal {
+    transform: translateY(0) scale(1);
+}
+
+.integrity-modal-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 25px 28px 20px;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.integrity-modal-eyebrow {
+    display: block;
+    color: var(--integrity-accent);
+    font-size: .53rem;
+    font-weight: 900;
+    letter-spacing: .16em;
+}
+
+.integrity-modal-header h3 {
+    margin: 7px 0 5px;
+    color: #f8fafc;
+    font-size: 1.35rem;
+    font-weight: 800;
+}
+
+.integrity-modal-header p {
+    margin: 0;
+    color: rgba(148, 163, 184, .58);
+    font-size: .67rem;
+}
+
+.integrity-modal-close {
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    border: 1px solid rgba(148, 163, 184, .15);
+    border-radius: 8px;
+    background: rgba(148, 163, 184, .05);
+    color: rgba(226, 232, 240, .62);
+    cursor: pointer;
+    transition: .18s ease;
+}
+
+.integrity-modal-close:hover {
+    color: #f8fafc;
+    border-color: rgba(99, 243, 255, .4);
+    background: rgba(99, 243, 255, .08);
+}
+
+.integrity-modal-statusbar {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    padding: 10px 28px;
+    color: rgba(148, 163, 184, .5);
+    font-size: .5rem;
+    font-weight: 800;
+    letter-spacing: .08em;
+    border-bottom: 1px solid rgba(148, 163, 184, .07);
+}
+
+.integrity-modal-statusbar i {
+    color: rgba(99, 243, 255, .7);
+    margin-right: 4px;
+}
+
+.integrity-modal-statusbar strong {
+    color: rgba(226, 232, 240, .8);
+}
+
+.integrity-modal-live {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--integrity-success);
+}
+
+.integrity-modal-body {
+    min-height: 0;
+    overflow: auto;
+    padding: 22px 28px 20px;
+}
+
+.integrity-modal-chain {
+    min-height: 230px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow-x: auto;
+    padding: 10px 5px 16px;
+}
+
+.integrity-modal-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: rgba(148, 163, 184, .42);
+    text-align: center;
+}
+
+.integrity-modal-placeholder i {
+    color: rgba(99, 243, 255, .5);
+    font-size: 1.5rem;
+}
+
+.integrity-modal-placeholder strong {
+    color: rgba(226, 232, 240, .72);
+    font-size: .7rem;
+    letter-spacing: .08em;
+}
+
+.integrity-modal-placeholder span {
+    font-size: .55rem;
+}
+
+.integrity-modal-chain .verification-live-track {
+    width: 100%;
+    min-height: 190px;
+    padding: 15px 8px;
+    overflow-x: auto;
+}
+
+.integrity-modal-chain .verification-live-node {
+    width: 150px;
+    min-height: 124px;
+}
+
+.integrity-modal-chain .verification-live-node-wrap {
+    gap: 12px;
+}
+
+.integrity-modal-root-row {
+    margin-top: 2px;
+    padding: 14px 17px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    border: 1px solid rgba(99, 243, 255, .18);
+    border-radius: 10px;
+    background: rgba(99, 243, 255, .035);
+    animation: integrityStageReveal 400ms ease both;
+}
+
+.integrity-modal-root-row > div {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.integrity-modal-root-row span:first-child {
+    color: rgba(148, 163, 184, .48);
+    font-size: .48rem;
+    font-weight: 800;
+    letter-spacing: .12em;
+}
+
+.integrity-modal-root-row strong {
+    color: var(--integrity-accent);
+    font-family: "SFMono-Regular", Consolas, monospace;
+    font-size: .58rem;
+}
+
+.integrity-modal-root-status {
+    color: var(--integrity-success);
+    font-size: .5rem;
+    font-weight: 900;
+    letter-spacing: .08em;
+    white-space: nowrap;
+}
+
+.integrity-modal-analysis {
+    margin-top: 13px;
+    padding: 15px 17px;
+    border: 1px solid rgba(255, 200, 90, .14);
+    border-radius: 10px;
+    background: rgba(255, 200, 90, .025);
+    animation: integrityStageReveal 400ms ease both;
+}
+
+.integrity-analysis-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 13px;
+}
+
+.integrity-analysis-header > div {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.integrity-analysis-header strong {
+    color: rgba(248, 250, 252, .84);
+    font-size: .68rem;
+}
+
+.integrity-analysis-header > span {
+    color: rgba(148, 163, 184, .5);
+    font-size: .48rem;
+    font-weight: 900;
+    letter-spacing: .1em;
+}
+
+.integrity-tamper-controls {
+    display: flex;
+    gap: 6px;
+    padding: 4px;
+    border-radius: 8px;
+    background: rgba(148, 163, 184, .055);
+}
+
+.integrity-tamper-control {
+    flex: 1;
+    min-height: 30px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: rgba(148, 163, 184, .54);
+    font-family: inherit;
+    font-size: .48rem;
+    font-weight: 900;
+    letter-spacing: .08em;
+    cursor: pointer;
+    transition: .18s ease;
+}
+
+.integrity-tamper-control:hover {
+    color: rgba(248, 250, 252, .82);
+}
+
+.integrity-tamper-control.active {
+    color: #091016;
+    background: #f8fafc;
+}
+
+.integrity-modal-analysis p {
+    margin: 11px 0 0;
+    color: rgba(148, 163, 184, .55);
+    font-size: .54rem;
+    line-height: 1.5;
+}
+
+.integrity-modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 15px 28px 18px;
+    border-top: 1px solid rgba(148, 163, 184, .1);
+}
+
+.integrity-modal-footer > span {
+    color: rgba(148, 163, 184, .48);
+    font-size: .52rem;
+}
+
+.integrity-modal-footer > span i {
+    color: rgba(99, 243, 255, .65);
+    margin-right: 5px;
+}
+
+.integrity-modal-run {
+    min-width: 170px;
+    min-height: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: 1px solid rgba(99, 243, 255, .34);
+    border-radius: 8px;
+    background: rgba(99, 243, 255, .08);
+    color: var(--integrity-accent);
+    font-family: inherit;
+    font-size: .53rem;
+    font-weight: 900;
+    letter-spacing: .08em;
+    cursor: pointer;
+}
+
+.integrity-modal-run:hover {
+    background: rgba(99, 243, 255, .14);
+    border-color: rgba(99, 243, 255, .58);
+}
+
+.integrity-modal-run:disabled {
+    opacity: .55;
+    cursor: wait;
+}
+
+body.integrity-modal-open {
+    overflow: hidden;
+}
+
+@media (max-width: 760px) {
+    .integrity-investigation-modal {
+        padding: 12px;
+    }
+
+    .integrity-modal {
+        width: 100%;
+        max-height: 94vh;
+    }
+
+    .integrity-modal-header,
+    .integrity-modal-statusbar,
+    .integrity-modal-body,
+    .integrity-modal-footer {
+        padding-left: 18px;
+        padding-right: 18px;
+    }
+
+    .integrity-modal-statusbar {
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .integrity-modal-live {
+        margin-left: 0;
+    }
+
+    .integrity-modal-root-row,
+    .integrity-modal-footer,
+    .integrity-analysis-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .integrity-modal-run {
+        width: 100%;
+    }
+}
