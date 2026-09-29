@@ -1385,3 +1385,328 @@
         min-height: 0;
     }
 }
+
+/* ---------------------------------------------------------
+   Live forensic blockchain traversal
+   --------------------------------------------------------- */
+
+.verification-chain-stage {
+    overflow: hidden;
+}
+
+.verification-chain-stage-live {
+    padding: 4px 0 0;
+}
+
+.verification-live-caption {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 14px;
+}
+
+.verification-live-caption > div {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.verification-live-caption strong {
+    color: rgba(248, 250, 252, 0.9);
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+}
+
+.verification-live-caption span {
+    color: rgba(148, 163, 184, 0.46);
+    font-size: 0.54rem;
+}
+
+.verification-live-state {
+    color: var(--integrity-accent);
+    font-size: 0.52rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    white-space: nowrap;
+}
+
+.verification-live-track {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 142px;
+    padding: 12px 8px 18px;
+    overflow-x: auto;
+}
+
+.verification-live-node-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 0 0 auto;
+}
+
+.verification-live-node {
+    width: 126px;
+    min-height: 112px;
+    padding: 11px 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 7px;
+    border: 1px solid rgba(83, 245, 155, 0.34);
+    border-radius: 9px;
+    background: linear-gradient(180deg, rgba(18, 29, 30, 0.96), rgba(10, 17, 21, 0.98));
+    box-shadow: 0 0 18px rgba(83, 245, 155, 0.035);
+    cursor: pointer;
+    opacity: 0;
+    transform: translateX(-18px) scale(0.96);
+    animation: liveBlockEnter 520ms cubic-bezier(.2,.8,.2,1) forwards;
+    transition: border-color .22s ease, box-shadow .22s ease, background .22s ease, transform .22s ease;
+}
+
+.verification-live-node:hover:not(.is-locked) {
+    transform: translateY(-3px);
+    border-color: rgba(99, 243, 255, 0.55);
+    box-shadow: 0 0 24px rgba(99, 243, 255, 0.1);
+}
+
+.verification-live-node.is-genesis {
+    cursor: default;
+}
+
+.verification-live-node-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.verification-live-node-top span {
+    color: rgba(148, 163, 184, 0.48);
+    font-size: 0.47rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+}
+
+.verification-live-node-top i {
+    color: var(--integrity-success);
+    font-size: 0.66rem;
+}
+
+.verification-live-node strong {
+    color: rgba(248, 250, 252, 0.94);
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    font-size: 0.74rem;
+}
+
+.verification-live-node-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.verification-live-node-meta span {
+    color: rgba(148, 163, 184, 0.42);
+    font-size: 0.46rem;
+    letter-spacing: 0.08em;
+}
+
+.verification-live-node-meta strong {
+    color: rgba(99, 243, 255, 0.7);
+    font-size: 0.5rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.verification-live-node[data-status="TAMPERED"] {
+    border-color: rgba(255, 157, 76, 0.8);
+    background: linear-gradient(180deg, rgba(57, 37, 20, 0.98), rgba(25, 20, 17, 0.98));
+    box-shadow: 0 0 28px rgba(255, 157, 76, 0.13);
+}
+
+.verification-live-node[data-status="TAMPERED"] .verification-live-node-top i,
+.verification-live-node[data-status="TAMPERED"] .verification-live-node-meta strong {
+    color: #ff9d4c;
+}
+
+.verification-live-node[data-status="INVALID"] {
+    border-color: rgba(255, 107, 120, 0.68);
+    background: linear-gradient(180deg, rgba(54, 23, 29, 0.98), rgba(25, 16, 20, 0.98));
+    box-shadow: 0 0 22px rgba(255, 107, 120, 0.08);
+}
+
+.verification-live-node[data-status="INVALID"] .verification-live-node-top i,
+.verification-live-node[data-status="INVALID"] .verification-live-node-meta strong {
+    color: var(--integrity-danger);
+}
+
+.verification-live-node.is-selected {
+    outline: 1px solid rgba(255, 157, 76, 0.38);
+    outline-offset: 3px;
+}
+
+.verification-live-arrow {
+    flex: 0 0 auto;
+    color: rgba(83, 245, 155, 0.5);
+    font-size: 0.72rem;
+    opacity: 0;
+    animation: liveArrowEnter 320ms ease forwards;
+}
+
+.verification-live-arrow[data-invalid="true"] {
+    color: var(--integrity-danger);
+}
+
+@keyframes liveBlockEnter {
+    0% { opacity: 0; transform: translateX(-18px) scale(.96); }
+    70% { opacity: 1; transform: translateX(2px) scale(1.01); }
+    100% { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+@keyframes liveArrowEnter {
+    from { opacity: 0; transform: translateX(-5px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+.verification-tamper-console {
+    display: none;
+    margin-top: 2px;
+    padding: 14px 16px;
+    border-top: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.verification-tamper-console.is-visible {
+    display: block;
+    animation: integrityStageReveal 420ms ease both;
+}
+
+.verification-tamper-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 10px;
+}
+
+.verification-tamper-header > div {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.verification-tamper-header strong {
+    color: rgba(248, 250, 252, 0.82);
+    font-size: 0.59rem;
+    letter-spacing: 0.08em;
+}
+
+.verification-tamper-header span {
+    color: rgba(148, 163, 184, 0.43);
+    font-size: 0.51rem;
+}
+
+.verification-tamper-status {
+    color: rgba(148, 163, 184, 0.5);
+    font-size: 0.5rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+}
+
+.verification-tamper-options {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px;
+    border-radius: 999px;
+    background: rgba(148, 163, 184, 0.08);
+}
+
+.verification-tamper-option {
+    min-width: 58px;
+    padding: 6px 10px;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: rgba(148, 163, 184, 0.58);
+    font-family: inherit;
+    font-size: 0.5rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    transition: background .2s ease, color .2s ease, box-shadow .2s ease;
+}
+
+.verification-tamper-option:hover {
+    color: rgba(248, 250, 252, 0.82);
+}
+
+.verification-tamper-option.active {
+    color: #10161c;
+    background: #f8fafc;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.22);
+}
+
+.verification-tamper-option:first-child {
+    min-width: 74px;
+}
+
+.verification-tamper-explanation {
+    margin-top: 10px;
+    min-height: 34px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: rgba(148, 163, 184, 0.58);
+    font-size: 0.55rem;
+    line-height: 1.45;
+}
+
+.verification-tamper-explanation i {
+    color: #ff9d4c;
+    font-size: 0.72rem;
+}
+
+.verification-chain-final {
+    margin: 12px auto 0;
+    max-width: 360px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    border-radius: 999px;
+    border: 1px solid rgba(83, 245, 155, 0.18);
+    background: rgba(83, 245, 155, 0.045);
+    color: var(--integrity-success);
+    font-size: 0.54rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-align: center;
+}
+
+.verification-chain-final.tampered {
+    border-color: rgba(255, 107, 120, 0.24);
+    background: rgba(255, 107, 120, 0.045);
+    color: var(--integrity-danger);
+}
+
+@media (max-width: 720px) {
+    .verification-live-caption,
+    .verification-tamper-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .verification-tamper-options {
+        width: 100%;
+        justify-content: stretch;
+    }
+
+    .verification-tamper-option {
+        flex: 1;
+    }
+}
