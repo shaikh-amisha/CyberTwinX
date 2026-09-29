@@ -211,6 +211,65 @@
             </section>
 
         </section>
+    <!-- LIVE INTEGRITY INVESTIGATION MODAL -->
+    <div class="integrity-investigation-modal" id="integrityInvestigationModal" aria-hidden="true">
+        <div class="integrity-modal-backdrop" data-close-integrity-modal></div>
+        <section class="integrity-modal" role="dialog" aria-modal="true" aria-labelledby="integrityModalTitle">
+            <header class="integrity-modal-header">
+                <div>
+                    <span class="integrity-modal-eyebrow">CYBERTWIN / FORENSIC VERIFICATION</span>
+                    <h3 id="integrityModalTitle">Integrity Investigation</h3>
+                    <p>Traverse the anchored chain and inspect the selected evidence for tampering.</p>
+                </div>
+                <button class="integrity-modal-close" id="closeIntegrityModal" type="button" aria-label="Close investigation">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </header>
+            <div class="integrity-modal-statusbar">
+                <span><i class="bi bi-fingerprint"></i> EVIDENCE <strong>EVID-001</strong></span>
+                <span><i class="bi bi-link-45deg"></i> ROOT <strong>v3</strong></span>
+                <span class="integrity-modal-live" id="integrityModalLiveState"><span class="status-dot"></span> READY</span>
+            </div>
+            <div class="integrity-modal-body">
+                <div class="integrity-modal-chain" id="integrityModalChain" aria-live="polite">
+                    <div class="integrity-modal-placeholder">
+                        <i class="bi bi-shield-check"></i>
+                        <strong>Ready for verification</strong>
+                        <span>Start the integrity check to traverse the blockchain.</span>
+                    </div>
+                </div>
+                <div class="integrity-modal-root-row" id="integrityModalRootRow" hidden>
+                    <div>
+                        <span>MERKLE ROOT ANCHORED ON-CHAIN</span>
+                        <strong>8f91a2c7e4b61d09c5aa739f18d5de32...8a6c</strong>
+                    </div>
+                    <span class="integrity-modal-root-status"><i class="bi bi-check2-circle"></i> ANCHOR MATCH</span>
+                </div>
+                <div class="integrity-modal-analysis" id="integrityModalAnalysis" hidden>
+                    <div class="integrity-analysis-header">
+                        <div>
+                            <span class="integrity-modal-eyebrow">TAMPER ANALYSIS</span>
+                            <strong id="integrityAnalysisTitle">Chain verified</strong>
+                        </div>
+                        <span id="integrityAnalysisStatus">NO TAMPER SELECTED</span>
+                    </div>
+                    <div class="integrity-tamper-controls" role="group" aria-label="Select a block to inspect">
+                        <button class="integrity-tamper-control active" type="button" data-tamper-index="-1">CHAIN OK</button>
+                        <button class="integrity-tamper-control" type="button" data-tamper-index="1">BLOCK 1</button>
+                        <button class="integrity-tamper-control" type="button" data-tamper-index="2">BLOCK 2</button>
+                        <button class="integrity-tamper-control" type="button" data-tamper-index="3">BLOCK 3</button>
+                    </div>
+                    <p id="integrityAnalysisText">Select a block to simulate a tamper event and observe how the invalid hash propagates through the chain.</p>
+                </div>
+            </div>
+            <footer class="integrity-modal-footer">
+                <span id="integrityModalFooterMessage"><i class="bi bi-info-circle"></i> Verification will run live from Genesis to the anchored root.</span>
+                <button class="integrity-modal-run" id="runModalVerification" type="button">
+                    <i class="bi bi-shield-check"></i><span>Start Verification</span>
+                </button>
+            </footer>
+        </section>
+    </div>
     </main>
 </div>
 
