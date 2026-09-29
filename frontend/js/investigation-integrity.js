@@ -579,9 +579,303 @@ async function runIntegrityVerification() {
     pageElements.verifyButton.classList.remove("is-verifying");
 }
 
+
+const modalElements = {
+    modal: document.getElementById("integrityInvestigationModal"),
+    close: document.getElementById("closeIntegrityModal"),
+    run: document.getElementById("runModalVerification"),
+    chain: document.getElementById("integrityModalChain"),
+    root: document.getElementById("integrityModalRootRow"),
+    analysis: document.getElementById("integrityModalAnalysis"),
+    liveState: document.getElementById("integrityModalLiveState"),
+    footerMessage: document.getElementById("integrityModalFooterMessage"),
+    analysisTitle: document.getElementById("integrityAnalysisTitle"),
+    analysisStatus: document.getElementById("integrityAnalysisStatus"),
+    analysisText: document.getElementById("integrityAnalysisText")
+};
+
+function openIntegrityModal() {
+    if (!modalElements.modal) return;
+    modalElements.modal.classList.add("is-open");
+    modalElements.modal.setAttribute("aria-hidden", "false");
+    document.body.classList.add("integrity-modal-open");
+    resetIntegrityModal();
+}
+
+function closeIntegrityModal() {
+    if (!modalElements.modal) return;
+    modalElements.modal.classList.remove("is-open");
+    modalElements.modal.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("integrity-modal-open");
+}
+
+function resetIntegrityModal() {
+    if (!modalElements.chain) return;
+
+    modalElements.chain.innerHTML =
+        '<div class="integrity-modal-placeholder">' +
+        '<i class="bi bi-shield-check"></i>' +
+        '<strong>Ready for verification</strong>' +
+        '<span>Start the integrity check to traverse the blockchain.</span>' +
+        '</div>';
+
+    if (modalElements.root) modalElements.root.hidden = true;
+    if (modalElements.analysis) modalElements.analysis.hidden = true;
+
+    if (modalElements.liveState) {
+        modalElements.liveState.innerHTML = '<span class="status-dot"></span> READY';
+    }
+
+    if (modalElements.footerMessage) {
+        modalElements.footerMessage.innerHTML =
+            '<i class="bi bi-info-circle"></i> Verification will run live from Genesis to the anchored root.';
+    }
+
+    if (modalElements.run) {
+        modalElements.run.disabled = false;
+        modalElements.run.innerHTML =
+            '<i class="bi bi-shield-check"></i><span>Start Verification</span>';
+    }
+
+    setResult(
+        "IDLE",
+        "READY TO VERIFY",
+        "Open the investigation window to run the blockchain integrity check."
+    );
+
+    investigationIntegrityState.verificationPath.forEach(function(_, index) {
+        setPathStepState(index, "READY");
+    });
+
+    if (pageElements.verificationPanelState) {
+        pageElements.verificationPanelState.textContent = "READY";
+    }
+}
+
+function createModalBlock(block, index) {
+    const wrapper = document.createElement("div");
+    wrapper.className = "verification-live-node-wrap";
+    wrapper.dataset.index = String(index);
+
+    if (index > 0) {
+        const arrow = document.createElement("i");
+        arrow.className = "bi bi-arrow-right verification-live-arrow";
+        arrow.dataset.fromIndex = String(index - 1);
+        wrapper.appendChild(arrow);
+    }
+
+    const node = document.createElement("button");
+    node.type = "button";
+    node.className = "verification-live-node";
+    node.dataset.blockIndex = String(index);
+    node.dataset.status = "VALID";
+    node.disabled = index === 0;
+
+    node.innerHTML =
+        '<div class="verification-live-node-top">' +
+            '<span>' + block.label + '</span>' +
+            '<i class="bi ' + (index === 0 ? "bi-circle-fill" : "bi-check-circle-fill") + '"></i>' +
+        '</div>' +
+        '<strong>#' + block.number + '</strong>' +
+        '<div class="verification-live-node-meta">' +
+            '<span>' + block.meta + '</span>' +
+            '<strong>' + block.hash + '</strong>' +
+        '</div>';
+
+    if (index > 0) {
+        node.addEventListener("click", function() {
+            selectModalTamperedBlock(index);
+        });
+    }
+
+    wrapper.appendChild(node);
+    return wrapper;
+}
+
+function updateModalChain(tamperedIndex) {
+    const nodes = modalElements.chain?.querySelectorAll(".verification-live-node");
+    const arrows = modalElements.chain?.querySelectorAll(".verification-live-arrow");
+
+    if (!nodes) return;
+
+    nodes.forEach(function(node, index) {
+        node.classList.remove("is-selected");
+        node.dataset.status = "VALID";
+
+        if (tamperedIndex > 0 && index === tamperedIndex) {
+            node.dataset.status = "TAMPERED";
+            node.classList.add("is-selected");
+            node.querySelector(".verification-live-node-top i").className =
+                "bi bi-exclamation-triangle-fill";
+        } else if (tamperedIndex > 0 && index > tamperedIndex) {
+            node.dataset.status = "INVALID";
+            node.querySelector(".verification-live-node-top i").className =
+                "bi bi-x-circle-fill";
+        } else {
+            node.querySelector(".verification-live-node-top i").className =
+                index === 0 ? "bi bi-circle-fill" : "bi bi-check-circle-fill";
+        }
+    });
+
+    arrows?.forEach(function(arrow, index) {
+        arrow.dataset.invalid =
+            tamperedIndex > 0 && index >= tamperedIndex ? "true" : "false";
+    });
+
+    modalElements.analysis?.querySelectorAll(".integrity-tamper-control").forEach(function(button) {
+        button.classList.toggle(
+            "active",
+            Number(button.dataset.tamperIndex) === tamperedIndex
+        );
+    });
+
+    if (!modalElements.analysisTitle || !modalElements.analysisStatus || !modalElements.analysisText) return;
+
+    if (tamperedIndex < 1) {
+        modalElements.analysisTitle.textContent = "Chain verified";
+        modalElements.analysisStatus.textContent = "NO TAMPER SELECTED";
+        modalElements.analysisText.textContent =
+            "The chain is valid. Select a block to inspect how a changed hash propagates through subsequent links.";
+        return;
+    }
+
+    const blockNumber = demoBlocks[tamperedIndex].number.replace(/^0+/, "");
+    modalElements.analysisTitle.textContent = "Block " + blockNumber + " tampered";
+    modalElements.analysisStatus.textContent = "BLOCK " + blockNumber + " TAMPERED";
+    modalElements.analysisText.textContent =
+        "Block " + blockNumber + " changed: its hash no longer matches the chain, so every subsequent block's previous-hash link is invalid.";
+}
+
+function selectModalTamperedBlock(index) {
+    updateModalChain(index);
+
+    if (index < 1) {
+        if (modalElements.liveState) {
+            modalElements.liveState.innerHTML =
+                '<span class="status-dot"></span> ANCHOR VALID';
+        }
+
+        setResult(
+            "VERIFIED",
+            "INTEGRITY VERIFIED",
+            "The blockchain is valid. No tamper event is selected."
+        );
+        return;
+    }
+
+    const blockNumber = demoBlocks[index].number.replace(/^0+/, "");
+
+    if (modalElements.liveState) {
+        modalElements.liveState.innerHTML =
+            '<span class="status-dot"></span> TAMPER DETECTED';
+    }
+
+    setResult(
+        "TAMPERED",
+        "BLOCK " + blockNumber + " TAMPERED",
+        "Block " + blockNumber + " was modified. Its hash no longer matches the chain, invalidating every subsequent link."
+    );
+}
+
+async function runModalVerification() {
+    if (!modalElements.run || !modalElements.chain) return;
+
+    modalElements.run.disabled = true;
+    modalElements.run.innerHTML =
+        '<i class="bi bi-arrow-repeat"></i><span>Verifying...</span>';
+
+    modalElements.chain.innerHTML =
+        '<div class="verification-live-track" id="integrityModalLiveTrack"></div>';
+
+    const track = document.getElementById("integrityModalLiveTrack");
+
+    if (modalElements.liveState) {
+        modalElements.liveState.innerHTML =
+            '<span class="status-dot"></span> TRAVERSING';
+    }
+
+    setResult(
+        "VERIFYING",
+        "VERIFYING...",
+        "Running the evidence hash, Merkle proof and on-chain root comparison."
+    );
+
+    for (let index = 0; index < investigationIntegrityState.verificationPath.length; index += 1) {
+        setPathStepState(index, "VERIFYING");
+        await wait(430);
+        setPathStepState(index, index < 2 ? "READY" : "MATCH");
+    }
+
+    for (let index = 0; index < demoBlocks.length; index += 1) {
+        track.appendChild(createModalBlock(demoBlocks[index], index));
+        await wait(650);
+
+        const node = track.querySelector(
+            '.verification-live-node[data-block-index="' + index + '"]'
+        );
+
+        if (node) node.classList.add("is-verified");
+
+        if (index > 0) {
+            const arrow = track.querySelector(
+                '.verification-live-arrow[data-from-index="' + (index - 1) + '"]'
+            );
+            if (arrow) arrow.style.opacity = "1";
+        }
+    }
+
+    if (modalElements.root) modalElements.root.hidden = false;
+    if (modalElements.analysis) modalElements.analysis.hidden = false;
+
+    if (modalElements.liveState) {
+        modalElements.liveState.innerHTML =
+            '<span class="status-dot"></span> ANCHOR REACHED';
+    }
+
+    if (modalElements.footerMessage) {
+        modalElements.footerMessage.innerHTML =
+            '<i class="bi bi-check-circle"></i> Chain traversal complete. Select a block to investigate tampering.';
+    }
+
+    modalElements.run.disabled = false;
+    modalElements.run.innerHTML =
+        '<i class="bi bi-arrow-clockwise"></i><span>Run Again</span>';
+
+    setResult(
+        "VERIFIED",
+        "INTEGRITY VERIFIED",
+        "The reconstructed Merkle Root matches the on-chain anchor. Select a block below to investigate tampering."
+    );
+
+    updateModalChain(-1);
+}
+
 function initializeVerification() {
-    if (!pageElements.verifyButton) return;
-    pageElements.verifyButton.addEventListener("click", runIntegrityVerification);
+    if (!pageElements.verifyButton || !modalElements.modal) return;
+
+    pageElements.verifyButton.addEventListener("click", openIntegrityModal);
+    modalElements.close?.addEventListener("click", closeIntegrityModal);
+    modalElements.run?.addEventListener("click", runModalVerification);
+
+    modalElements.modal
+        .querySelectorAll("[data-close-integrity-modal]")
+        .forEach(function(element) {
+            element.addEventListener("click", closeIntegrityModal);
+        });
+
+    modalElements.analysis
+        ?.querySelectorAll(".integrity-tamper-control")
+        .forEach(function(button) {
+            button.addEventListener("click", function() {
+                selectModalTamperedBlock(Number(button.dataset.tamperIndex));
+            });
+        });
+
+    document.addEventListener("keydown", function(event) {
+        if (event.key === "Escape" && modalElements.modal.classList.contains("is-open")) {
+            closeIntegrityModal();
+        }
+    });
 }
 
 function initializePage() {
