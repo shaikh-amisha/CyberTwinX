@@ -132,87 +132,36 @@
                 </div>
 
                 <article class="dashboard-card verification-card">
-                    <div class="verification-toolbar">
-                        <div>
-                            <span class="card-label">EVIDENCE INTEGRITY PROOF</span>
-                            <span class="verification-subtitle">Blockchain traversal and Merkle proof validation</span>
-                        </div>
+                    <div class="verification-layout">
 
-                        <button class="verify-integrity-button" id="verifyIntegrityButton" type="button">
-                            <i class="bi bi-shield-check"></i>
-                            <span>VERIFY INTEGRITY</span>
-                        </button>
-                    </div>
-
-                    <div class="verification-chain-wrap">
-                        <div class="verification-chain" id="verificationChain">
-
-                            <div class="verification-block genesis" data-step="0">
-                                <span class="verification-block-top">GENESIS</span>
-                                <strong>#0000</strong>
-                                <span class="verification-block-meta">CHAIN START</span>
+                        <div class="verification-path-panel">
+                            <div class="verification-panel-header">
+                                <div>
+                                    <span class="card-label">VERIFICATION PATH</span>
+                                    <span class="verification-subtitle">Each stage is evaluated against the anchored evidence state.</span>
+                                </div>
+                                <span class="verification-panel-state" id="verificationPanelState">READY</span>
                             </div>
 
-                            <span class="verification-arrow" aria-hidden="true"><i class="bi bi-arrow-right"></i></span>
-
-                            <div class="verification-block" data-step="1">
-                                <span class="verification-block-top">BLOCK</span>
-                                <strong>#0001</strong>
-                                <span class="verification-block-meta">ANCHOR TX</span>
-                            </div>
-
-                            <span class="verification-arrow" aria-hidden="true"><i class="bi bi-arrow-right"></i></span>
-
-                            <div class="verification-block" data-step="2">
-                                <span class="verification-block-top">BLOCK</span>
-                                <strong>#0002</strong>
-                                <span class="verification-block-meta">ROOT V2</span>
-                            </div>
-
-                            <span class="verification-arrow" aria-hidden="true"><i class="bi bi-arrow-right"></i></span>
-
-                            <div class="verification-block active-anchor" data-step="3">
-                                <span class="verification-block-top">BLOCK</span>
-                                <strong>#0003</strong>
-                                <span class="verification-block-meta">ROOT V3</span>
-                            </div>
-
-                        </div>
-                    </div>
-
-                    <div class="verification-proof-flow">
-
-                        <div class="verification-proof-node root-proof">
-                            <span class="proof-label">MERKLE ROOT</span>
-                            <strong class="mono" id="verificationMerkleRoot">8f91a2c7...8a6c</strong>
-                            <span class="proof-meta">ON-CHAIN ANCHOR</span>
+                            <div class="verification-path-list" id="verificationPathList"></div>
                         </div>
 
-                        <div class="verification-proof-connector" aria-hidden="true">
-                            <span class="verification-proof-line"></span>
-                            <span class="verification-proof-particle"></span>
-                            <i class="bi bi-arrow-down"></i>
-                        </div>
+                        <div class="verification-action-panel">
+                            <div class="verification-current-result" id="verificationCurrentResult" data-status="IDLE">
+                                <span class="verification-current-label">CURRENT RESULT</span>
+                                <strong id="verificationCurrentTitle">READY TO VERIFY</strong>
+                                <p id="verificationCurrentText">Run the integrity check to compare the reconstructed Merkle Root with the root anchored on-chain for the current evidence set.</p>
+                            </div>
 
-                        <div class="verification-proof-node evidence-proof">
-                            <span class="proof-label">EVIDENCE PROOF</span>
-                            <strong class="mono" id="verificationEvidenceId">EVID-001</strong>
-                            <span class="proof-meta" id="verificationEvidenceHash">9f6c...4a6c</span>
+                            <button class="verify-integrity-button" id="verifyIntegrityButton" type="button">
+                                <i class="bi bi-shield-check"></i>
+                                <span>Verify Integrity</span>
+                            </button>
                         </div>
 
                     </div>
 
-                    <div class="verification-result" id="verificationResult" data-status="IDLE">
-                        <div class="verification-result-icon">
-                            <i class="bi bi-shield-question" id="verificationResultIcon"></i>
-                        </div>
-                        <div class="verification-result-copy">
-                            <span class="proof-label">VERIFICATION RESULT</span>
-                            <strong id="verificationResultTitle">READY TO VERIFY</strong>
-                            <span id="verificationResultText">Run integrity verification to compare the evidence proof with the anchored Merkle Root.</span>
-                        </div>
-                        <div class="verification-result-state" id="verificationResultState">PENDING</div>
-                    </div>
+                    <div class="verification-chain-stage" id="verificationChainStage" aria-live="polite"></div>
                 </article>
             </section>
 
