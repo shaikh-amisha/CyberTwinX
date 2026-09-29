@@ -2102,3 +2102,111 @@ body.integrity-modal-open {
         width: 100%;
     }
 }
+
+
+/* ---------------------------------------------------------
+   Modal readability refinement
+   --------------------------------------------------------- */
+
+.integrity-modal-header h3 {
+    font-size: 1.55rem;
+    font-weight: 900;
+}
+
+.integrity-modal-header p {
+    font-size: .78rem;
+    font-weight: 600;
+}
+
+.integrity-modal-statusbar {
+    font-size: .62rem;
+    font-weight: 900;
+}
+
+.integrity-modal-statusbar strong {
+    font-weight: 900;
+}
+
+.integrity-modal-eyebrow {
+    font-size: .62rem;
+    font-weight: 900;
+}
+
+.integrity-modal-live {
+    font-weight: 900;
+}
+
+.integrity-modal-placeholder strong {
+    font-size: .82rem;
+    font-weight: 900;
+}
+
+.integrity-modal-placeholder span {
+    font-size: .66rem;
+    font-weight: 600;
+}
+
+.integrity-modal-chain .verification-live-node-top {
+    font-size: .66rem;
+    font-weight: 900;
+}
+
+.integrity-modal-chain .verification-live-node > strong {
+    font-size: 1.12rem;
+    font-weight: 900;
+}
+
+.integrity-modal-chain .verification-live-node-meta {
+    font-size: .62rem;
+    font-weight: 700;
+}
+
+.integrity-modal-chain .verification-live-node-meta strong {
+    font-size: .62rem;
+    font-weight: 900;
+}
+
+.integrity-modal-root-row > div span:first-child {
+    font-size: .58rem;
+    font-weight: 900;
+}
+
+.integrity-modal-root-row strong {
+    font-size: .68rem;
+    font-weight: 900;
+}
+
+.integrity-modal-root-status {
+    font-size: .58rem;
+    font-weight: 900;
+}
+
+.integrity-analysis-header strong {
+    font-size: .8rem;
+    font-weight: 900;
+}
+
+.integrity-analysis-header > span {
+    font-size: .58rem;
+    font-weight: 900;
+}
+
+.integrity-tamper-control {
+    font-size: .62rem;
+    font-weight: 900;
+}
+
+.integrity-modal-analysis p {
+    font-size: .65rem;
+    font-weight: 600;
+}
+
+.integrity-modal-footer > span {
+    font-size: .62rem;
+    font-weight: 600;
+}
+
+.integrity-modal-run {
+    font-size: .62rem;
+    font-weight: 900;
+}
