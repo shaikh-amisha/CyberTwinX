@@ -301,7 +301,7 @@ function createLiveBlock(block, index) {
 
 function getLiveNode(index) {
     return pageElements.verificationChainStage?.querySelector(
-        \`.verification-live-node[data-block-index="${index}"]\`
+        `.verification-live-node[data-block-index="${index}"]`
     );
 }
 
@@ -364,7 +364,7 @@ function updateLiveChainVisual(tamperedIndex) {
     }
 
     const blockNumber = demoBlocks[tamperedIndex].number.replace(/^0+/, "");
-    status.textContent = \`BLOCK ${blockNumber} TAMPERED\`;
+    status.textContent = `BLOCK ${blockNumber} TAMPERED`;
 
     explanation.innerHTML = `
         <i class="bi bi-exclamation-triangle"></i>
@@ -398,8 +398,8 @@ function selectTamperedBlock(index) {
 
     setResult(
         "TAMPERED",
-        \`BLOCK ${blockNumber} TAMPERED\`,
-        \`Block ${blockNumber} was modified. Its hash no longer matches the chain, invalidating every subsequent link.\`
+        `BLOCK ${blockNumber} TAMPERED`,
+        `Block ${blockNumber} was modified. Its hash no longer matches the chain, invalidating every subsequent link.`
     );
 }
 
@@ -486,7 +486,7 @@ async function runLiveBlockchainTraversal() {
 
         if (index > 0) {
             const arrow = pageElements.verificationChainStage.querySelector(
-                \`.verification-live-arrow[data-from-index="${index - 1}"]\`
+                `.verification-live-arrow[data-from-index="${index - 1}"]`
             );
             if (arrow) arrow.style.opacity = "1";
         }
