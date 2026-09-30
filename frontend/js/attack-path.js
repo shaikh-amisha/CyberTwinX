@@ -572,10 +572,25 @@ function createGraph(graph) {
         return;
     }
 
-    const loadingIndicator = $("attackGraph")?.querySelector(".graph-loading-indicator");
-    if (loadingIndicator) {
-        loadingIndicator.remove();
+    const graphContainer = $("attackGraph");
+
+    if (!graphContainer) {
+        console.error("Attack graph container not found.");
+        return;
     }
+
+    /*
+     * Cytoscape owns this container. Remove the initial loading
+     * markup completely before creating the graph so leftover
+     * placeholder elements cannot interfere with rendering.
+     */
+    graphContainer.innerHTML = "";
+
+    graphContainer.style.position = "absolute";
+    graphContainer.style.left = "0";
+    graphContainer.style.right = "0";
+    graphContainer.style.top = "58px";
+    graphContainer.style.bottom = "38px";
 
     const elements = [
         ...normalized.nodes.map(node => ({
@@ -600,7 +615,7 @@ function createGraph(graph) {
     ];
 
     cy = cytoscape({
-        container: $("attackGraph"),
+        container: graphContainer,
 
         elements,
 
@@ -894,6 +909,8 @@ function createGraph(graph) {
     });
 
     applyAttackGraphLayout(normalized.nodes, normalized.edges);
+
+    cy.resize();
 
     bindGraphEvents();
 
