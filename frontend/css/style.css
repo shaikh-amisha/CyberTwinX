@@ -11202,10 +11202,35 @@ body::before {
     opacity: 0.35;
 }
 
+.attack-graph {
+    position: absolute !important;
+    left: 0 !important;
+    right: 0 !important;
+    top: 58px !important;
+    bottom: 38px !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    display: block !important;
+}
+
+.attack-graph > canvas {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    display: block !important;
+    z-index: 3 !important;
+}
+
+.attack-graph > div {
+    position: absolute;
+    inset: 0;
+}
+
 .attack-graph .cy-container,
 .attack-graph canvas {
-    position: relative;
-    z-index: 2;
+    z-index: 3;
 }
 
 .graph-footer {
