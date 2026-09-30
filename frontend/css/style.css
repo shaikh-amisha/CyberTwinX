@@ -11376,3 +11376,22 @@ body::before {
     line-height: 1.4 !important;
     letter-spacing: 0 !important;
 }
+
+
+/* ATTACK PATH — MATCH STANDARD SECTION HEADING */
+.attack-path-page .section-heading h3 {
+    color: #f1f7fb !important;
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    line-height: 1.25 !important;
+    letter-spacing: 0 !important;
+    text-shadow: 0 0 18px rgba(255, 255, 255, 0.035);
+}
+
+.attack-path-page .section-heading p {
+    margin-top: 3px !important;
+    color: #c2cfdb !important;
+    font-size: 11px !important;
+    font-weight: 400 !important;
+    line-height: 1.4 !important;
+}
