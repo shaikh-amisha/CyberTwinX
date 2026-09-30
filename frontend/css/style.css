@@ -11395,3 +11395,203 @@ body::before {
     font-weight: 400 !important;
     line-height: 1.4 !important;
 }
+
+/* =========================================================
+   COMMON SYSTEM TOPBAR
+   ========================================================= */
+
+.topbar {
+    height: var(--topbar-height);
+    padding: 0 28px;
+    gap: 22px;
+}
+
+.topbar-item {
+    gap: 10px;
+}
+
+.topbar-label {
+    color: #8ea1b4;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 1.35px;
+}
+
+.topbar-item strong {
+    color: #f2f7fb;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: .15px;
+}
+
+.topbar-divider {
+    height: 26px;
+    background: rgba(148, 163, 184, .18);
+}
+
+.topbar-state-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    white-space: nowrap;
+}
+
+.topbar-state-item .state-badge {
+    min-width: 108px;
+    padding: 7px 12px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.025);
+}
+
+.topbar-state-item .state-badge.normal {
+    color: #22c55e;
+    border: 1px solid rgba(34,197,94,.42);
+    background: rgba(34,197,94,.08);
+}
+
+.topbar-state-item .state-badge.suspicious {
+    color: #f59e0b;
+    border: 1px solid rgba(245,158,11,.46);
+    background: rgba(245,158,11,.08);
+}
+
+.topbar-state-item .state-badge.compromised {
+    color: #ff3b5c;
+    border: 1px solid rgba(255,59,92,.52);
+    background: rgba(255,59,92,.09);
+}
+
+.topbar-state-item .state-badge.unknown {
+    color: #94a3b8;
+    border: 1px solid rgba(148,163,184,.28);
+    background: rgba(148,163,184,.06);
+}
+
+.topbar-risk {
+    position: relative;
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+    margin-left: auto;
+    min-width: 112px;
+    padding: 8px 14px 9px;
+    border: 1px solid rgba(255,59,59,.34);
+    border-radius: 999px;
+    background: rgba(255,59,59,.055);
+    box-shadow: inset 0 0 18px rgba(255,59,59,.025);
+}
+
+.topbar-risk::after {
+    content: "";
+    position: absolute;
+    left: 14px;
+    bottom: 4px;
+    width: calc((100% - 28px) * var(--risk-progress, 0%));
+    max-width: calc(100% - 28px);
+    height: 2px;
+    border-radius: 999px;
+    background: currentColor;
+    opacity: .72;
+}
+
+.topbar-risk .topbar-label {
+    color: #9aaaba;
+}
+
+.topbar-risk strong {
+    color: #ff405e;
+    font-size: 24px;
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: -.5px;
+}
+
+.topbar-risk > span:last-child {
+    color: #aab6c2;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.topbar-risk.low {
+    color: #22c55e;
+    border-color: rgba(34,197,94,.34);
+    background: rgba(34,197,94,.055);
+}
+.topbar-risk.low strong { color: #22c55e; }
+
+.topbar-risk.medium {
+    color: #f59e0b;
+    border-color: rgba(245,158,11,.38);
+    background: rgba(245,158,11,.055);
+}
+.topbar-risk.medium strong { color: #f59e0b; }
+
+.topbar-risk.high {
+    color: #fb923c;
+    border-color: rgba(251,146,60,.42);
+    background: rgba(251,146,60,.06);
+}
+.topbar-risk.high strong { color: #fb923c; }
+
+.topbar-risk.critical {
+    color: #ff405e;
+    border-color: rgba(255,59,92,.48);
+    background: rgba(255,59,92,.065);
+}
+.topbar-risk.critical strong { color: #ff405e; }
+
+.topbar .system-status {
+    flex-shrink: 0;
+    min-width: 142px;
+    justify-content: center;
+    padding: 9px 14px;
+    border: 1px solid rgba(34,197,94,.28);
+    border-radius: 999px;
+    background: rgba(34,197,94,.045);
+    color: #22e6a2;
+    box-shadow: inset 0 0 18px rgba(34,197,94,.025);
+}
+
+.topbar .system-status .status-dot {
+    width: 8px;
+    height: 8px;
+    box-shadow: 0 0 10px currentColor;
+}
+
+.topbar .system-status.offline {
+    color: #ff405e;
+    border-color: rgba(255,59,92,.32);
+    background: rgba(255,59,92,.045);
+}
+
+@media (max-width: 900px) {
+    .topbar {
+        gap: 12px;
+        padding: 0 16px;
+    }
+
+    .topbar-risk {
+        min-width: 96px;
+    }
+
+    .topbar-state-item {
+        display: none;
+    }
+}
+
+@media (max-width: 640px) {
+    .topbar-item {
+        display: none;
+    }
+
+    .topbar-divider {
+        display: none;
+    }
+
+    .topbar-risk {
+        margin-left: auto;
+    }
+}
