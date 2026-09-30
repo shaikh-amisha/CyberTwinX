@@ -1948,6 +1948,10 @@ async function selectIncident(incidentId) {
 
     createGraph(graph);
 
+    if (!prefersReducedMotion()) {
+        startArrowFlowAnimation();
+    }
+
     updateActivePathBadge(incident);
 }
 
