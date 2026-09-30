@@ -231,6 +231,80 @@ const getDashboardOverview = async (req, res) => {
          * =====================================================
          */
 
+        const findingDistribution = [];
+        const findingCounts = new Map();
+        const riskDistribution = {
+            LOW: 0,
+            MEDIUM: 0,
+            HIGH: 0,
+            CRITICAL: 0
+        };
+
+        const riskBreakdown = Array.isArray(endpointTwin?.riskBreakdown)
+            ? endpointTwin.riskBreakdown
+            : [];
+
+        riskBreakdown.forEach((finding) => {
+            const type = typeof finding === "string"
+                ? finding
+                : finding?.type || finding?.name || "OTHER";
+            const key = String(type || "OTHER").trim() || "OTHER";
+            findingCounts.set(key, (findingCounts.get(key) || 0) + 1);
+        });
+
+        findingCounts.forEach((count, type) => {
+            findingDistribution.push({ type, count });
+        });
+
+        findingDistribution.sort((a, b) => b.count - a.count);
+
+        /*
+         * Risk distribution reflects the severity of the
+         * current findings. Older Endpoint Twin records may
+         * contain only a finding type, so those findings fall
+         * back to the current calculated risk level.
+         */
+        riskBreakdown.forEach((finding) => {
+            const severity = String(
+                typeof finding === "object" && finding?.severity
+                    ? finding.severity
+                    : riskLevel
+            ).toUpperCase();
+
+            const normalizedSeverity = [
+                "LOW",
+                "MEDIUM",
+                "HIGH",
+                "CRITICAL"
+            ].includes(severity)
+                ? severity
+                : riskLevel;
+
+            const count = Math.max(
+                1,
+                Number(
+                    typeof finding === "object" && finding?.count
+                        ? finding.count
+                        : 1
+                )
+            );
+
+            riskDistribution[normalizedSeverity] += count;
+        });
+
+        if (
+            Object.values(riskDistribution).every(count => count === 0) &&
+            riskScore > 0
+        ) {
+            const fallbackLevel = ["LOW", "MEDIUM", "HIGH", "CRITICAL"].includes(
+                String(riskLevel).toUpperCase()
+            )
+                ? String(riskLevel).toUpperCase()
+                : getRiskLevel(riskScore);
+
+            riskDistribution[fallbackLevel] = 1;
+        }
+
         const incidentData = {
 
             id:
@@ -545,7 +619,11 @@ const getDashboardOverview = async (req, res) => {
             investigationHealthScore,
 
             blockchainHealth:
-                "VERIFIED"
+                "VERIFIED",
+
+            findingDistribution,
+
+            riskDistribution
 
         });
 

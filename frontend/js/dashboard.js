@@ -56,7 +56,10 @@ const dashboardState = {
 
     system: {
         status: "ONLINE"
-    }
+    },
+
+    findingDistribution: [],
+    riskDistribution: { LOW: 0, MEDIUM: 0, HIGH: 0, CRITICAL: 0 }
 
 };
 
@@ -239,7 +242,20 @@ const dashboardElements = {
         document.getElementById("cyberNewsUpdated"),
 
     newsLiveStatus:
-        document.getElementById("newsLiveStatus")
+        document.getElementById("newsLiveStatus"),
+
+    findingsBarChart:
+        document.getElementById("findingsBarChart"),
+
+    riskDistributionDonut:
+        document.getElementById("riskDistributionDonut"),
+
+    riskDistributionTotal:
+        document.getElementById("riskDistributionTotal"),
+
+    riskDistributionLegend:
+        document.getElementById("riskDistributionLegend"),
+
 
 };
 
@@ -299,6 +315,15 @@ async function fetchDashboardData() {
         }
 
         updateDashboardState(data);
+
+        dashboardState.findingDistribution = Array.isArray(data.findingDistribution)
+            ? data.findingDistribution
+            : [];
+
+        dashboardState.riskDistribution = data.riskDistribution || {
+            LOW: 0, MEDIUM: 0, HIGH: 0, CRITICAL: 0
+        };
+
 
         refreshDashboard();
 
@@ -818,6 +843,92 @@ function initializeVisibilityHandler() {
    18. DASHBOARD REFRESH
    ========================================================= */
 
+
+
+
+
+function updateRiskDistributionChart() {
+    const distribution = dashboardState.riskDistribution || {};
+    const levels = ["LOW", "MEDIUM", "HIGH", "CRITICAL"];
+    const colors = {
+        LOW: "#22c55e",
+        MEDIUM: "#facc15",
+        HIGH: "#fb923c",
+        CRITICAL: "#ef4444"
+    };
+
+    const total = levels.reduce(
+        (sum, level) => sum + Number(distribution[level] || 0),
+        0
+    );
+
+    if (dashboardElements.riskDistributionTotal) {
+        dashboardElements.riskDistributionTotal.textContent = total;
+    }
+
+    if (dashboardElements.riskDistributionDonut) {
+        if (!total) {
+            dashboardElements.riskDistributionDonut.style.background = "#27303a";
+        } else {
+            let angle = 0;
+            const segments = levels.map(level => {
+                const value = Number(distribution[level] || 0);
+                const size = (value / total) * 360;
+                const segment = colors[level] + " " + angle + "deg " + (angle + size) + "deg";
+                angle += size;
+                return segment;
+            }).filter(Boolean);
+
+            dashboardElements.riskDistributionDonut.style.background =
+                "conic-gradient(" + segments.join(", ") + ")";
+        }
+    }
+
+    if (dashboardElements.riskDistributionLegend) {
+        dashboardElements.riskDistributionLegend.innerHTML = levels.map(level =>
+            '<div class="risk-legend-row">' +
+                '<span class="risk-legend-dot ' + level.toLowerCase() + '"></span>' +
+                '<span>' + level + '</span>' +
+                '<strong>' + Number(distribution[level] || 0) + '</strong>' +
+            '</div>'
+        ).join("");
+    }
+}
+
+function updateFindingsChart() {
+    const items = Array.isArray(dashboardState.findingDistribution)
+        ? dashboardState.findingDistribution.filter(item => Number(item?.count) > 0)
+        : [];
+
+    const chart = dashboardElements.findingsBarChart;
+    if (!chart) return;
+
+    if (!items.length) {
+        chart.innerHTML =
+            '<span class="findings-empty">No findings recorded.</span>';
+        return;
+    }
+
+    const maxCount = Math.max(
+        ...items.map(item => Number(item.count || 0)),
+        1
+    );
+
+    chart.innerHTML = items.slice(0, 6).map(item => {
+        const name = String(item.type || "OTHER").replace(/_/g, " ");
+        const count = Number(item.count || 0);
+        const progress = Math.max(8, (count / maxCount) * 100);
+
+        return '<div class="finding-lollipop-row">' +
+            '<span>' + name + '</span>' +
+            '<div class="finding-lollipop-track" style="--finding-progress:' + progress + '%">' +
+                '<i class="finding-lollipop-dot"></i>' +
+            '</div>' +
+            '<strong class="finding-lollipop-value">' + count + '</strong>' +
+        '</div>';
+    }).join("");
+}
+
 function refreshDashboard() {
 
     updateTopbar();
@@ -835,6 +946,9 @@ function refreshDashboard() {
     updateSimulation();
 
     updateDigitalSecurityTwin();
+
+    updateFindingsChart();
+    updateRiskDistributionChart();
 
     updateSystemStatus();
 
