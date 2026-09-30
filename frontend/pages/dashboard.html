@@ -508,6 +508,23 @@
 
        
 
+
+        .dashboard-findings-section { margin-top: -2px; }
+        .findings-chart-card { padding: 20px 22px; }
+        .findings-chart-header h3 { margin-top: 4px; font-size: 15px; color: #eef7fb; }
+        .findings-chart-body { display: flex; align-items: center; gap: 28px; min-height: 170px; }
+        .findings-donut { width: 142px; height: 142px; flex: 0 0 142px; border-radius: 50%; display: grid; place-items: center; background: conic-gradient(rgba(0,229,255,.75) 0deg 360deg); box-shadow: 0 0 24px rgba(0,229,255,.08); position: relative; }
+        .findings-donut::after { content: ""; position: absolute; width: 92px; height: 92px; border-radius: 50%; background: #080e15; box-shadow: inset 0 0 18px rgba(0,0,0,.35); }
+        .findings-donut-center { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; }
+        .findings-donut-center strong { font-size: 24px; line-height: 1; color: #f1f7fb; }
+        .findings-donut-center span { margin-top: 5px; font-size: 8px; letter-spacing: 1.2px; color: #8193a5; font-weight: 800; }
+        .findings-legend { display: grid; gap: 9px; flex: 1; min-width: 0; }
+        .finding-legend-item { display: grid; grid-template-columns: 8px minmax(0,1fr) auto; align-items: center; gap: 8px; font-size: 10px; }
+        .finding-legend-dot { width: 7px; height: 7px; border-radius: 50%; box-shadow: 0 0 8px currentColor; }
+        .finding-legend-name { color: #c6d3de; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .finding-legend-value { color: #f0f6fa; font-weight: 800; }
+        .findings-empty { color: #687b8c; font-size: 10px; }
+        @media (max-width: 560px) { .findings-chart-body { gap: 18px; } .findings-donut { width: 120px; height: 120px; flex-basis: 120px; } .findings-donut::after { width: 78px; height: 78px; } }
     </style>
 
 </head>
@@ -1064,7 +1081,29 @@
 
             </section>
 
-                    <!-- =================================================
+                    <section class="dashboard-section dashboard-findings-section">
+                <article class="dashboard-card findings-chart-card">
+                    <div class="findings-chart-header">
+                        <div>
+                            <span class="card-label">SECURITY FINDINGS</span>
+                            <h3>Finding Distribution</h3>
+                        </div>
+                    </div>
+                    <div class="findings-chart-body">
+                        <div class="findings-donut" id="findingsDonut" aria-label="Security findings distribution">
+                            <div class="findings-donut-center">
+                                <strong id="findingsTotal">0</strong>
+                                <span>FINDINGS</span>
+                            </div>
+                        </div>
+                        <div class="findings-legend" id="findingsLegend">
+                            <span class="findings-empty">No findings recorded.</span>
+                        </div>
+                    </div>
+                </article>
+            </section>
+
+            <!-- =================================================
                         SECTION 02
                         LIVE GLOBAL THREAT FEED
                     ================================================== -->
