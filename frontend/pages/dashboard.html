@@ -525,6 +525,20 @@
         .finding-legend-value { color: #f0f6fa; font-weight: 800; }
         .findings-empty { color: #687b8c; font-size: 10px; }
         @media (max-width: 560px) { .findings-chart-body { gap: 18px; } .findings-donut { width: 120px; height: 120px; flex-basis: 120px; } .findings-donut::after { width: 78px; height: 78px; } }
+
+        .dashboard-chart-grid { display:grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap:16px; }
+        .risk-distribution-card { padding:20px 22px; }
+        .risk-distribution-body { min-height:170px; display:flex; align-items:center; }
+        .risk-bars { width:100%; display:grid; gap:18px; }
+        .risk-bar-row { display:grid; grid-template-columns:58px minmax(0,1fr) 28px; align-items:center; gap:10px; font-size:9px; font-weight:800; letter-spacing:.7px; color:#91a2b2; }
+        .risk-bar-row > div { height:9px; border-radius:999px; background:rgba(148,163,184,.10); overflow:hidden; }
+        .risk-bar-row i { display:block; height:100%; width:0; border-radius:999px; transition:width .45s ease; background:#00e5ff; box-shadow:0 0 10px rgba(0,229,255,.25); }
+        .risk-bar-row:nth-child(1) i { background:#22c55e; }
+        .risk-bar-row:nth-child(2) i { background:#f59e0b; }
+        .risk-bar-row:nth-child(3) i { background:#fb923c; }
+        .risk-bar-row:nth-child(4) i { background:#ef4444; }
+        .risk-bar-row strong { text-align:right; color:#eef7fb; font-size:11px; }
+        @media (max-width:760px) { .dashboard-chart-grid { grid-template-columns:1fr; } }
     </style>
 
 </head>
@@ -1082,7 +1096,9 @@
             </section>
 
                     <section class="dashboard-section dashboard-findings-section">
-                <article class="dashboard-card findings-chart-card">
+                <div class="dashboard-chart-grid">
+                    <article class="dashboard-card findings-chart-card">
+
                     <div class="findings-chart-header">
                         <div>
                             <span class="card-label">SECURITY FINDINGS</span>
@@ -1101,6 +1117,25 @@
                         </div>
                     </div>
                 </article>
+                    </article>
+
+                    <article class="dashboard-card risk-distribution-card">
+                        <div class="findings-chart-header">
+                            <div>
+                                <span class="card-label">RISK DISTRIBUTION</span>
+                                <h3>Risk Breakdown</h3>
+                            </div>
+                        </div>
+                        <div class="risk-distribution-body">
+                            <div class="risk-bars" id="riskDistributionChart">
+                                <div class="risk-bar-row"><span>LOW</span><div><i style="width:0%"></i></div><strong>0</strong></div>
+                                <div class="risk-bar-row"><span>MEDIUM</span><div><i style="width:0%"></i></div><strong>0</strong></div>
+                                <div class="risk-bar-row"><span>HIGH</span><div><i style="width:0%"></i></div><strong>0</strong></div>
+                                <div class="risk-bar-row"><span>CRITICAL</span><div><i style="width:0%"></i></div><strong>0</strong></div>
+                            </div>
+                        </div>
+                    </article>
+                </div>
             </section>
 
             <!-- =================================================
