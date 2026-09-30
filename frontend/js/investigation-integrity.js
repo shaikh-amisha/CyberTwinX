@@ -168,70 +168,51 @@ function renderVerificationPath() {
 }
 
 function renderRootHistory() {
-    if (!pageElements.rootHistoryList) return;
+    const modalList = document.getElementById("rootHistoryModalList");
+    if (!modalList) return;
 
-    pageElements.rootHistoryList.innerHTML =
-        investigationIntegrityState.rootHistory.map((record, index) => {
-            const currentClass = record.status === "CURRENT" ? " current" : "";
-            const icon = record.status === "CURRENT" ? "bi-check2" : "bi-clock-history";
-
-            return `
-                <div class="root-history-item${currentClass}" style="animation-delay: ${index * 70}ms">
-                    <div class="root-history-marker">
-                        <i class="bi ${icon}"></i>
+    modalList.innerHTML = investigationIntegrityState.rootHistory.slice().reverse().map((record, index) => {
+        const current = record.status === "CURRENT";
+        return `
+            <article class="root-history-modal-item${current ? " current" : ""}" style="animation-delay:${index * 70}ms">
+                <div class="root-history-modal-marker"><i class="bi ${current ? "bi-check2-circle" : "bi-clock-history"}"></i></div>
+                <div class="root-history-modal-main">
+                    <div class="root-history-modal-top">
+                        <div><strong>${record.version.toUpperCase()}</strong><span>${current ? "CURRENT ROOT" : "SUPERSEDED ROOT"}</span></div>
+                        <span class="root-history-modal-status">${record.status}</span>
                     </div>
-
-                    <div class="root-history-version">
-                        <strong>${record.version}</strong>
-                        <span>${record.evidenceCount} EVIDENCE ITEMS</span>
-                    </div>
-
-                    <div class="root-history-hash">
-                        <strong title="${record.root}">${record.root}</strong>
-                        <span>SHA-256 MERKLE ROOT</span>
-                    </div>
-
-                    <div class="root-history-meta">
-                        <span class="root-history-time">${record.timestamp}</span>
-                        <span class="root-history-status">
-                            <span class="hash-status-dot"></span>
-                            ${record.status}
-                        </span>
+                    <strong class="root-history-modal-hash" title="${record.root}">${record.root}</strong>
+                    <div class="root-history-modal-meta">
+                        <span><i class="bi bi-database"></i> ${record.evidenceCount} EVIDENCE ITEMS</span>
+                        <span><i class="bi bi-clock"></i> ${record.timestamp}</span>
+                        <span><i class="bi bi-link-45deg"></i> ${current ? "CURRENT ON-CHAIN ANCHOR" : "HISTORICAL REFERENCE"}</span>
                     </div>
                 </div>
-            `;
-        }).join("");
+            </article>
+        `;
+    }).join("");
 }
 
 function renderCustodyTimeline() {
-    if (!pageElements.custodyTimeline) return;
+    const modalTimeline = document.getElementById("custodyModalTimeline");
+    if (!modalTimeline) return;
 
-    pageElements.custodyTimeline.innerHTML =
-        investigationIntegrityState.custody.map((event, index) => `
-            <div class="custody-event ${event.tone}" style="animation-delay: ${index * 70}ms">
-                <div class="custody-marker">
-                    <i class="bi ${event.icon}"></i>
+    modalTimeline.innerHTML = investigationIntegrityState.custody.slice().reverse().map((event, index) => `
+        <article class="custody-modal-event ${event.tone}" style="animation-delay:${index * 70}ms">
+            <div class="custody-modal-marker"><i class="bi ${event.icon}"></i></div>
+            <div class="custody-modal-event-main">
+                <div class="custody-modal-event-top">
+                    <div><strong>${event.type}</strong><span>${event.actor} · ${event.actorRole}</span></div>
+                    <span class="custody-modal-status">${event.status}</span>
                 </div>
-
-                <div class="custody-event-main">
-                    <span class="custody-event-type">${event.type}</span>
-                    <span class="custody-event-actor">${event.actor} · ${event.actorRole}</span>
-                </div>
-
-                <div class="custody-event-details">
-                    <span class="custody-event-evidence">${event.evidence}</span>
-                    <span class="custody-event-hash" title="${event.hash}">${event.hash}</span>
-                </div>
-
-                <div class="custody-event-meta">
-                    <span class="custody-event-time">${event.time}</span>
-                    <span class="custody-event-status">
-                        <span class="status-dot"></span>
-                        ${event.status}
-                    </span>
+                <div class="custody-modal-details">
+                    <span><b>Evidence</b> ${event.evidence}</span>
+                    <span><b>Timestamp</b> ${event.time}</span>
+                    <span><b>Hash</b> <code>${event.hash}</code></span>
                 </div>
             </div>
-        `).join("");
+        </article>
+    `).join("");
 }
 
 function setResult(status, title, description) {
@@ -878,11 +859,48 @@ function initializeVerification() {
     });
 }
 
+function initializeDetailModals() {
+    const rootModal = document.getElementById("rootHistoryModal");
+    const custodyModal = document.getElementById("custodyModal");
+
+    const openModal = modal => {
+        if (!modal) return;
+        modal.classList.add("is-open");
+        modal.setAttribute("aria-hidden", "false");
+        document.body.classList.add("integrity-modal-open");
+    };
+
+    const closeModal = modal => {
+        if (!modal) return;
+        modal.classList.remove("is-open");
+        modal.setAttribute("aria-hidden", "true");
+        document.body.classList.remove("integrity-modal-open");
+    };
+
+    document.getElementById("viewRootHistoryButton")?.addEventListener("click", () => openModal(rootModal));
+    document.getElementById("viewCustodyButton")?.addEventListener("click", () => openModal(custodyModal));
+
+    rootModal?.querySelectorAll("[data-close-root-history], [data-close-detail-modal]").forEach(button => {
+        button.addEventListener("click", () => closeModal(rootModal));
+    });
+
+    custodyModal?.querySelectorAll("[data-close-custody], [data-close-detail-modal]").forEach(button => {
+        button.addEventListener("click", () => closeModal(custodyModal));
+    });
+
+    document.addEventListener("keydown", event => {
+        if (event.key !== "Escape") return;
+        if (rootModal?.classList.contains("is-open")) closeModal(rootModal);
+        if (custodyModal?.classList.contains("is-open")) closeModal(custodyModal);
+    });
+}
+
 function initializePage() {
     renderVerificationPath();
     renderRootHistory();
     renderCustodyTimeline();
     initializeVerification();
+    initializeDetailModals();
 }
 
 document.addEventListener("DOMContentLoaded", initializePage);
