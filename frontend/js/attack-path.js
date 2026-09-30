@@ -298,16 +298,22 @@ function buildGraphFromIncident(incident) {
         relationship: "OBSERVED"
     });
 
-    let previousId = endpointId;
-
     const progression =
         Array.isArray(incident.attackProgression)
             ? incident.attackProgression
-            : [];
+            : Array.isArray(incident.timeline)
+                ? incident.timeline
+                    .map(item => item?.event || item?.title || item?.description)
+                    .filter(Boolean)
+                : [];
+
+    const activityIds = [];
 
     progression.forEach((step, index) => {
         const id =
             `activity-${index}-${sanitizeId(step)}`;
+
+        activityIds.push(id);
 
         nodes.push({
             id,
@@ -316,20 +322,18 @@ function buildGraphFromIncident(incident) {
             data: {
                 title: step,
                 description:
-                    "Observed attack progression activity.",
+                    "Observed attack activity.",
                 timestamp:
                     incident.timeline?.[index]?.time || null
             }
         });
 
         edges.push({
-            id: `${previousId}-${id}`,
-            source: previousId,
+            id: `${endpointId}-${id}`,
+            source: endpointId,
             target: id,
             relationship: "OBSERVED"
         });
-
-        previousId = id;
     });
 
     const evidence =
@@ -364,9 +368,14 @@ function buildGraphFromIncident(incident) {
             }
         });
 
+        const evidenceParent =
+            activityIds.length
+                ? activityIds[index % activityIds.length]
+                : endpointId;
+
         edges.push({
-            id: `${previousId}-${id}`,
-            source: previousId,
+            id: `${evidenceParent}-${id}`,
+            source: evidenceParent,
             target: id,
             relationship: "SUPPORTS"
         });
@@ -390,12 +399,19 @@ function buildGraphFromIncident(incident) {
             }
         });
 
-        if (previousId) {
+        edges.push({
+            id: `${incidentId}-${threatId}`,
+            source: incidentId,
+            target: threatId,
+            relationship: "INDICATES"
+        });
+
+        if (activityIds.length) {
             edges.push({
-                id: `${previousId}-${threatId}`,
-                source: previousId,
-                target: threatId,
-                relationship: "INDICATES"
+                id: `${threatId}-${activityIds[0]}`,
+                source: threatId,
+                target: activityIds[0],
+                relationship: "CORRELATED"
             });
         }
     }
@@ -418,14 +434,17 @@ function buildGraphFromIncident(incident) {
             }
         });
 
-        if (previousId) {
-            edges.push({
-                id: `${previousId}-${objectiveId}`,
-                source: previousId,
-                target: objectiveId,
-                relationship: "POTENTIAL"
-            });
-        }
+        const objectiveSource =
+            incident.incidentType
+                ? `threat-${sanitizeId(incident.incidentType)}`
+                : incidentId;
+
+        edges.push({
+            id: `${objectiveSource}-${objectiveId}`,
+            source: objectiveSource,
+            target: objectiveId,
+            relationship: "POTENTIAL"
+        });
     }
 
     return {
@@ -867,7 +886,7 @@ function createGraph(graph) {
         ]
     });
 
-    applyLinearLayout(normalized.nodes, normalized.edges);
+    applyAttackGraphLayout(normalized.nodes, normalized.edges);
 
     bindGraphEvents();
 
@@ -881,8 +900,23 @@ function createGraph(graph) {
    LINEAR LAYOUT
    ========================================================= */
 
-function applyLinearLayout(nodes, edges) {
+function applyAttackGraphLayout(nodes, edges) {
     if (!cy || !nodes.length) return;
+
+    /*
+     * Attack Graph demonstration layout:
+     *
+     *              THREAT
+     *                │
+     * INCIDENT ── ENDPOINT ── ACTIVITY ── EVIDENCE
+     *     │           │          │
+     *     └────── OBJECTIVE   EVIDENCE
+     *
+     * Nodes are assigned to graph levels from their incoming
+     * relationships and distributed vertically within each level.
+     * This keeps the visualization non-linear while preserving
+     * the actual graph relationships.
+     */
 
     const nodeMap = new Map(
         nodes.map(node => [node.id, node])
@@ -897,287 +931,152 @@ function applyLinearLayout(nodes, edges) {
     });
 
     edges.forEach(edge => {
-        if (!incoming.has(edge.target)) {
-            incoming.set(edge.target, []);
-        }
-
-        if (!outgoing.has(edge.source)) {
-            outgoing.set(edge.source, []);
+        if (!nodeMap.has(edge.source) || !nodeMap.has(edge.target)) {
+            return;
         }
 
         incoming.get(edge.target).push(edge);
         outgoing.get(edge.source).push(edge);
     });
 
-    /*
-     * Find the main chain.
-     *
-     * Prefer Incident → Endpoint → Activity progression.
-     */
-
-    let startNode =
-        nodes.find(n =>
-            String(n.type).toLowerCase() === "incident"
+    const incidentNode =
+        nodes.find(node =>
+            String(node.type).toLowerCase() === "incident"
         );
 
-    if (!startNode) {
-        startNode =
-            nodes.find(n =>
-                incoming.get(n.id)?.length === 0
-            );
-    }
+    const root =
+        incidentNode ||
+        nodes.find(node => incoming.get(node.id)?.length === 0) ||
+        nodes[0];
 
-    if (!startNode) {
-        startNode = nodes[0];
-    }
-
-    const mainChain = [];
+    const levels = new Map();
+    const queue = [{ id: root.id, level: 0 }];
     const visited = new Set();
 
-    let current = startNode;
+    while (queue.length) {
+        const current = queue.shift();
 
-    while (current && !visited.has(current.id)) {
+        if (visited.has(current.id)) continue;
+
         visited.add(current.id);
-        mainChain.push(current);
+        levels.set(current.id, current.level);
 
-        const nextEdges =
+        const children =
             outgoing.get(current.id) || [];
 
-        const observedEdges =
-            nextEdges.filter(edge =>
-                !isPotentialRelationship(
-                    edge.relationship
-                )
-            );
-
-        const nextEdge =
-            observedEdges[0] ||
-            nextEdges[0];
-
-        if (!nextEdge) break;
-
-        const nextNode =
-            nodeMap.get(nextEdge.target);
-
-        if (!nextNode) break;
-
-        current = nextNode;
+        children.forEach(edge => {
+            if (!visited.has(edge.target)) {
+                queue.push({
+                    id: edge.target,
+                    level: current.level + 1
+                });
+            }
+        });
     }
 
     /*
-     * Add disconnected nodes to the chain only
-     * when they have no other structural connection.
+     * Nodes that are disconnected from the root still need a
+     * visible position, but they are placed in their own branch.
      */
-
     nodes.forEach(node => {
-        if (!visited.has(node.id)) {
-            const type =
-                String(node.type).toLowerCase();
-
-            if (
-                type === "evidence" ||
-                type === "threat" ||
-                type === "potential"
-            ) {
-                return;
-            }
-
-            mainChain.push(node);
-            visited.add(node.id);
+        if (!levels.has(node.id)) {
+            levels.set(node.id, 1);
         }
     });
 
+    const grouped = new Map();
+
+    nodes.forEach(node => {
+        const level = levels.get(node.id) ?? 1;
+
+        if (!grouped.has(level)) {
+            grouped.set(level, []);
+        }
+
+        grouped.get(level).push(node);
+    });
+
     /*
-     * Position main chain.
-     *
-     * xSpacing widened (280 -> 380) so arrowheads and
-     * relationship labels have breathing room between
-     * the now-larger nodes instead of overlapping them.
+     * Keep the important security objects visually distinct.
+     * Incident is the anchor, endpoint is the central system,
+     * and evidence/threat/potential nodes branch around them.
      */
+    const typeOrder = {
+        Incident: 0,
+        Endpoint: 1,
+        Activity: 2,
+        Evidence: 3,
+        Threat: 4,
+        Potential: 5
+    };
 
-    const xSpacing = 380;
-    const mainY = 360;
+    grouped.forEach(levelNodes => {
+        levelNodes.sort((a, b) => {
+            const aType =
+                typeOrder[a.type] ?? 10;
 
-    const mainStartX = 170;
+            const bType =
+                typeOrder[b.type] ?? 10;
 
-    mainChain.forEach((node, index) => {
-        cy.$id(node.id).position({
-            x: mainStartX + index * xSpacing,
-            y: mainY
+            return aType - bType;
+        });
+    });
+
+    const xSpacing = 360;
+    const ySpacing = 250;
+    const baseX = 160;
+    const centerY = 360;
+
+    grouped.forEach((levelNodes, level) => {
+        const totalHeight =
+            (levelNodes.length - 1) * ySpacing;
+
+        const startY =
+            centerY - totalHeight / 2;
+
+        levelNodes.forEach((node, index) => {
+            const element = cy.$id(node.id);
+
+            if (!element.length) return;
+
+            element.position({
+                x: baseX + level * xSpacing,
+                y: startY + index * ySpacing
+            });
         });
     });
 
     /*
-     * Place Evidence nodes above their connected
-     * main-chain node. Offsets widened to clear the
-     * bigger node radii.
+     * Pull threat and potential branches toward the incident/
+     * endpoint area so they read as side branches instead of
+     * another linear continuation.
      */
+    nodes.forEach(node => {
+        const type =
+            String(node.type || "").toLowerCase();
 
-    const evidenceNodes =
-        nodes.filter(node =>
-            String(node.type).toLowerCase() === "evidence"
-        );
+        const element = cy.$id(node.id);
 
-    let evidenceIndex = 0;
+        if (!element.length) return;
 
-    evidenceNodes.forEach(node => {
-        const connectedEdges =
-            edges.filter(edge =>
-                edge.source === node.id ||
-                edge.target === node.id
-            );
+        const position = element.position();
 
-        const parentEdge =
-            connectedEdges.find(edge =>
-                !isPotentialRelationship(
-                    edge.relationship
-                )
-            );
-
-        const parentId =
-            parentEdge?.source === node.id
-                ? parentEdge.target
-                : parentEdge?.source;
-
-        const parentNode =
-            parentId
-                ? cy.$id(parentId)
-                : null;
-
-        if (parentNode && parentNode.length) {
-            const position =
-                parentNode.position();
-
-            cy.$id(node.id).position({
-                x:
-                    position.x +
-                    (evidenceIndex % 2 === 0 ? -60 : 60),
-
-                y: position.y - 230
-            });
-        } else {
-            cy.$id(node.id).position({
-                x: mainStartX + evidenceIndex * 190,
-                y: 150
-            });
-        }
-
-        evidenceIndex++;
-    });
-
-    /*
-     * Place Threat nodes below the chain.
-     */
-
-    const threatNodes =
-        nodes.filter(node =>
-            String(node.type).toLowerCase() === "threat"
-        );
-
-    threatNodes.forEach((node, index) => {
-        const connectedEdges =
-            edges.filter(edge =>
-                edge.source === node.id ||
-                edge.target === node.id
-            );
-
-        const parentEdge =
-            connectedEdges.find(edge =>
-                !isPotentialRelationship(
-                    edge.relationship
-                )
-            );
-
-        const parentId =
-            parentEdge?.source === node.id
-                ? parentEdge.target
-                : parentEdge?.source;
-
-        const parentNode =
-            parentId
-                ? cy.$id(parentId)
-                : null;
-
-        if (parentNode && parentNode.length) {
-            const position =
-                parentNode.position();
-
-            cy.$id(node.id).position({
+        if (type === "threat") {
+            element.position({
                 x: position.x,
-                y: position.y + 210
+                y: position.y - 150
             });
-        } else {
-            cy.$id(node.id).position({
-                x: mainStartX + index * 220,
-                y: 570
+        }
+
+        if (type === "potential") {
+            element.position({
+                x: position.x,
+                y: position.y + 150
             });
         }
     });
 
-    /*
-     * Potential nodes are placed to the right
-     * and connected with dashed arrows.
-     */
-
-    const potentialNodes =
-        nodes.filter(node =>
-            ["potential", "hypothesis"]
-                .includes(
-                    String(node.type).toLowerCase()
-                )
-        );
-
-    potentialNodes.forEach((node, index) => {
-        const connectedEdges =
-            edges.filter(edge =>
-                edge.source === node.id ||
-                edge.target === node.id
-            );
-
-        const parentEdge =
-            connectedEdges[0];
-
-        const parentId =
-            parentEdge?.source === node.id
-                ? parentEdge.target
-                : parentEdge?.source;
-
-        const parentNode =
-            parentId
-                ? cy.$id(parentId)
-                : null;
-
-        if (parentNode && parentNode.length) {
-            const position =
-                parentNode.position();
-
-            cy.$id(node.id).position({
-                x: position.x + 230,
-                y: position.y + 200
-            });
-        } else {
-            cy.$id(node.id).position({
-                x:
-                    mainStartX +
-                    mainChain.length * xSpacing,
-                y: 560 + index * 150
-            });
-        }
-    });
-
-    /*
-     * Run preset so Cytoscape accepts manual positions.
-     */
-
-    cy.layout({
-        name: "preset",
-        fit: true,
-        padding: 90
-    }).run();
-
-    /*
-     * Keep graph at a readable zoom.
-     */
+    cy.nodes().grabify();
 
     setTimeout(() => {
         if (!cy) return;
@@ -1188,7 +1087,6 @@ function applyLinearLayout(nodes, edges) {
         );
     }, 80);
 }
-
 
 /* =========================================================
    RELATIONSHIP HELPERS
