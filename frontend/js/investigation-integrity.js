@@ -181,7 +181,12 @@ function renderRootHistory() {
                         <div><strong>${record.version.toUpperCase()}</strong><span>${current ? "CURRENT ROOT" : "SUPERSEDED ROOT"}</span></div>
                         <span class="root-history-modal-status">${record.status}</span>
                     </div>
-                    <strong class="root-history-modal-hash" title="${record.root}">${record.root}</strong>
+                    <div class="integrity-copy-row">
+    <strong class="root-history-modal-hash" title="${record.root}">${record.root}</strong>
+    <button class="integrity-copy-button" type="button" data-copy-hash="${record.root}" aria-label="Copy ${record.version} Merkle Root" title="Copy full Merkle Root">
+        <i class="bi bi-copy"></i><span>COPY</span>
+    </button>
+</div>
                     <div class="root-history-modal-meta">
                         <span><i class="bi bi-database"></i> ${record.evidenceCount} EVIDENCE ITEMS</span>
                         <span><i class="bi bi-clock"></i> ${record.timestamp}</span>
@@ -208,7 +213,12 @@ function renderCustodyTimeline() {
                 <div class="custody-modal-details">
                     <span><b>Evidence</b> ${event.evidence}</span>
                     <span><b>Timestamp</b> ${event.time}</span>
-                    <span><b>Hash</b> <code>${event.hash}</code></span>
+                    <span><b>Hash</b><span class="integrity-copy-row">
+    <code>${event.hash}</code>
+    <button class="integrity-copy-button compact" type="button" data-copy-hash="${event.hash}" aria-label="Copy ${event.type} evidence hash" title="Copy full evidence hash">
+        <i class="bi bi-copy"></i><span>COPY</span>
+    </button>
+</span></span>
                 </div>
             </div>
         </article>
@@ -859,6 +869,45 @@ function initializeVerification() {
     });
 }
 
+async function copyIntegrityHash(button) {
+    const hash = button?.dataset.copyHash;
+    if (!hash) return;
+
+    try {
+        await navigator.clipboard.writeText(hash);
+    } catch (error) {
+        const helper = document.createElement("textarea");
+        helper.value = hash;
+        helper.setAttribute("readonly", "");
+        helper.style.position = "fixed";
+        helper.style.opacity = "0";
+        document.body.appendChild(helper);
+        helper.select();
+        document.execCommand("copy");
+        helper.remove();
+    }
+
+    const original = button.innerHTML;
+    button.classList.add("copied");
+    button.innerHTML = '<i class="bi bi-check2"></i><span>COPIED</span>';
+
+    window.setTimeout(() => {
+        button.classList.remove("copied");
+        button.innerHTML = original;
+    }, 1400);
+}
+
+function initializeIntegrityCopyButtons() {
+    document.addEventListener("click", event => {
+        const button = event.target.closest("[data-copy-hash]");
+        if (!button) return;
+
+        event.preventDefault();
+        event.stopPropagation();
+        copyIntegrityHash(button);
+    });
+}
+
 function initializeDetailModals() {
     const rootModal = document.getElementById("rootHistoryModal");
     const custodyModal = document.getElementById("custodyModal");
@@ -901,6 +950,7 @@ function initializePage() {
     renderCustodyTimeline();
     initializeVerification();
     initializeDetailModals();
+    initializeIntegrityCopyButtons();
 }
 
 document.addEventListener("DOMContentLoaded", initializePage);
