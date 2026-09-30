@@ -58,7 +58,8 @@ const dashboardState = {
         status: "ONLINE"
     },
 
-    findingDistribution: []
+    findingDistribution: [],
+    riskDistribution: { LOW: 0, MEDIUM: 0, HIGH: 0, CRITICAL: 0 }
 
 };
 
@@ -250,7 +251,10 @@ const dashboardElements = {
         document.getElementById("findingsTotal"),
 
     findingsLegend:
-        document.getElementById("findingsLegend")
+        document.getElementById("findingsLegend"),
+
+    riskDistributionChart:
+        document.getElementById("riskDistributionChart")
 
 };
 
@@ -314,6 +318,10 @@ async function fetchDashboardData() {
         dashboardState.findingDistribution = Array.isArray(data.findingDistribution)
             ? data.findingDistribution
             : [];
+
+        dashboardState.riskDistribution = data.riskDistribution || {
+            LOW: 0, MEDIUM: 0, HIGH: 0, CRITICAL: 0
+        };
 
         refreshDashboard();
 
@@ -835,6 +843,24 @@ function initializeVisibilityHandler() {
 
 
 
+
+
+function updateRiskDistributionChart() {
+    const distribution = dashboardState.riskDistribution || {};
+    const values = ["LOW", "MEDIUM", "HIGH", "CRITICAL"];
+    const total = Math.max(1, ...values.map(level => Number(distribution[level] || 0)));
+
+    values.forEach((level, index) => {
+        const row = dashboardElements.riskDistributionChart?.children[index];
+        if (!row) return;
+        const value = Number(distribution[level] || 0);
+        const fill = row.querySelector("i");
+        const count = row.querySelector("strong");
+        if (fill) fill.style.width = Math.min(100, (value / total) * 100) + "%";
+        if (count) count.textContent = value;
+    });
+}
+
 function updateFindingsChart() {
     const items = Array.isArray(dashboardState.findingDistribution)
         ? dashboardState.findingDistribution.filter(item => Number(item?.count) > 0)
@@ -893,6 +919,7 @@ function refreshDashboard() {
     updateDigitalSecurityTwin();
 
     updateFindingsChart();
+    updateRiskDistributionChart();
 
     updateSystemStatus();
 
