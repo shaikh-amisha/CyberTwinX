@@ -1588,17 +1588,34 @@ function startArrowFlowAnimation() {
     attackRootPulse.className = "attack-root-pulse";
     attackFlowLayer.appendChild(attackRootPulse);
 
-    const observedEdges = cy.edges().filter(edge =>
-        !isPotentialRelationship(
-            edge.data("relationship")
-        )
-    );
-
     /*
-     * Use a small number of travelling particles, like the
-     * four Merkle particles, so the graph stays calm rather
-     * than continuously glowing everywhere.
+     * The Merkle tree animation sends a small number of particles
+     * down its branches and finishes with a pulse at the root.
+     *
+     * Do the same here. The Attack Graph may store relationships
+     * in either semantic direction, so the particle direction is
+     * determined from the rendered node positions rather than
+     * blindly following source -> target.
      */
+    const observedEdges = cy.edges()
+        .filter(edge =>
+            !isPotentialRelationship(
+                edge.data("relationship")
+            )
+        )
+        .toArray()
+        .sort((a, b) => {
+            const ay =
+                a.source().renderedPosition().y +
+                a.target().renderedPosition().y;
+
+            const by =
+                b.source().renderedPosition().y +
+                b.target().renderedPosition().y;
+
+            return ay - by;
+        });
+
     const particleCount = Math.min(
         4,
         observedEdges.length
@@ -1606,12 +1623,15 @@ function startArrowFlowAnimation() {
 
     for (let index = 0; index < particleCount; index++) {
         const particle = document.createElement("span");
-        particle.className = "attack-flow-particle";
+
+        particle.className =
+            `attack-flow-particle particle-${index + 1}`;
+
         attackFlowLayer.appendChild(particle);
 
         attackFlowParticles.push({
             element: particle,
-            edgeIndex: index
+            edgeOffset: index
         });
     }
 
@@ -1622,73 +1642,136 @@ function startArrowFlowAnimation() {
     const animate = now => {
         if (!cy || !attackFlowLayer) return;
 
-        const elapsed = now - attackFlowStart;
-        const duration = 2600;
+        const elapsed =
+            now - attackFlowStart;
+
+        const duration = 3200;
         const stagger = 420;
 
-        attackFlowParticles.forEach((particle, index) => {
-            const edge =
-                observedEdges[
-                    (
-                        particle.edgeIndex +
-                        Math.floor(elapsed / duration)
-                    ) %
-                    Math.max(observedEdges.length, 1)
-                ];
+        attackFlowParticles.forEach(
+            (particle, index) => {
+                if (!observedEdges.length) {
+                    particle.element.style.opacity = "0";
+                    return;
+                }
 
-            if (!edge || edge.removed()) {
-                particle.element.style.opacity = "0";
-                return;
-            }
+                const cycle =
+                    Math.floor(
+                        (
+                            elapsed +
+                            index * stagger
+                        ) / duration
+                    );
 
-            const progress =
-                (
+                const edge =
+                    observedEdges[
+                        (
+                            particle.edgeOffset +
+                            cycle
+                        ) %
+                        observedEdges.length
+                    ];
+
+                if (!edge || edge.removed()) {
+                    particle.element.style.opacity = "0";
+                    return;
+                }
+
+                const source =
+                    edge.source()
+                        .renderedPosition();
+
+                const target =
+                    edge.target()
+                        .renderedPosition();
+
+                /*
+                 * Merkle-style visual direction:
+                 * always travel from the upper node toward the
+                 * lower node, regardless of edge semantics.
+                 */
+                const from =
+                    source.y <= target.y
+                        ? source
+                        : target;
+
+                const to =
+                    source.y <= target.y
+                        ? target
+                        : source;
+
+                const progress =
                     (
                         elapsed +
                         index * stagger
                     ) %
-                    duration
-                ) / duration;
+                    duration / duration;
 
-            const source =
-                edge.source().renderedPosition();
+                /*
+                 * Ease the particle slightly at the start/end,
+                 * matching the soft Merkle flow rather than a
+                 * hard constant-speed flash.
+                 */
+                const eased =
+                    progress < 0.5
+                        ? 2 * progress * progress
+                        : 1 -
+                          Math.pow(
+                              -2 * progress + 2,
+                              2
+                          ) / 2;
 
-            const target =
-                edge.target().renderedPosition();
+                const x =
+                    from.x +
+                    (to.x - from.x) *
+                    eased;
 
-            const x =
-                source.x +
-                (target.x - source.x) *
-                progress;
+                const y =
+                    from.y +
+                    (to.y - from.y) *
+                    eased;
 
-            const y =
-                source.y +
-                (target.y - source.y) *
-                progress;
+                particle.element.style.transform =
+                    `translate3d(${x - 4}px, ${y - 4}px, 0)`;
 
-            particle.element.style.transform =
-                `translate3d(${x - 4}px, ${y - 4}px, 0)`;
+                /*
+                 * Same fade rhythm as the Merkle particles:
+                 * invisible at the beginning/end and brightest
+                 * while crossing the branch.
+                 */
+                let opacity = 1;
 
-            /*
-             * Fade in/out at the ends to match the Merkle
-             * particle animation.
-             */
-            const opacity =
-                progress < 0.12
-                    ? progress / 0.12
-                    : progress > 0.78
-                        ? (1 - progress) / 0.22
-                        : 1;
+                if (progress < 0.12) {
+                    opacity =
+                        progress / 0.12;
+                } else if (progress > 0.78) {
+                    opacity =
+                        (1 - progress) / 0.22;
+                }
 
-            particle.element.style.opacity =
-                String(Math.max(0, Math.min(1, opacity)));
-        });
+                particle.element.style.opacity =
+                    String(
+                        Math.max(
+                            0,
+                            Math.min(1, opacity)
+                        )
+                    );
+            }
+        );
 
+        /*
+         * Root pulse repeats on the same 2.6 second rhythm as
+         * the Merkle Root pulse.
+         */
         const root =
             cy.nodes().filter(node =>
-                String(node.data("type") || "").toLowerCase() === "incident"
+                String(
+                    node.data("type") || ""
+                ).toLowerCase() === "incident"
             )[0] ||
-            cy.nodes().last();
+            cy.nodes().filter(node =>
+                !node.outgoers().length
+            )[0];
 
         if (root && root.length) {
             const position =
@@ -1701,12 +1784,18 @@ function startArrowFlowAnimation() {
 
             const pulseOpacity =
                 pulseProgress < 0.30
-                    ? pulseProgress / 0.30 * 0.55
-                    : (1 - pulseProgress) / 0.70 * 0.55;
+                    ? (
+                        pulseProgress /
+                        0.30
+                    ) * 0.55
+                    : (
+                        (1 - pulseProgress) /
+                        0.70
+                    ) * 0.55;
 
             const scale =
                 0.7 +
-                pulseProgress * 1.0;
+                pulseProgress;
 
             attackRootPulse.style.left =
                 `${position.x - 18}px`;
@@ -1715,18 +1804,27 @@ function startArrowFlowAnimation() {
                 `${position.y - 18}px`;
 
             attackRootPulse.style.opacity =
-                String(Math.max(0, pulseOpacity));
+                String(
+                    Math.max(
+                        0,
+                        pulseOpacity
+                    )
+                );
 
             attackRootPulse.style.transform =
                 `scale(${scale})`;
         }
 
         flowTimer =
-            requestAnimationFrame(animate);
+            requestAnimationFrame(
+                animate
+            );
     };
 
     flowTimer =
-        requestAnimationFrame(animate);
+        requestAnimationFrame(
+            animate
+        );
 }
 
 /* =========================================================
