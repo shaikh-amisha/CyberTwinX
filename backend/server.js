@@ -14,6 +14,7 @@ const evidenceRoutes = require("./routes/evidenceRoutes");
 const investigatorRoutes = require("./routes/investigatorRoutes");
 const newsRoutes = require("./routes/newsRoutes");
 const whatIfRoutes = require("./routes/whatIfRoutes");
+const alertRoutes = require("./routes/alertRoutes");
 
 
 const app = express();
@@ -33,6 +34,7 @@ app.use("/api/evidence", evidenceRoutes);
 app.use("/api/investigator",investigatorRoutes);
 app.use("/api/news", newsRoutes);
 app.use("/api/what-if", whatIfRoutes);
+app.use("/api/alerts", alertRoutes);
 
 
 // Connect to MongoDB
