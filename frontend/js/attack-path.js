@@ -221,15 +221,28 @@ async function fetchAttackGraph(incidentId) {
 
         const result = await response.json();
 
-        if (result?.data?.nodes) {
-            return result.data;
+        const graphData =
+            result?.data?.nodes
+                ? result.data
+                : result?.nodes
+                    ? result
+                    : null;
+
+        /*
+         * Do not render an empty graph for an incident that has
+         * no dedicated Attack Graph response. Fall back to the
+         * selected Incident Twin so every incident remains
+         * explorable from the selector.
+         */
+        if (
+            graphData &&
+            Array.isArray(graphData.nodes) &&
+            graphData.nodes.length > 0
+        ) {
+            return graphData;
         }
 
-        if (result?.nodes) {
-            return result;
-        }
-
-        throw new Error("Invalid attack graph response");
+        throw new Error("Attack graph contains no nodes");
 
     } catch (error) {
         console.warn(
