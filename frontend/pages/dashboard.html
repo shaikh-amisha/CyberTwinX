@@ -513,37 +513,6 @@
         .dashboard-chart-grid { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:16px; }
         .findings-chart-card,
         .risk-distribution-card,
-        .events-over-time-card { padding:20px 22px; }
-        .findings-chart-header h3 { margin-top:4px; font-size:15px; color:#eef7fb; }
-        .findings-bar-chart { min-height:170px; display:grid; align-content:center; gap:14px; }
-        .finding-bar-row { display:grid; grid-template-columns:minmax(120px,1.1fr) minmax(80px,2fr) 28px; align-items:center; gap:10px; font-size:9px; font-weight:700; color:#c6d3de; }
-        .finding-bar-track { height:9px; border-radius:999px; background:rgba(148,163,184,.10); overflow:hidden; }
-        .finding-bar-fill { display:block; height:100%; width:0; border-radius:999px; background:#00e5ff; box-shadow:0 0 10px rgba(0,229,255,.24); transition:width .45s ease; }
-        .finding-bar-value { text-align:right; color:#f0f6fa; font-weight:800; }
-        .findings-empty { color:#687b8c; font-size:10px; }
-
-        .risk-donut-layout { min-height:170px; display:flex; align-items:center; justify-content:center; gap:30px; }
-        .risk-donut { width:148px; height:148px; flex:0 0 148px; position:relative; display:grid; place-items:center; border-radius:50%; background:#27303a; box-shadow:0 0 24px rgba(0,0,0,.16); }
-        .risk-donut::after { content:""; position:absolute; width:96px; height:96px; border-radius:50%; background:#080e15; box-shadow:inset 0 0 18px rgba(0,0,0,.35); }
-        .risk-donut-center { position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; }
-        .risk-donut-center strong { font-size:24px; line-height:1; color:#f1f7fb; }
-        .risk-donut-center span { margin-top:5px; font-size:8px; letter-spacing:1.2px; color:#8193a5; font-weight:800; }
-        .risk-donut-legend { display:grid; gap:12px; min-width:120px; }
-        .risk-legend-row { display:grid; grid-template-columns:8px 1fr auto; align-items:center; gap:8px; font-size:9px; font-weight:800; letter-spacing:.65px; color:#aebdca; }
-        .risk-legend-row strong { color:#f0f6fa; font-size:11px; }
-        .risk-legend-dot { width:7px; height:7px; border-radius:50%; box-shadow:0 0 8px currentColor; }
-        .risk-legend-dot.low { background:#22c55e; color:#22c55e; }
-        .risk-legend-dot.medium { background:#facc15; color:#facc15; }
-        .risk-legend-dot.high { background:#fb923c; color:#fb923c; }
-        .risk-legend-dot.critical { background:#ef4444; color:#ef4444; }
-
-        .events-over-time-card { min-height:260px; }
-        .events-chart { width:100%; height:210px; margin-top:12px; }
-        .events-chart svg { width:100%; height:100%; display:block; overflow:visible; }
-        .events-grid-lines line { stroke:rgba(148,163,184,.10); stroke-width:1; }
-        .events-area { fill:rgba(0,229,255,.08); stroke:none; }
-        .events-line { fill:none; stroke:#00e5ff; stroke-width:2.5; vector-effect:non-scaling-stroke; filter:drop-shadow(0 0 5px rgba(0,229,255,.28)); }
-        .events-x-labels text { fill:#718395; font-size:9px; font-weight:700; letter-spacing:.2px; }
         @media (max-width:760px) { .dashboard-chart-grid { grid-template-columns:1fr; } .risk-donut-layout { gap:20px; } }
         @media (max-width:560px) { .risk-donut { width:125px; height:125px; flex-basis:125px; } .risk-donut::after { width:80px; height:80px; } .risk-donut-layout { justify-content:flex-start; } .events-chart { height:190px; } }
     </style>
@@ -1140,22 +1109,6 @@
                     </article>
                 </div>
 
-                <article class="dashboard-card events-over-time-card">
-                    <div class="findings-chart-header">
-                        <div>
-                            <span class="card-label">SECURITY ACTIVITY</span>
-                            <h3>Events Over Time</h3>
-                        </div>
-                    </div>
-                    <div class="events-chart" id="eventsOverTimeChart" aria-label="Suspicious events over time">
-                        <svg viewBox="0 0 900 240" preserveAspectRatio="none" role="img" aria-hidden="true">
-                            <g class="events-grid-lines" id="eventsGridLines"></g>
-                            <path class="events-area" id="eventsArea" d=""></path>
-                            <path class="events-line" id="eventsLine" d=""></path>
-                            <g class="events-x-labels" id="eventsXLabels"></g>
-                        </svg>
-                    </div>
-                </article>
             </section>
 
             <!-- =================================================
