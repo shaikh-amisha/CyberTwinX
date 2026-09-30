@@ -231,6 +231,27 @@ const getDashboardOverview = async (req, res) => {
          * =====================================================
          */
 
+        const findingDistribution = [];
+        const findingCounts = new Map();
+
+        const riskBreakdown = Array.isArray(endpointTwin?.riskBreakdown)
+            ? endpointTwin.riskBreakdown
+            : [];
+
+        riskBreakdown.forEach((finding) => {
+            const type = typeof finding === "string"
+                ? finding
+                : finding?.type || finding?.name || "OTHER";
+            const key = String(type || "OTHER").trim() || "OTHER";
+            findingCounts.set(key, (findingCounts.get(key) || 0) + 1);
+        });
+
+        findingCounts.forEach((count, type) => {
+            findingDistribution.push({ type, count });
+        });
+
+        findingDistribution.sort((a, b) => b.count - a.count);
+
         const incidentData = {
 
             id:
@@ -545,7 +566,9 @@ const getDashboardOverview = async (req, res) => {
             investigationHealthScore,
 
             blockchainHealth:
-                "VERIFIED"
+                "VERIFIED",
+
+            findingDistribution
 
         });
 
