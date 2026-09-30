@@ -10,6 +10,10 @@ const {
     correlateIncident
 } = require("../services/incidentCorrelationService");
 
+const {
+    createDetectionAlerts
+} = require("../services/alertService");
+
 
 const receiveTelemetry = async (req, res) => {
 
@@ -239,7 +243,28 @@ const receiveTelemetry = async (req, res) => {
 
 
         // =====================================================
-        // 10. RESPONSE
+        // 10. LIVE ATTACK ALERTS
+        // =====================================================
+
+        const liveAlerts =
+            await createDetectionAlerts({
+
+                endpointId,
+
+                hostname,
+
+                incidentId:
+                    incidentCorrelation.incident?.incidentId ||
+                    null,
+
+                findings:
+                    securityAnalysis.findings
+
+            });
+
+
+        // =====================================================
+        // 11. RESPONSE
         // =====================================================
 
         res.status(201).json({
@@ -292,7 +317,9 @@ const receiveTelemetry = async (req, res) => {
             // =================================================
 
             incidentTwin:
-                incidentCorrelation.incident
+                incidentCorrelation.incident,
+
+            liveAlerts
 
         });
 
