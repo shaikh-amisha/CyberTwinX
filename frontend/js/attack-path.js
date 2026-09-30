@@ -598,41 +598,35 @@ function createGraph(graph) {
 
         style: [
             {
-                /* -----------------------------------------
-                   BASE NODE (Endpoint / Activity / Potential)
-                   Bigger footprint, larger readable label,
-                   text-max-width tuned to actually fit inside
-                   the circle instead of overflowing it.
-                ----------------------------------------- */
                 selector: "node",
 
                 style: {
-                    "width": 230,
-                    "height": 230,
+                    "width": 180,
+                    "height": 70,
 
-                    "background-color": "#0b1118",
+                    "shape": "roundrectangle",
 
-                    "border-width": 8,
-                    "border-color": "#25d9ff",
+                    "background-color": "#0d141c",
+                    "border-width": 2,
+                    "border-color": "#00e5ff",
 
                     "label": "data(label)",
+                    "color": "#dcecf5",
 
-                    "color": "#e8f7ff",
-
-                    "font-size": 30,
+                    "font-size": 14,
                     "font-weight": 700,
 
                     "text-wrap": "wrap",
-                    "text-max-width": 185,
+                    "text-max-width": 150,
 
                     "text-valign": "center",
                     "text-halign": "center",
 
                     "overlay-opacity": 0,
 
-                    "shadow-blur": 14,
+                    "shadow-blur": 12,
                     "shadow-opacity": 0.7,
-                    "shadow-color": "#25d9ff",
+                    "shadow-color": "#00e5ff",
 
                     "opacity": 1
                 }
@@ -642,13 +636,15 @@ function createGraph(graph) {
                 selector: "node[type='Incident']",
 
                 style: {
-                    "background-color": "#190d10",
-                    "border-color": "#ff4040",
-                    "shadow-color": "#ff3030",
-                    "width": 150,
-                    "height": 150,
-                    "font-size": 22,
-                    "text-max-width": 120
+                    "width": 205,
+                    "height": 82,
+                    "background-color": "#101a22",
+                    "border-color": "#00e5ff",
+                    "border-width": 2.5,
+                    "shadow-color": "#00e5ff",
+                    "font-size": 15,
+                    "font-weight": 800,
+                    "text-max-width": 175
                 }
             },
 
@@ -656,9 +652,9 @@ function createGraph(graph) {
                 selector: "node[type='Endpoint']",
 
                 style: {
-                    "background-color": "#09161b",
-                    "border-color": "#29e0ff",
-                    "shadow-color": "#29e0ff"
+                    "background-color": "#0c1720",
+                    "border-color": "#27dfff",
+                    "shadow-color": "#27dfff"
                 }
             },
 
@@ -666,9 +662,9 @@ function createGraph(graph) {
                 selector: "node[type='Activity']",
 
                 style: {
-                    "background-color": "#0d131a",
-                    "border-color": "#46d9ff",
-                    "shadow-color": "#46d9ff"
+                    "background-color": "#0c151c",
+                    "border-color": "#39dfff",
+                    "shadow-color": "#39dfff"
                 }
             },
 
@@ -676,13 +672,13 @@ function createGraph(graph) {
                 selector: "node[type='Evidence']",
 
                 style: {
-                    "background-color": "#10130d",
-                    "border-color": "#b9dc45",
-                    "shadow-color": "#b9dc45",
-                    "width": 115,
-                    "height": 115,
-                    "font-size": 18,
-                    "text-max-width": 90
+                    "width": 170,
+                    "height": 66,
+                    "background-color": "#0d1718",
+                    "border-color": "#20d8a0",
+                    "shadow-color": "#20d8a0",
+                    "font-size": 12,
+                    "text-max-width": 145
                 }
             },
 
@@ -690,13 +686,9 @@ function createGraph(graph) {
                 selector: "node[type='Threat']",
 
                 style: {
-                    "background-color": "#190c0c",
-                    "border-color": "#ff4545",
-                    "shadow-color": "#ff3030",
-                    "width": 135,
-                    "height": 135,
-                    "font-size": 20,
-                    "text-max-width": 105
+                    "background-color": "#171216",
+                    "border-color": "#ff5664",
+                    "shadow-color": "#ff5664"
                 }
             },
 
@@ -704,59 +696,73 @@ function createGraph(graph) {
                 selector: "node[type='Potential']",
 
                 style: {
-                    "background-color": "#120e1a",
+                    "background-color": "#14121c",
                     "border-color": "#a56cff",
                     "shadow-color": "#a56cff"
                 }
             },
 
             {
-                /* -----------------------------------------
-                   BASE EDGE
-                   Arrowheads pulled back from node borders
-                   (source/target-distance-from-node) so they
-                   don't bunch up against the bigger nodes,
-                   and arrow-scale bumped to stay proportional.
-                ----------------------------------------- */
                 selector: "edge",
 
                 style: {
                     "curve-style": "bezier",
 
-                    "width": 6,
+                    "width": 2,
 
-                    "line-color": "#25d9ff",
-
-                    "target-arrow-color": "#25d9ff",
+                    "line-color": "#4b7183",
+                    "target-arrow-color": "#4b7183",
 
                     "target-arrow-shape": "triangle",
+                    "arrow-scale": 1.15,
 
-                    "arrow-scale": 2.4,
+                    "line-style": "dashed",
 
-                    "source-distance-from-node": 10,
-                    "target-distance-from-node": 14,
+                    "source-distance-from-node": 8,
+                    "target-distance-from-node": 10,
 
                     "label": "data(relationship)",
 
-                    "color": "#c9edff",
+                    "color": "#8fa8b5",
 
-                    "font-size": 13,
+                    "font-size": 9,
                     "font-weight": 700,
 
-                    "text-background-color": "#070b10",
+                    "text-background-color": "#17191f",
+                    "text-background-opacity": 0.92,
+                    "text-background-padding": 3,
 
-                    "text-background-opacity": 0.9,
-                    "text-background-padding": 4,
-
-                    "text-margin-y": -10,
-
+                    "text-margin-y": -8,
                     "text-rotation": "autorotate",
 
-                    "shadow-blur": 8,
-                    "shadow-opacity": 0.6,
-                    "shadow-color": "#25d9ff",
+                    "shadow-blur": 5,
+                    "shadow-opacity": 0.45,
+                    "shadow-color": "#315463",
 
-                    "opacity": 1
+                    "opacity": 0.9
+                }
+            },
+
+            {
+                selector: "edge[relationship='OBSERVED']",
+
+                style: {
+                    "line-color": "#00e5ff",
+                    "target-arrow-color": "#00e5ff",
+                    "line-style": "dashed",
+                    "color": "#8eefff",
+                    "shadow-color": "#00e5ff"
+                }
+            },
+
+            {
+                selector: "edge[relationship='SUPPORTS']",
+
+                style: {
+                    "line-color": "#20d8a0",
+                    "target-arrow-color": "#20d8a0",
+                    "color": "#8af0cf",
+                    "shadow-color": "#20d8a0"
                 }
             },
 
@@ -764,17 +770,9 @@ function createGraph(graph) {
                 selector: "edge[relationship='POTENTIAL']",
 
                 style: {
-                    "line-style": "dashed",
-
                     "line-color": "#a56cff",
-
                     "target-arrow-color": "#a56cff",
-
-                    "color": "#d9c2ff",
-
-                    "width": 5,
-
-                    "shadow-color": "#a56cff"
+                    "color": "#c7a7ff"
                 }
             },
 
@@ -783,13 +781,9 @@ function createGraph(graph) {
                     "edge[relationship='CORRELATED']",
 
                 style: {
-                    "line-style": "dashed",
-
-                    "line-color": "#a56cff",
-
-                    "target-arrow-color": "#a56cff",
-
-                    "color": "#c7a7ff"
+                    "line-color": "#6f7f91",
+                    "target-arrow-color": "#6f7f91",
+                    "color": "#aeb9c4"
                 }
             },
 
@@ -798,12 +792,8 @@ function createGraph(graph) {
                     "edge[relationship='PREDICTS']",
 
                 style: {
-                    "line-style": "dashed",
-
                     "line-color": "#a56cff",
-
                     "target-arrow-color": "#a56cff",
-
                     "color": "#c7a7ff"
                 }
             },
@@ -904,30 +894,22 @@ function applyAttackGraphLayout(nodes, edges) {
     if (!cy || !nodes.length) return;
 
     /*
-     * Attack Graph demonstration layout:
+     * Merkle-style attack graph layout:
+     * leaves at the top, correlated/intermediate nodes in the
+     * middle, and the incident/root at the bottom.
      *
-     *              THREAT
-     *                │
-     * INCIDENT ── ENDPOINT ── ACTIVITY ── EVIDENCE
-     *     │           │          │
-     *     └────── OBJECTIVE   EVIDENCE
-     *
-     * Nodes are assigned to graph levels from their incoming
-     * relationships and distributed vertically within each level.
-     * This keeps the visualization non-linear while preserving
-     * the actual graph relationships.
+     * The graph remains non-linear: multiple branches can
+     * converge on the same lower-level node.
      */
 
     const nodeMap = new Map(
         nodes.map(node => [node.id, node])
     );
 
-    const incoming = new Map();
-    const outgoing = new Map();
+    const children = new Map();
 
     nodes.forEach(node => {
-        incoming.set(node.id, []);
-        outgoing.set(node.id, []);
+        children.set(node.id, []);
     });
 
     edges.forEach(edge => {
@@ -935,104 +917,133 @@ function applyAttackGraphLayout(nodes, edges) {
             return;
         }
 
-        incoming.get(edge.target).push(edge);
-        outgoing.get(edge.source).push(edge);
+        children.get(edge.source).push(edge.target);
     });
 
-    const incidentNode =
+    const root =
         nodes.find(node =>
             String(node.type).toLowerCase() === "incident"
-        );
-
-    const root =
-        incidentNode ||
-        nodes.find(node => incoming.get(node.id)?.length === 0) ||
+        ) ||
+        nodes.find(node => {
+            const outgoing = children.get(node.id) || [];
+            return outgoing.length === 0;
+        }) ||
         nodes[0];
 
-    const levels = new Map();
-    const queue = [{ id: root.id, level: 0 }];
-    const visited = new Set();
+    /*
+     * Calculate distance from the root using the actual graph
+     * relationships, then invert the visual direction so the
+     * root is displayed at the bottom.
+     */
+    const reverse = new Map();
+
+    nodes.forEach(node => reverse.set(node.id, []));
+
+    edges.forEach(edge => {
+        if (
+            reverse.has(edge.target) &&
+            reverse.has(edge.source)
+        ) {
+            reverse.get(edge.target).push(edge.source);
+        }
+    });
+
+    const distances = new Map([
+        [root.id, 0]
+    ]);
+
+    const queue = [root.id];
 
     while (queue.length) {
-        const current = queue.shift();
+        const currentId = queue.shift();
+        const currentDistance =
+            distances.get(currentId) || 0;
 
-        if (visited.has(current.id)) continue;
+        (reverse.get(currentId) || []).forEach(parentId => {
+            if (!distances.has(parentId)) {
+                distances.set(
+                    parentId,
+                    currentDistance + 1
+                );
 
-        visited.add(current.id);
-        levels.set(current.id, current.level);
-
-        const children =
-            outgoing.get(current.id) || [];
-
-        children.forEach(edge => {
-            if (!visited.has(edge.target)) {
-                queue.push({
-                    id: edge.target,
-                    level: current.level + 1
-                });
+                queue.push(parentId);
             }
         });
     }
 
     /*
-     * Nodes that are disconnected from the root still need a
-     * visible position, but they are placed in their own branch.
+     * Anything not connected to the selected root is placed
+     * in the upper area instead of breaking the main tree.
      */
     nodes.forEach(node => {
-        if (!levels.has(node.id)) {
-            levels.set(node.id, 1);
+        if (!distances.has(node.id)) {
+            distances.set(node.id, 1);
         }
     });
 
-    const grouped = new Map();
+    const levels = new Map();
 
     nodes.forEach(node => {
-        const level = levels.get(node.id) ?? 1;
+        const distance =
+            distances.get(node.id) || 0;
 
-        if (!grouped.has(level)) {
-            grouped.set(level, []);
+        if (!levels.has(distance)) {
+            levels.set(distance, []);
         }
 
-        grouped.get(level).push(node);
+        levels.get(distance).push(node);
     });
 
-    /*
-     * Keep the important security objects visually distinct.
-     * Incident is the anchor, endpoint is the central system,
-     * and evidence/threat/potential nodes branch around them.
-     */
     const typeOrder = {
-        Incident: 0,
-        Endpoint: 1,
-        Activity: 2,
-        Evidence: 3,
-        Threat: 4,
-        Potential: 5
+        Evidence: 0,
+        Activity: 1,
+        Threat: 2,
+        Potential: 3,
+        Endpoint: 4,
+        Incident: 5
     };
 
-    grouped.forEach(levelNodes => {
+    levels.forEach(levelNodes => {
         levelNodes.sort((a, b) => {
-            const aType =
-                typeOrder[a.type] ?? 10;
-
-            const bType =
-                typeOrder[b.type] ?? 10;
-
-            return aType - bType;
+            return (
+                (typeOrder[a.type] ?? 10) -
+                (typeOrder[b.type] ?? 10)
+            );
         });
     });
 
-    const xSpacing = 360;
-    const ySpacing = 250;
-    const baseX = 160;
-    const centerY = 360;
+    const maxDistance =
+        Math.max(...Array.from(levels.keys()));
 
-    grouped.forEach((levelNodes, level) => {
-        const totalHeight =
-            (levelNodes.length - 1) * ySpacing;
+    const xSpacing = 285;
+    const ySpacing = 155;
+    const centerX = 560;
+    const topY = 120;
+    const bottomY = 510;
 
-        const startY =
-            centerY - totalHeight / 2;
+    /*
+     * Place the farthest nodes at the top and the root at the
+     * bottom, matching the visual hierarchy of the Merkle tree.
+     */
+    levels.forEach((levelNodes, distance) => {
+        const visualLevel =
+            maxDistance - distance;
+
+        const y =
+            maxDistance === 0
+                ? bottomY
+                : topY +
+                  (
+                      visualLevel /
+                      maxDistance
+                  ) *
+                  (bottomY - topY);
+
+        const totalWidth =
+            (levelNodes.length - 1) * xSpacing;
+
+        const startX =
+            centerX - totalWidth / 2;
 
         levelNodes.forEach((node, index) => {
             const element = cy.$id(node.id);
@@ -1040,50 +1051,32 @@ function applyAttackGraphLayout(nodes, edges) {
             if (!element.length) return;
 
             element.position({
-                x: baseX + level * xSpacing,
-                y: startY + index * ySpacing
+                x: startX + index * xSpacing,
+                y
             });
         });
     });
 
     /*
-     * Pull threat and potential branches toward the incident/
-     * endpoint area so they read as side branches instead of
-     * another linear continuation.
+     * If there are multiple disconnected branches, offset them
+     * slightly so they remain visible without collapsing into one
+     * column.
      */
-    nodes.forEach(node => {
-        const type =
-            String(node.type || "").toLowerCase();
+    const rootElement = cy.$id(root.id);
 
-        const element = cy.$id(node.id);
-
-        if (!element.length) return;
-
-        const position = element.position();
-
-        if (type === "threat") {
-            element.position({
-                x: position.x,
-                y: position.y - 150
-            });
-        }
-
-        if (type === "potential") {
-            element.position({
-                x: position.x,
-                y: position.y + 150
-            });
-        }
-    });
-
-    cy.nodes().grabify();
+    if (rootElement.length) {
+        rootElement.position({
+            x: centerX,
+            y: bottomY
+        });
+    }
 
     setTimeout(() => {
         if (!cy) return;
 
         cy.fit(
             cy.elements(),
-            90
+            80
         );
     }, 80);
 }
