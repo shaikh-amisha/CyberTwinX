@@ -56,7 +56,9 @@ const dashboardState = {
 
     system: {
         status: "ONLINE"
-    }
+    },
+
+    findingDistribution: []
 
 };
 
@@ -239,7 +241,16 @@ const dashboardElements = {
         document.getElementById("cyberNewsUpdated"),
 
     newsLiveStatus:
-        document.getElementById("newsLiveStatus")
+        document.getElementById("newsLiveStatus"),
+
+    findingsDonut:
+        document.getElementById("findingsDonut"),
+
+    findingsTotal:
+        document.getElementById("findingsTotal"),
+
+    findingsLegend:
+        document.getElementById("findingsLegend")
 
 };
 
@@ -299,6 +310,10 @@ async function fetchDashboardData() {
         }
 
         updateDashboardState(data);
+
+        dashboardState.findingDistribution = Array.isArray(data.findingDistribution)
+            ? data.findingDistribution
+            : [];
 
         refreshDashboard();
 
@@ -818,6 +833,47 @@ function initializeVisibilityHandler() {
    18. DASHBOARD REFRESH
    ========================================================= */
 
+
+
+function updateFindingsChart() {
+    const items = Array.isArray(dashboardState.findingDistribution)
+        ? dashboardState.findingDistribution.filter(item => Number(item?.count) > 0)
+        : [];
+
+    if (!dashboardElements.findingsDonut || !dashboardElements.findingsLegend) return;
+
+    const total = items.reduce((sum, item) => sum + Number(item.count || 0), 0);
+    setText(dashboardElements.findingsTotal, total);
+
+    if (!total) {
+        dashboardElements.findingsDonut.style.background = "conic-gradient(rgba(148,163,184,.18) 0deg 360deg)";
+        dashboardElements.findingsLegend.innerHTML = '<span class="findings-empty">No findings recorded.</span>';
+        return;
+    }
+
+    const segments = [];
+    let angle = 0;
+    const palette = ["#00e5ff", "#22c55e", "#f59e0b", "#a855f7", "#ef4444", "#38bdf8"];
+
+    items.forEach((item, index) => {
+        const size = (Number(item.count) / total) * 360;
+        segments.push(palette[index % palette.length] + " " + angle + "deg " + (angle + size) + "deg");
+        item._color = palette[index % palette.length];
+        angle += size;
+    });
+
+    dashboardElements.findingsDonut.style.background = "conic-gradient(" + segments.join(", ") + ")";
+    dashboardElements.findingsLegend.innerHTML = items.slice(0, 6).map(item => {
+        const name = String(item.type || "OTHER").replace(/_/g, " ");
+        return '<div class="finding-legend-item">' +
+            '<span class="finding-legend-dot" style="color:' + item._color + ';background:' + item._color + '"></span>' +
+            '<span class="finding-legend-name">' + name + '</span>' +
+            '<span class="finding-legend-value">' + item.count + '</span>' +
+        '</div>';
+    }).join("");
+}
+
+
 function refreshDashboard() {
 
     updateTopbar();
@@ -835,6 +891,8 @@ function refreshDashboard() {
     updateSimulation();
 
     updateDigitalSecurityTwin();
+
+    updateFindingsChart();
 
     updateSystemStatus();
 
