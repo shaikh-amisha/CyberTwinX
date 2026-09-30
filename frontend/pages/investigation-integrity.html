@@ -82,29 +82,43 @@
 
     <main class="main-content">
         <header class="topbar">
+
             <div class="topbar-item">
+
                 <span class="topbar-label">ENDPOINT</span>
-                <strong id="topbarEndpoint">SERVER-01</strong>
+
+                <strong id="topbarEndpoint">—</strong>
+
             </div>
+
             <div class="topbar-divider"></div>
-            <div class="topbar-item">
-                <span class="topbar-label">INCIDENT</span>
-                <strong id="topbarIncident">INC-001</strong>
-            </div>
-            <div class="topbar-divider"></div>
-            <div class="topbar-item">
+
+            <div class="topbar-state-item">
+
                 <span class="topbar-label">STATE</span>
-                <span class="state-badge compromised" id="topbarState">COMPROMISED</span>
+
+                <span class="state-badge unknown" id="topbarState">UNKNOWN</span>
+
             </div>
+
             <div class="topbar-risk">
+
                 <span class="topbar-label">RISK</span>
-                <strong id="topbarRisk">78</strong>
+
+                <strong id="topbarRisk">0</strong>
+
                 <span>/100</span>
+
             </div>
+
             <div class="system-status">
+
                 <span class="status-dot"></span>
+
                 <span id="topbarSystemStatus">ONLINE</span>
+
             </div>
+
         </header>
 
         <section class="page-content blockchain-page investigation-integrity-page">
@@ -274,5 +288,7 @@
 </div>
 
 <script src="../js/investigation-integrity.js"></script>
+<script src="../js/topbar.js"></script>
+
 </body>
 </html>
