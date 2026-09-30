@@ -291,32 +291,7 @@ const getDashboardOverview = async (req, res) => {
             );
 
             riskDistribution[normalizedSeverity] += count;
-        riskBreakdown.forEach((finding) => {
-            const severity = String(
-                typeof finding === "object" && finding?.severity
-                    ? finding.severity
-                    : riskLevel
-            ).toUpperCase();
-
-            const normalizedSeverity = [
-                "LOW",
-                "MEDIUM",
-                "HIGH",
-                "CRITICAL"
-            ].includes(severity)
-                ? severity
-                : riskLevel;
-
-            const count = Math.max(
-                1,
-                Number(
-                    typeof finding === "object" && finding?.count
-                        ? finding.count
-                        : 1
-                )
-            );
-
-            riskDistribution[normalizedSeverity] += count;
+        });
 
         if (
             Object.values(riskDistribution).every(count => count === 0) &&
@@ -330,8 +305,6 @@ const getDashboardOverview = async (req, res) => {
 
             riskDistribution[fallbackLevel] = 1;
         }
-
-        });
 
         /*
          * Events Over Time uses the same detection engine as
