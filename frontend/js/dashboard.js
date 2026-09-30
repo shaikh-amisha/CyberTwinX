@@ -59,8 +59,7 @@ const dashboardState = {
     },
 
     findingDistribution: [],
-    riskDistribution: { LOW: 0, MEDIUM: 0, HIGH: 0, CRITICAL: 0 },
-    eventsOverTime: []
+    riskDistribution: { LOW: 0, MEDIUM: 0, HIGH: 0, CRITICAL: 0 }
 
 };
 
@@ -257,20 +256,6 @@ const dashboardElements = {
     riskDistributionLegend:
         document.getElementById("riskDistributionLegend"),
 
-    eventsOverTimeChart:
-        document.getElementById("eventsOverTimeChart"),
-
-    eventsGridLines:
-        document.getElementById("eventsGridLines"),
-
-    eventsArea:
-        document.getElementById("eventsArea"),
-
-    eventsLine:
-        document.getElementById("eventsLine"),
-
-    eventsXLabels:
-        document.getElementById("eventsXLabels")
 
 };
 
@@ -947,76 +932,6 @@ function updateFindingsChart() {
     }).join("");
 }
 
-function updateEventsOverTimeChart() {
-    const chart = dashboardElements.eventsOverTimeChart;
-    const line = dashboardElements.eventsLine;
-    const area = dashboardElements.eventsArea;
-    const grid = dashboardElements.eventsGridLines;
-    const labels = dashboardElements.eventsXLabels;
-
-    if (!chart || !line || !area || !grid || !labels) return;
-
-    const points = Array.isArray(dashboardState.eventsOverTime)
-        ? dashboardState.eventsOverTime
-        : [];
-
-    const width = 900;
-    const height = 240;
-    const left = 8;
-    const right = 892;
-    const top = 18;
-    const bottom = 208;
-    const maxValue = Math.max(...points.map(point => Number(point.count || 0)), 1);
-
-    if (!points.length) {
-        line.setAttribute("d", "");
-        area.setAttribute("d", "");
-        grid.innerHTML = "";
-        labels.innerHTML = "";
-        return;
-    }
-
-    const coords = points.map((point, index) => {
-        const x = points.length === 1
-            ? (left + right) / 2
-            : left + (index / (points.length - 1)) * (right - left);
-        const value = Number(point.count || 0);
-        const y = bottom - (value / maxValue) * (bottom - top);
-        return { x, y, value, label: point.label || "" };
-    });
-
-    const linePath = coords.map((point, index) =>
-        (index === 0 ? "M " : "L ") + point.x.toFixed(2) + " " + point.y.toFixed(2)
-    ).join(" ");
-
-    line.setAttribute("d", linePath);
-    area.setAttribute(
-        "d",
-        linePath + " L " + coords[coords.length - 1].x.toFixed(2) + " " + bottom +
-        " L " + coords[0].x.toFixed(2) + " " + bottom + " Z"
-    );
-
-    const gridLevels = [0, 0.25, 0.5, 0.75, 1];
-    grid.innerHTML = gridLevels.map(level => {
-        const y = bottom - level * (bottom - top);
-        return '<line x1="' + left + '" y1="' + y + '" x2="' + right + '" y2="' + y + '"></line>';
-    }).join("");
-
-    const labelIndexes = points.length <= 6
-        ? points.map((_, index) => index)
-        : points.map((_, index) => index).filter(index =>
-            index === 0 ||
-            index === points.length - 1 ||
-            index % Math.ceil(points.length / 5) === 0
-        );
-
-    labels.innerHTML = labelIndexes.map(index => {
-        const point = coords[index];
-        return '<text x="' + point.x + '" y="229" text-anchor="middle">' +
-            String(point.label || "") +
-        '</text>';
-    }).join("");
-}
 
 
 function refreshDashboard() {
@@ -1039,7 +954,6 @@ function refreshDashboard() {
 
     updateFindingsChart();
     updateRiskDistributionChart();
-    updateEventsOverTimeChart();
 
     updateSystemStatus();
 
