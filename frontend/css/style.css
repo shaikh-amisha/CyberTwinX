@@ -11344,3 +11344,35 @@ body::before {
         display: none;
     }
 }
+
+
+/* ATTACK GRAPH — MATCH STANDARD SECTION HEADING */
+.attack-graph-panel .graph-header .graph-title-block {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    justify-content: center !important;
+    gap: 3px !important;
+    margin-right: auto !important;
+    min-width: 0 !important;
+}
+
+.attack-graph-panel .graph-title-block strong {
+    display: block !important;
+    margin: 0 !important;
+    color: var(--text-primary) !important;
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    line-height: 1.25 !important;
+    letter-spacing: 0 !important;
+}
+
+.attack-graph-panel .graph-title-block span {
+    display: block !important;
+    margin: 0 !important;
+    color: var(--text-muted) !important;
+    font-size: 11px !important;
+    font-weight: 400 !important;
+    line-height: 1.4 !important;
+    letter-spacing: 0 !important;
+}
