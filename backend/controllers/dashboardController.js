@@ -2,7 +2,6 @@ const Telemetry = require("../models/Telemetry");
 const EndpointTwin = require("../models/EndpointTwin");
 const IncidentTwin = require("../models/IncidentTwin");
 const { getSummary } = require("../services/evidenceInvestigationService");
-const { detectThreats } = require("../services/detectionEngine");
 
 
 const getDashboardOverview = async (req, res) => {
@@ -304,80 +303,6 @@ const getDashboardOverview = async (req, res) => {
                 : getRiskLevel(riskScore);
 
             riskDistribution[fallbackLevel] = 1;
-        }
-
-        /*
-         * Events Over Time uses the same detection engine as
-         * the live telemetry pipeline. It summarizes the last
-         * 24 hours into hourly buckets.
-         */
-        const eventsOverTime = [];
-        const now = Date.now();
-        const eventWindowStart = new Date(now - 24 * 60 * 60 * 1000);
-
-        try {
-            const historicalTelemetry = await Telemetry.find({
-                timestamp: { $gte: eventWindowStart }
-            })
-                .select({ timestamp: 1, telemetry: 1 })
-                .sort({ timestamp: 1 })
-                .lean();
-
-            const buckets = new Map();
-
-            for (const record of historicalTelemetry) {
-                const timestamp = new Date(record.timestamp);
-                if (Number.isNaN(timestamp.getTime())) continue;
-
-                const bucketTime = new Date(
-                    Math.floor(timestamp.getTime() / (60 * 60 * 1000)) *
-                    (60 * 60 * 1000)
-                );
-                const bucketKey = bucketTime.toISOString();
-
-                if (!buckets.has(bucketKey)) {
-                    buckets.set(bucketKey, {
-                        timestamp: bucketTime,
-                        count: 0
-                    });
-                }
-
-                const findings = detectThreats(
-                    record.telemetry || {}
-                );
-
-                const suspiciousEvents = findings.reduce(
-                    (sum, finding) =>
-                        sum + Math.max(0, Number(finding?.count) || 0),
-                    0
-                );
-
-                buckets.get(bucketKey).count += suspiciousEvents;
-            }
-
-            for (let hour = 23; hour >= 0; hour--) {
-                const bucketTime = new Date(
-                    now - hour * 60 * 60 * 1000
-                );
-                bucketTime.setMinutes(0, 0, 0);
-
-                const bucketKey = bucketTime.toISOString();
-                const bucket = buckets.get(bucketKey);
-
-                eventsOverTime.push({
-                    timestamp: bucketTime,
-                    label: bucketTime.toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit"
-                    }),
-                    count: bucket?.count || 0
-                });
-            }
-        } catch (eventsError) {
-            console.error(
-                "Dashboard events-over-time error:",
-                eventsError
-            );
         }
 
         const incidentData = {
@@ -698,9 +623,7 @@ const getDashboardOverview = async (req, res) => {
 
             findingDistribution,
 
-            riskDistribution,
-
-            eventsOverTime
+            riskDistribution
 
         });
 
