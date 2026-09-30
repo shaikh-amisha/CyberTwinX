@@ -1350,3 +1350,147 @@ document.addEventListener(
     "DOMContentLoaded",
     initializeDashboard
 );
+
+/* =========================================================
+   LIVE ATTACK ALERTS
+   ========================================================= */
+
+const liveAlertElements = {
+    container: document.getElementById("liveAlertContainer"),
+    panel: document.getElementById("liveAlertPanel"),
+    list: document.getElementById("liveAlertList"),
+    close: document.getElementById("liveAlertClose")
+};
+
+function formatDetectionName(type) {
+    return String(type || "SECURITY DETECTION")
+        .replace(/_/g, " ")
+        .toLowerCase()
+        .replace(/\b\w/g, char => char.toUpperCase());
+}
+
+function alertSeverityClass(severity) {
+    return String(severity || "MEDIUM").toLowerCase();
+}
+
+function renderLiveAlert(alert, toast = true) {
+    if (!alert || !liveAlertElements.list) return;
+
+    const severity = String(alert.severity || "MEDIUM").toUpperCase();
+    const severityClass = alertSeverityClass(severity);
+
+    const item = document.createElement("div");
+    item.className = "live-alert-item " + severityClass;
+
+    item.innerHTML = `
+        <div class="live-alert-toast-header">
+            <span class="live-alert-severity">${severity}</span>
+            <i class="bi bi-shield-exclamation" aria-hidden="true"></i>
+        </div>
+        <div class="live-alert-title">${formatDetectionName(alert.detectionType)}</div>
+        <div class="live-alert-description">${alert.description || "Security detection triggered."}</div>
+        <div class="live-alert-meta">
+            ${alert.hostname || alert.endpointId || "Unknown endpoint"}
+            ${alert.incidentId ? " · " + alert.incidentId : ""}
+        </div>
+    `;
+
+    liveAlertElements.list.prepend(item);
+
+    const empty = liveAlertElements.list.querySelector(".live-alert-empty");
+    if (empty) empty.remove();
+
+    while (liveAlertElements.list.children.length > 20) {
+        liveAlertElements.list.lastElementChild.remove();
+    }
+
+    if (!toast || !liveAlertElements.container) return;
+
+    const toastElement = document.createElement("article");
+    toastElement.className = "live-alert-toast " + severityClass;
+
+    toastElement.innerHTML = `
+        <div class="live-alert-toast-header">
+            <span class="live-alert-severity">
+                <i class="bi bi-broadcast-pin" aria-hidden="true"></i>
+                LIVE ${severity}
+            </span>
+            <i class="bi bi-shield-exclamation" aria-hidden="true"></i>
+        </div>
+        <div class="live-alert-title">${formatDetectionName(alert.detectionType)}</div>
+        <div class="live-alert-description">${alert.description || "Security detection triggered."}</div>
+        <div class="live-alert-meta">
+            ${alert.hostname || alert.endpointId || "Unknown endpoint"}
+            ${alert.incidentId ? " · " + alert.incidentId : ""}
+        </div>
+    `;
+
+    liveAlertElements.container.appendChild(toastElement);
+
+    setTimeout(() => {
+        toastElement.style.opacity = "0";
+        toastElement.style.transform = "translateX(18px)";
+        toastElement.style.transition = ".2s ease";
+        setTimeout(() => toastElement.remove(), 220);
+    }, 7000);
+}
+
+async function loadRecentLiveAlerts() {
+    try {
+        const response = await fetch(
+            `${API_BASE_URL}/alerts/recent`
+        );
+
+        if (!response.ok) return;
+
+        const data = await response.json();
+
+        if (!data.success || !Array.isArray(data.alerts)) return;
+
+        data.alerts.forEach(alert =>
+            renderLiveAlert(alert, false)
+        );
+    } catch (error) {
+        console.warn("[CyberTwin] Live alert history unavailable:", error);
+    }
+}
+
+function initializeLiveAttackAlerts() {
+    if (!liveAlertElements.container) return;
+
+    loadRecentLiveAlerts();
+
+    if (liveAlertElements.close) {
+        liveAlertElements.close.addEventListener("click", () => {
+            liveAlertElements.panel?.classList.remove("open");
+            liveAlertElements.panel?.setAttribute("aria-hidden", "true");
+        });
+    }
+
+    if (!window.EventSource) {
+        console.warn("[CyberTwin] EventSource is not supported by this browser.");
+        return;
+    }
+
+    const stream = new EventSource(
+        `${API_BASE_URL}/alerts/stream`
+    );
+
+    stream.onmessage = event => {
+        try {
+            const alert = JSON.parse(event.data);
+            renderLiveAlert(alert, true);
+        } catch (error) {
+            console.warn("[CyberTwin] Invalid live alert:", error);
+        }
+    };
+
+    stream.onerror = () => {
+        console.warn("[CyberTwin] Live alert stream disconnected; browser will retry.");
+    };
+}
+
+document.addEventListener(
+    "DOMContentLoaded",
+    initializeLiveAttackAlerts
+);
