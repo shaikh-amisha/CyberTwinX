@@ -291,6 +291,46 @@ const getDashboardOverview = async (req, res) => {
             );
 
             riskDistribution[normalizedSeverity] += count;
+        riskBreakdown.forEach((finding) => {
+            const severity = String(
+                typeof finding === "object" && finding?.severity
+                    ? finding.severity
+                    : riskLevel
+            ).toUpperCase();
+
+            const normalizedSeverity = [
+                "LOW",
+                "MEDIUM",
+                "HIGH",
+                "CRITICAL"
+            ].includes(severity)
+                ? severity
+                : riskLevel;
+
+            const count = Math.max(
+                1,
+                Number(
+                    typeof finding === "object" && finding?.count
+                        ? finding.count
+                        : 1
+                )
+            );
+
+            riskDistribution[normalizedSeverity] += count;
+
+        if (
+            Object.values(riskDistribution).every(count => count === 0) &&
+            riskScore > 0
+        ) {
+            const fallbackLevel = ["LOW", "MEDIUM", "HIGH", "CRITICAL"].includes(
+                String(riskLevel).toUpperCase()
+            )
+                ? String(riskLevel).toUpperCase()
+                : getRiskLevel(riskScore);
+
+            riskDistribution[fallbackLevel] = 1;
+        }
+
         });
 
         /*
