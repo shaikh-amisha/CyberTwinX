@@ -14,6 +14,10 @@ let cy = null;
 
 let flowTimer = null;
 let nodePulseTimer = null;
+let attackFlowLayer = null;
+let attackFlowParticles = [];
+let attackRootPulse = null;
+let attackFlowStart = 0;
 
 
 /* =========================================================
@@ -1538,61 +1542,162 @@ function clearHighlights() {
 function startArrowFlowAnimation() {
     stopArrowFlowAnimation();
 
-    if (!cy) return;
+    if (!cy || prefersReducedMotion()) return;
 
-    const observedEdges =
-        cy.edges().filter(edge =>
-            !isPotentialRelationship(
-                edge.data("relationship")
-            )
-        );
+    const container = cy.container();
 
-    const potentialEdges =
-        cy.edges().filter(edge =>
-            isPotentialRelationship(
-                edge.data("relationship")
-            )
-        );
+    if (!container) return;
 
-    let observedIndex = 0;
-    let potentialIndex = 0;
+    container.style.position = "relative";
 
-    flowTimer = setInterval(() => {
-        if (!cy) return;
+    attackFlowLayer = document.createElement("div");
+    attackFlowLayer.className = "attack-flow-layer";
+    attackFlowLayer.setAttribute("aria-hidden", "true");
 
-        cy.edges()
-            .removeClass("flow-active potential-flow");
+    attackRootPulse = document.createElement("span");
+    attackRootPulse.className = "attack-root-pulse";
+    attackFlowLayer.appendChild(attackRootPulse);
 
-        if (observedEdges.length) {
+    const observedEdges = cy.edges().filter(edge =>
+        !isPotentialRelationship(
+            edge.data("relationship")
+        )
+    );
+
+    /*
+     * Use a small number of travelling particles, like the
+     * four Merkle particles, so the graph stays calm rather
+     * than continuously glowing everywhere.
+     */
+    const particleCount = Math.min(
+        4,
+        observedEdges.length
+    );
+
+    for (let index = 0; index < particleCount; index++) {
+        const particle = document.createElement("span");
+        particle.className = "attack-flow-particle";
+        attackFlowLayer.appendChild(particle);
+
+        attackFlowParticles.push({
+            element: particle,
+            edgeIndex: index
+        });
+    }
+
+    container.appendChild(attackFlowLayer);
+
+    attackFlowStart = performance.now();
+
+    const animate = now => {
+        if (!cy || !attackFlowLayer) return;
+
+        const elapsed = now - attackFlowStart;
+        const duration = 2600;
+        const stagger = 420;
+
+        attackFlowParticles.forEach((particle, index) => {
             const edge =
                 observedEdges[
-                    observedIndex %
-                    observedEdges.length
+                    (
+                        particle.edgeIndex +
+                        Math.floor(elapsed / duration)
+                    ) %
+                    Math.max(observedEdges.length, 1)
                 ];
 
-            edge.addClass("flow-active");
+            if (!edge || edge.removed()) {
+                particle.element.style.opacity = "0";
+                return;
+            }
 
-            observedIndex++;
+            const progress =
+                (
+                    (
+                        elapsed +
+                        index * stagger
+                    ) %
+                    duration
+                ) / duration;
+
+            const source =
+                edge.source().renderedPosition();
+
+            const target =
+                edge.target().renderedPosition();
+
+            const x =
+                source.x +
+                (target.x - source.x) *
+                progress;
+
+            const y =
+                source.y +
+                (target.y - source.y) *
+                progress;
+
+            particle.element.style.transform =
+                `translate3d(${x - 4}px, ${y - 4}px, 0)`;
+
+            /*
+             * Fade in/out at the ends to match the Merkle
+             * particle animation.
+             */
+            const opacity =
+                progress < 0.12
+                    ? progress / 0.12
+                    : progress > 0.78
+                        ? (1 - progress) / 0.22
+                        : 1;
+
+            particle.element.style.opacity =
+                String(Math.max(0, Math.min(1, opacity)));
+        });
+
+        const root =
+            cy.nodes().filter(node =>
+                String(node.data("type") || "").toLowerCase() === "incident"
+            )[0] ||
+            cy.nodes().last();
+
+        if (root && root.length) {
+            const position =
+                root.renderedPosition();
+
+            const pulseProgress =
+                (
+                    elapsed % 2600
+                ) / 2600;
+
+            const pulseOpacity =
+                pulseProgress < 0.30
+                    ? pulseProgress / 0.30 * 0.55
+                    : (1 - pulseProgress) / 0.70 * 0.55;
+
+            const scale =
+                0.7 +
+                pulseProgress * 1.0;
+
+            attackRootPulse.style.left =
+                `${position.x - 18}px`;
+
+            attackRootPulse.style.top =
+                `${position.y - 18}px`;
+
+            attackRootPulse.style.opacity =
+                String(Math.max(0, pulseOpacity));
+
+            attackRootPulse.style.transform =
+                `scale(${scale})`;
         }
 
-        if (potentialEdges.length) {
-            const edge =
-                potentialEdges[
-                    potentialIndex %
-                    potentialEdges.length
-                ];
+        flowTimer =
+            requestAnimationFrame(animate);
+    };
 
-            setTimeout(() => {
-                if (cy && !edge.removed()) {
-                    edge.addClass("potential-flow");
-                }
-            }, 220);
-
-            potentialIndex++;
-        }
-    }, 900);
+    flowTimer =
+        requestAnimationFrame(animate);
 }
-
 
 /* =========================================================
    NODE PULSE
@@ -1643,9 +1748,18 @@ function stopNodePulseAnimation() {
 
 function stopArrowFlowAnimation() {
     if (flowTimer) {
-        clearInterval(flowTimer);
+        cancelAnimationFrame(flowTimer);
         flowTimer = null;
     }
+
+    attackFlowParticles = [];
+
+    if (attackFlowLayer) {
+        attackFlowLayer.remove();
+        attackFlowLayer = null;
+    }
+
+    attackRootPulse = null;
 }
 
 function destroyGraph() {
@@ -2260,7 +2374,7 @@ async function initializeAttackPath() {
     await loadIncidentPath();
 
     if (!prefersReducedMotion()) {
-        startNodePulseAnimation();
+        startArrowFlowAnimation();
     }
 }
 
