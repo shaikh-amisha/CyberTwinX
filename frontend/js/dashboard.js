@@ -917,19 +917,17 @@ function updateFindingsChart() {
     chart.innerHTML = items.slice(0, 6).map(item => {
         const name = String(item.type || "OTHER").replace(/_/g, " ");
         const count = Number(item.count || 0);
-        const width = Math.max(4, (count / maxCount) * 100);
+        const progress = Math.max(8, (count / maxCount) * 100);
 
-        return '<div class="finding-bar-row">' +
+        return '<div class="finding-lollipop-row">' +
             '<span>' + name + '</span>' +
-            '<div class="finding-bar-track">' +
-                '<i class="finding-bar-fill" style="width:' + width + '%"></i>' +
+            '<div class="finding-lollipop-track" style="--finding-progress:' + progress + '%">' +
+                '<i class="finding-lollipop-dot"></i>' +
             '</div>' +
-            '<strong class="finding-bar-value">' + count + '</strong>' +
+            '<strong class="finding-lollipop-value">' + count + '</strong>' +
         '</div>';
     }).join("");
 }
-
-
 
 function refreshDashboard() {
 
