@@ -81,7 +81,9 @@
         }
     }
 
-    async function loadCommonTopbar() {
+    let commonTopbarSnapshot = null;
+
+    async function loadCommonTopbar(force = false) {
         try {
             const response = await fetch(`${API_BASE_URL}/dashboard/overview`, {
                 cache: "no-store"
@@ -106,11 +108,39 @@
             setRisk(result?.riskScore ?? endpoint.riskScore ?? 0, result?.riskLevel ?? endpoint.riskLevel);
             setSystemStatus("ONLINE");
 
+            commonTopbarSnapshot = {
+                endpoint: document.getElementById("topbarEndpoint")?.textContent || "",
+                state: document.getElementById("topbarState")?.textContent || "",
+                risk: document.getElementById("topbarRisk")?.textContent || "",
+                system: document.getElementById("topbarSystemStatus")?.textContent || ""
+            };
+
             document.documentElement.dataset.topbarReady = "true";
         } catch (error) {
             console.warn("[CyberTwin] Common topbar data unavailable:", error);
         }
     }
 
-    document.addEventListener("DOMContentLoaded", loadCommonTopbar);
+    function topbarNeedsRefresh() {
+        if (!commonTopbarSnapshot) return true;
+
+        return (
+            (document.getElementById("topbarEndpoint")?.textContent || "") !== commonTopbarSnapshot.endpoint ||
+            (document.getElementById("topbarState")?.textContent || "") !== commonTopbarSnapshot.state ||
+            (document.getElementById("topbarRisk")?.textContent || "") !== commonTopbarSnapshot.risk ||
+            (document.getElementById("topbarSystemStatus")?.textContent || "") !== commonTopbarSnapshot.system
+        );
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        loadCommonTopbar(true);
+
+        // Page-specific scripts may load their own investigation data.
+        // Re-apply the single system-wide topbar only when those values change.
+        setInterval(() => {
+            if (topbarNeedsRefresh()) {
+                loadCommonTopbar(true);
+            }
+        }, 1000);
+    });
 })();
