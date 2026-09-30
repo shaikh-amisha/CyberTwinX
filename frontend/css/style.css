@@ -11410,6 +11410,19 @@ body::before {
     gap: 10px;
 }
 
+.topbar-endpoint-item {
+    min-width: 0;
+}
+
+.topbar-endpoint-dot {
+    width: 8px;
+    height: 8px;
+    flex: 0 0 8px;
+    border-radius: 50%;
+    background: #22e6a2;
+    box-shadow: 0 0 10px rgba(34,230,162,.85);
+}
+
 .topbar-label {
     color: #8ea1b4;
     font-size: 9px;
