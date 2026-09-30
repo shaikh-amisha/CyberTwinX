@@ -213,11 +213,6 @@ function updateTopbar() {
         "—";
 
 
-    elements.topbarIncident.textContent =
-        aiInvestigatorState.incident ||
-        "—";
-
-
     elements.topbarState.textContent =
         aiInvestigatorState.securityState ||
         "—";
