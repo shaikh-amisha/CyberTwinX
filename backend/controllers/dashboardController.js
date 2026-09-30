@@ -568,7 +568,14 @@ const getDashboardOverview = async (req, res) => {
             blockchainHealth:
                 "VERIFIED",
 
-            findingDistribution
+            findingDistribution,
+
+            riskDistribution: {
+                LOW: riskScore < 25 ? 1 : 0,
+                MEDIUM: riskScore >= 25 && riskScore < 40 ? 1 : 0,
+                HIGH: riskScore >= 40 && riskScore < 60 ? 1 : 0,
+                CRITICAL: riskScore >= 60 ? 1 : 0
+            }
 
         });
 
