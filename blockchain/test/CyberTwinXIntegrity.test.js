@@ -1,11 +1,10 @@
 import { expect } from "chai";
-import hre from "hardhat";
+import { network } from "hardhat";
 
 describe("CyberTwinXIntegrity", function () {
     async function deployContract() {
-        const integrity = await hre.ethers.deployContract(
-            "CyberTwinXIntegrity"
-        );
+        const { ethers } = await network.connect();
+        const integrity = await ethers.deployContract("CyberTwinXIntegrity");
 
         await integrity.waitForDeployment();
 
