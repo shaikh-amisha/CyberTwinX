@@ -99,9 +99,9 @@
 
             setText(
                 "topbarEndpoint",
-                endpoint.hostname && endpoint.hostname !== "Unknown"
-                    ? endpoint.hostname
-                    : endpoint.endpointId || "UNKNOWN"
+                endpoint.endpointId ||
+                    endpoint.hostname ||
+                    "UNKNOWN"
             );
 
             setStateBadge(endpoint.securityState || "UNKNOWN");
