@@ -2689,3 +2689,185 @@ body.integrity-modal-open {
         gap: 3px;
     }
 }
+
+
+/* =========================================================
+   DETAIL MODAL — HOVER, READABILITY & HASH COPY
+   ========================================================= */
+
+.root-history-modal-item,
+.custody-modal-event {
+    transition: transform 180ms ease, filter 180ms ease;
+}
+
+.root-history-modal-main,
+.custody-modal-event-main {
+    transition:
+        border-color 180ms ease,
+        background 180ms ease,
+        box-shadow 180ms ease,
+        transform 180ms ease;
+}
+
+.root-history-modal-item:hover .root-history-modal-main,
+.custody-modal-event:hover .custody-modal-event-main {
+    transform: translateY(-2px);
+    border-color: rgba(99,243,255,.32);
+    background: rgba(99,243,255,.045);
+    box-shadow:
+        0 10px 26px rgba(0,0,0,.22),
+        0 0 22px rgba(99,243,255,.055);
+}
+
+.root-history-modal-item.current:hover .root-history-modal-main {
+    border-color: rgba(83,245,155,.42);
+    background: rgba(83,245,155,.055);
+    box-shadow:
+        0 10px 26px rgba(0,0,0,.22),
+        0 0 22px rgba(83,245,155,.07);
+}
+
+.root-history-modal-item:hover .root-history-modal-marker,
+.custody-modal-event:hover .custody-modal-marker {
+    border-color: rgba(99,243,255,.45);
+    color: var(--integrity-accent);
+    box-shadow: 0 0 16px rgba(99,243,255,.08);
+}
+
+.integrity-copy-row {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.root-history-modal-hash {
+    flex: 1;
+    min-width: 0;
+    margin-top: 10px;
+    color: var(--integrity-accent);
+    font-size: .74rem;
+    font-weight: 900;
+    letter-spacing: .025em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.integrity-copy-row .root-history-modal-hash {
+    margin-top: 10px;
+}
+
+.integrity-copy-button {
+    flex: 0 0 auto;
+    min-height: 27px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 0 9px;
+    border: 1px solid rgba(99,243,255,.2);
+    border-radius: 6px;
+    background: rgba(99,243,255,.045);
+    color: rgba(99,243,255,.72);
+    font-family: inherit;
+    font-size: .47rem;
+    font-weight: 900;
+    letter-spacing: .07em;
+    cursor: pointer;
+    transition: .18s ease;
+}
+
+.integrity-copy-button:hover {
+    color: #f8fafc;
+    border-color: rgba(99,243,255,.55);
+    background: rgba(99,243,255,.12);
+    transform: translateY(-1px);
+}
+
+.integrity-copy-button.copied {
+    color: var(--integrity-success);
+    border-color: rgba(83,245,155,.4);
+    background: rgba(83,245,155,.08);
+}
+
+.custody-modal-details > span:last-child {
+    min-width: 0;
+}
+
+.custody-modal-details > span:last-child > .integrity-copy-row {
+    margin-top: 4px;
+}
+
+.custody-modal-details code {
+    flex: 1;
+    min-width: 0;
+    font-size: .6rem;
+    font-weight: 700;
+}
+
+.integrity-copy-button.compact {
+    min-height: 24px;
+    padding: 0 7px;
+    font-size: .44rem;
+}
+
+.root-history-modal-top strong,
+.custody-modal-event-top strong {
+    font-size: .78rem;
+    font-weight: 900;
+}
+
+.root-history-modal-top span:first-of-type,
+.custody-modal-event-top span {
+    font-size: .55rem;
+    font-weight: 700;
+}
+
+.root-history-modal-status,
+.custody-modal-status {
+    font-size: .54rem;
+    font-weight: 900;
+}
+
+.root-history-modal-meta,
+.custody-modal-details span {
+    font-size: .56rem;
+    font-weight: 700;
+}
+
+.custody-modal-details b {
+    font-size: .5rem;
+    font-weight: 900;
+}
+
+.integrity-detail-header h3 {
+    font-size: 1.48rem;
+    font-weight: 900;
+}
+
+.integrity-detail-header p {
+    font-size: .72rem;
+    font-weight: 600;
+}
+
+.integrity-detail-footer > span {
+    font-size: .58rem;
+    font-weight: 600;
+}
+
+.integrity-detail-button {
+    font-size: .59rem;
+    font-weight: 900;
+}
+
+@media (max-width: 800px) {
+    .integrity-copy-row {
+        align-items: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .integrity-copy-row .integrity-copy-button {
+        margin-top: 2px;
+    }
+}
