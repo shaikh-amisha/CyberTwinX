@@ -539,6 +539,13 @@
         .risk-bar-row:nth-child(4) i { background:#ef4444; }
         .risk-bar-row strong { text-align:right; color:#eef7fb; font-size:11px; }
         @media (max-width:760px) { .dashboard-chart-grid { grid-template-columns:1fr; } }
+
+        .findings-bar-chart { min-height:170px; display:grid; align-content:center; gap:14px; }
+        .finding-bar-row { display:grid; grid-template-columns:minmax(120px, 1.1fr) minmax(80px, 2fr) 28px; align-items:center; gap:10px; font-size:9px; font-weight:700; color:#c6d3de; }
+        .finding-bar-track { height:9px; border-radius:999px; background:rgba(148,163,184,.10); overflow:hidden; }
+        .finding-bar-fill { display:block; height:100%; width:0; border-radius:999px; background:#00e5ff; box-shadow:0 0 10px rgba(0,229,255,.24); transition:width .45s ease; }
+        .finding-bar-value { text-align:right; color:#f0f6fa; font-weight:800; }
+        .findings-empty { color:#687b8c; font-size:10px; }
     </style>
 
 </head>
@@ -1098,25 +1105,15 @@
                     <section class="dashboard-section dashboard-findings-section">
                 <div class="dashboard-chart-grid">
                     <article class="dashboard-card findings-chart-card">
-
-                    <div class="findings-chart-header">
-                        <div>
-                            <span class="card-label">SECURITY FINDINGS</span>
-                            <h3>Finding Distribution</h3>
-                        </div>
-                    </div>
-                    <div class="findings-chart-body">
-                        <div class="findings-donut" id="findingsDonut" aria-label="Security findings distribution">
-                            <div class="findings-donut-center">
-                                <strong id="findingsTotal">0</strong>
-                                <span>FINDINGS</span>
+                        <div class="findings-chart-header">
+                            <div>
+                                <span class="card-label">SECURITY FINDINGS</span>
+                                <h3>Finding Distribution</h3>
                             </div>
                         </div>
-                        <div class="findings-legend" id="findingsLegend">
+                        <div class="findings-bar-chart" id="findingsBarChart">
                             <span class="findings-empty">No findings recorded.</span>
                         </div>
-                    </div>
-                </article>
                     </article>
 
                     <article class="dashboard-card risk-distribution-card">
