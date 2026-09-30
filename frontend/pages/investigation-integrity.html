@@ -187,20 +187,29 @@
                     <span class="section-number">02</span>
                     <div>
                         <h3>Merkle Root History</h3>
-                        <p>Versioned root states preserve the integrity history of the evidence set.</p>
+                        <p>Review previous integrity states of the evidence set and inspect their blockchain anchors.</p>
                     </div>
                 </div>
 
-                <article class="dashboard-card root-history-card">
-                    <div class="card-header">
-                        <div>
-                            <span class="card-label">REGISTERED ROOT VERSIONS</span>
-                            <span class="evidence-hashes-subtitle">Each version represents a distinct evidence-set state</span>
+                <article class="dashboard-card root-history-card root-history-summary-card">
+                    <div class="root-history-summary-main">
+                        <div class="root-history-summary-copy">
+                            <span class="card-label">CURRENT ROOT STATE</span>
+                            <strong class="root-history-current-root">8f91a2c7...8a6c</strong>
+                            <span class="root-history-summary-sub">Merkle Root v3 · 4 evidence items · currently anchored on-chain</span>
                         </div>
-                        <span class="simulation-badge">DEMO DATA</span>
+                        <div class="root-history-version-strip" aria-label="Merkle Root versions">
+                            <div class="root-history-version-node"><span>V1</span><small>SUPERSEDED</small></div>
+                            <i class="bi bi-arrow-right"></i>
+                            <div class="root-history-version-node"><span>V2</span><small>SUPERSEDED</small></div>
+                            <i class="bi bi-arrow-right"></i>
+                            <div class="root-history-version-node current"><span>V3</span><small>CURRENT</small></div>
+                        </div>
                     </div>
-
-                    <div class="root-history-list" id="rootHistoryList"></div>
+                    <div class="root-history-summary-footer">
+                        <span><i class="bi bi-clock-history"></i> 3 registered root versions</span>
+                        <button class="integrity-detail-button" id="viewRootHistoryButton" type="button"><span>View Root History</span><i class="bi bi-arrow-up-right"></i></button>
+                    </div>
                 </article>
             </section>
 
@@ -210,23 +219,63 @@
                     <span class="section-number">03</span>
                     <div>
                         <h3>Chain of Custody</h3>
-                        <p>Chronological record of evidence handling, verification and integrity events.</p>
+                        <p>Track who handled the evidence, what action occurred and when the integrity state changed.</p>
                     </div>
                 </div>
 
-                <article class="dashboard-card custody-card">
-                    <div class="card-header">
-                        <div>
+                <article class="dashboard-card custody-card custody-summary-card">
+                    <div class="custody-summary-main">
+                        <div class="custody-summary-icon"><i class="bi bi-diagram-3"></i></div>
+                        <div class="custody-summary-copy">
                             <span class="card-label">FORENSIC CUSTODY TIMELINE</span>
-                            <span class="evidence-hashes-subtitle">Every action retains actor, timestamp, status and integrity context</span>
+                            <strong>5 recorded custody events</strong>
+                            <span>CREATED → HASHED → REGISTERED → ACCESSED → VERIFIED</span>
+                        </div>
+                        <div class="custody-latest">
+                            <span>LAST EVENT</span><strong>VERIFIED</strong><small>Integrity Engine · 14:22:16</small>
                         </div>
                     </div>
-
-                    <div class="custody-timeline" id="custodyTimeline"></div>
+                    <div class="custody-summary-footer">
+                        <span><i class="bi bi-shield-check"></i> Evidence EVID-001 · custody history preserved</span>
+                        <button class="integrity-detail-button" id="viewCustodyButton" type="button"><span>View Custody History</span><i class="bi bi-arrow-up-right"></i></button>
+                    </div>
                 </article>
             </section>
 
+    <!-- MERKLE ROOT HISTORY MODAL -->
+    <div class="integrity-detail-modal" id="rootHistoryModal" aria-hidden="true">
+        <div class="integrity-detail-backdrop" data-close-detail-modal></div>
+        <section class="integrity-detail-dialog" role="dialog" aria-modal="true" aria-labelledby="rootHistoryModalTitle">
+            <header class="integrity-detail-header">
+                <div>
+                    <span class="integrity-modal-eyebrow">CYBERTWIN / INTEGRITY HISTORY</span>
+                    <h3 id="rootHistoryModalTitle">Merkle Root History</h3>
+                    <p>Historical root versions preserve the cryptographic state of the evidence set over time.</p>
+                </div>
+                <button class="integrity-detail-close" type="button" data-close-root-history aria-label="Close root history"><i class="bi bi-x-lg"></i></button>
+            </header>
+            <div class="integrity-detail-body"><div class="root-history-modal-list" id="rootHistoryModalList"></div></div>
+            <footer class="integrity-detail-footer"><span><i class="bi bi-info-circle"></i> Older roots remain immutable historical references.</span><button class="integrity-detail-button secondary" type="button" data-close-root-history>Close</button></footer>
         </section>
+    </div>
+
+    <!-- CHAIN OF CUSTODY MODAL -->
+    <div class="integrity-detail-modal" id="custodyModal" aria-hidden="true">
+        <div class="integrity-detail-backdrop" data-close-detail-modal></div>
+        <section class="integrity-detail-dialog" role="dialog" aria-modal="true" aria-labelledby="custodyModalTitle">
+            <header class="integrity-detail-header">
+                <div>
+                    <span class="integrity-modal-eyebrow">CYBERTWIN / FORENSIC CUSTODY</span>
+                    <h3 id="custodyModalTitle">Chain of Custody</h3>
+                    <p>Review the complete evidence handling history, including actor, timestamp and integrity context.</p>
+                </div>
+                <button class="integrity-detail-close" type="button" data-close-custody aria-label="Close custody history"><i class="bi bi-x-lg"></i></button>
+            </header>
+            <div class="integrity-detail-body"><div class="custody-modal-timeline" id="custodyModalTimeline"></div></div>
+            <footer class="integrity-detail-footer"><span><i class="bi bi-fingerprint"></i> Evidence EVID-001 · all custody events retained.</span><button class="integrity-detail-button secondary" type="button" data-close-custody>Close</button></footer>
+        </section>
+    </div>
+
     <!-- LIVE INTEGRITY INVESTIGATION MODAL -->
     <div class="integrity-investigation-modal" id="integrityInvestigationModal" aria-hidden="true">
         <div class="integrity-modal-backdrop" data-close-integrity-modal></div>
