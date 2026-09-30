@@ -59,7 +59,8 @@ const dashboardState = {
     },
 
     findingDistribution: [],
-    riskDistribution: { LOW: 0, MEDIUM: 0, HIGH: 0, CRITICAL: 0 }
+    riskDistribution: { LOW: 0, MEDIUM: 0, HIGH: 0, CRITICAL: 0 },
+    eventsOverTime: []
 
 };
 
@@ -247,8 +248,29 @@ const dashboardElements = {
     findingsBarChart:
         document.getElementById("findingsBarChart"),
 
-    riskDistributionChart:
-        document.getElementById("riskDistributionChart")
+    riskDistributionDonut:
+        document.getElementById("riskDistributionDonut"),
+
+    riskDistributionTotal:
+        document.getElementById("riskDistributionTotal"),
+
+    riskDistributionLegend:
+        document.getElementById("riskDistributionLegend"),
+
+    eventsOverTimeChart:
+        document.getElementById("eventsOverTimeChart"),
+
+    eventsGridLines:
+        document.getElementById("eventsGridLines"),
+
+    eventsArea:
+        document.getElementById("eventsArea"),
+
+    eventsLine:
+        document.getElementById("eventsLine"),
+
+    eventsXLabels:
+        document.getElementById("eventsXLabels")
 
 };
 
@@ -316,6 +338,10 @@ async function fetchDashboardData() {
         dashboardState.riskDistribution = data.riskDistribution || {
             LOW: 0, MEDIUM: 0, HIGH: 0, CRITICAL: 0
         };
+
+        dashboardState.eventsOverTime = Array.isArray(data.eventsOverTime)
+            ? data.eventsOverTime
+            : [];
 
         refreshDashboard();
 
@@ -841,18 +867,50 @@ function initializeVisibilityHandler() {
 
 function updateRiskDistributionChart() {
     const distribution = dashboardState.riskDistribution || {};
-    const values = ["LOW", "MEDIUM", "HIGH", "CRITICAL"];
-    const total = Math.max(1, ...values.map(level => Number(distribution[level] || 0)));
+    const levels = ["LOW", "MEDIUM", "HIGH", "CRITICAL"];
+    const colors = {
+        LOW: "#22c55e",
+        MEDIUM: "#facc15",
+        HIGH: "#fb923c",
+        CRITICAL: "#ef4444"
+    };
 
-    values.forEach((level, index) => {
-        const row = dashboardElements.riskDistributionChart?.children[index];
-        if (!row) return;
-        const value = Number(distribution[level] || 0);
-        const fill = row.querySelector("i");
-        const count = row.querySelector("strong");
-        if (fill) fill.style.width = Math.min(100, (value / total) * 100) + "%";
-        if (count) count.textContent = value;
-    });
+    const total = levels.reduce(
+        (sum, level) => sum + Number(distribution[level] || 0),
+        0
+    );
+
+    if (dashboardElements.riskDistributionTotal) {
+        dashboardElements.riskDistributionTotal.textContent = total;
+    }
+
+    if (dashboardElements.riskDistributionDonut) {
+        if (!total) {
+            dashboardElements.riskDistributionDonut.style.background = "#27303a";
+        } else {
+            let angle = 0;
+            const segments = levels.map(level => {
+                const value = Number(distribution[level] || 0);
+                const size = (value / total) * 360;
+                const segment = colors[level] + " " + angle + "deg " + (angle + size) + "deg";
+                angle += size;
+                return segment;
+            }).filter(Boolean);
+
+            dashboardElements.riskDistributionDonut.style.background =
+                "conic-gradient(" + segments.join(", ") + ")";
+        }
+    }
+
+    if (dashboardElements.riskDistributionLegend) {
+        dashboardElements.riskDistributionLegend.innerHTML = levels.map(level =>
+            '<div class="risk-legend-row">' +
+                '<span class="risk-legend-dot ' + level.toLowerCase() + '"></span>' +
+                '<span>' + level + '</span>' +
+                '<strong>' + Number(distribution[level] || 0) + '</strong>' +
+            '</div>'
+        ).join("");
+    }
 }
 
 function updateFindingsChart() {
@@ -889,6 +947,78 @@ function updateFindingsChart() {
     }).join("");
 }
 
+function updateEventsOverTimeChart() {
+    const chart = dashboardElements.eventsOverTimeChart;
+    const line = dashboardElements.eventsLine;
+    const area = dashboardElements.eventsArea;
+    const grid = dashboardElements.eventsGridLines;
+    const labels = dashboardElements.eventsXLabels;
+
+    if (!chart || !line || !area || !grid || !labels) return;
+
+    const points = Array.isArray(dashboardState.eventsOverTime)
+        ? dashboardState.eventsOverTime
+        : [];
+
+    const width = 900;
+    const height = 240;
+    const left = 8;
+    const right = 892;
+    const top = 18;
+    const bottom = 208;
+    const maxValue = Math.max(...points.map(point => Number(point.count || 0)), 1);
+
+    if (!points.length) {
+        line.setAttribute("d", "");
+        area.setAttribute("d", "");
+        grid.innerHTML = "";
+        labels.innerHTML = "";
+        return;
+    }
+
+    const coords = points.map((point, index) => {
+        const x = points.length === 1
+            ? (left + right) / 2
+            : left + (index / (points.length - 1)) * (right - left);
+        const value = Number(point.count || 0);
+        const y = bottom - (value / maxValue) * (bottom - top);
+        return { x, y, value, label: point.label || "" };
+    });
+
+    const linePath = coords.map((point, index) =>
+        (index === 0 ? "M " : "L ") + point.x.toFixed(2) + " " + point.y.toFixed(2)
+    ).join(" ");
+
+    line.setAttribute("d", linePath);
+    area.setAttribute(
+        "d",
+        linePath + " L " + coords[coords.length - 1].x.toFixed(2) + " " + bottom +
+        " L " + coords[0].x.toFixed(2) + " " + bottom + " Z"
+    );
+
+    const gridLevels = [0, 0.25, 0.5, 0.75, 1];
+    grid.innerHTML = gridLevels.map(level => {
+        const y = bottom - level * (bottom - top);
+        return '<line x1="' + left + '" y1="' + y + '" x2="' + right + '" y2="' + y + '"></line>';
+    }).join("");
+
+    const labelIndexes = points.length <= 6
+        ? points.map((_, index) => index)
+        : points.map((_, index) => index).filter(index =>
+            index === 0 ||
+            index === points.length - 1 ||
+            index % Math.ceil(points.length / 5) === 0
+        );
+
+    labels.innerHTML = labelIndexes.map(index => {
+        const point = coords[index];
+        return '<text x="' + point.x + '" y="229" text-anchor="middle">' +
+            String(point.label || "") +
+        '</text>';
+    }).join("");
+}
+
+
 function refreshDashboard() {
 
     updateTopbar();
@@ -909,6 +1039,7 @@ function refreshDashboard() {
 
     updateFindingsChart();
     updateRiskDistributionChart();
+    updateEventsOverTimeChart();
 
     updateSystemStatus();
 
