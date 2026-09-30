@@ -324,9 +324,6 @@ async function fetchDashboardData() {
             LOW: 0, MEDIUM: 0, HIGH: 0, CRITICAL: 0
         };
 
-        dashboardState.eventsOverTime = Array.isArray(data.eventsOverTime)
-            ? data.eventsOverTime
-            : [];
 
         refreshDashboard();
 
