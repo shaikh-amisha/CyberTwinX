@@ -935,19 +935,6 @@ function applyAttackGraphLayout(nodes, edges) {
      * relationships, then invert the visual direction so the
      * root is displayed at the bottom.
      */
-    const reverse = new Map();
-
-    nodes.forEach(node => reverse.set(node.id, []));
-
-    edges.forEach(edge => {
-        if (
-            reverse.has(edge.target) &&
-            reverse.has(edge.source)
-        ) {
-            reverse.get(edge.target).push(edge.source);
-        }
-    });
-
     const distances = new Map([
         [root.id, 0]
     ]);
@@ -959,14 +946,19 @@ function applyAttackGraphLayout(nodes, edges) {
         const currentDistance =
             distances.get(currentId) || 0;
 
-        (reverse.get(currentId) || []).forEach(parentId => {
-            if (!distances.has(parentId)) {
+        /*
+         * Follow the actual attack relationships outward from
+         * the incident/root. Those descendants are rendered
+         * progressively higher in the tree.
+         */
+        (children.get(currentId) || []).forEach(childId => {
+            if (!distances.has(childId)) {
                 distances.set(
-                    parentId,
+                    childId,
                     currentDistance + 1
                 );
 
-                queue.push(parentId);
+                queue.push(childId);
             }
         });
     }
