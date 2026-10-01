@@ -8,8 +8,16 @@ pragma solidity ^0.8.34;
  * The contract stores Merkle Roots rather than raw evidence.
  * Evidence hashing, Merkle Tree construction, detailed custody history,
  * and operational metadata are handled off-chain.
+ *
+ * Access control:
+ * - The deployer becomes the contract owner.
+ * - The owner can authorize and revoke investigator addresses.
+ * - The owner and authorized investigators can anchor Merkle Roots.
  */
 contract CyberTwinXIntegrity {
+    address public owner;
+
+    mapping(address => bool) private authorizedInvestigators;
 
     struct RootRecord {
         bytes32 merkleRoot;
@@ -21,6 +29,9 @@ contract CyberTwinXIntegrity {
 
     mapping(string => RootRecord[]) private rootHistory;
 
+    event InvestigatorAuthorized(address indexed investigator, address indexed authorizedBy);
+    event InvestigatorRevoked(address indexed investigator, address indexed revokedBy);
+
     event MerkleRootAnchored(
         string indexed incidentId,
         bytes32 indexed merkleRoot,
@@ -29,10 +40,56 @@ contract CyberTwinXIntegrity {
         address registrar
     );
 
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Only owner");
+        _;
+    }
+
+    modifier onlyAuthorized() {
+        require(isAuthorized(msg.sender), "Not authorized to anchor");
+        _;
+    }
+
+    constructor() {
+        owner = msg.sender;
+    }
+
+    /**
+     * @notice Authorize an investigator to register Merkle Roots.
+     * @dev Only the contract owner can grant this permission.
+     */
+    function authorizeInvestigator(address investigator) external onlyOwner {
+        require(investigator != address(0), "Invalid investigator address");
+        require(!authorizedInvestigators[investigator], "Already authorized");
+
+        authorizedInvestigators[investigator] = true;
+        emit InvestigatorAuthorized(investigator, msg.sender);
+    }
+
+    /**
+     * @notice Revoke an investigator's permission to register Merkle Roots.
+     * @dev Existing Merkle Root history is not modified.
+     */
+    function revokeInvestigator(address investigator) external onlyOwner {
+        require(investigator != address(0), "Invalid investigator address");
+        require(authorizedInvestigators[investigator], "Not authorized");
+
+        authorizedInvestigators[investigator] = false;
+        emit InvestigatorRevoked(investigator, msg.sender);
+    }
+
+    /**
+     * @notice Check whether an address can register Merkle Roots.
+     * @dev The owner is always authorized.
+     */
+    function isAuthorized(address account) public view returns (bool) {
+        return account == owner || authorizedInvestigators[account];
+    }
+
     function anchorMerkleRoot(
         string calldata incidentId,
         bytes32 merkleRoot
-    ) external {
+    ) external onlyAuthorized {
         require(bytes(incidentId).length > 0, "Incident ID required");
         require(merkleRoot != bytes32(0), "Merkle root required");
 
