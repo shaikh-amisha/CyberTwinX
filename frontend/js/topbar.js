@@ -81,6 +81,18 @@
         }
     }
 
+    function loadLiveAlertNavigation() {
+        if (document.getElementById("liveAlertNavigationScript")) {
+            return;
+        }
+
+        const script = document.createElement("script");
+        script.id = "liveAlertNavigationScript";
+        script.src = "../js/live-alert-navigation.js";
+        script.defer = true;
+        document.head.appendChild(script);
+    }
+
     let commonTopbarSnapshot = null;
 
     async function loadCommonTopbar(force = false) {
@@ -134,6 +146,7 @@
 
     document.addEventListener("DOMContentLoaded", () => {
         loadCommonTopbar(true);
+        loadLiveAlertNavigation();
 
         // Page-specific scripts may load their own investigation data.
         // Re-apply the single system-wide topbar only when those values change.
