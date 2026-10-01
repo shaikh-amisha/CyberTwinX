@@ -278,5 +278,73 @@ describe("CyberTwinXIntegrity", function () {
             expect(await integrity.getRootHistoryLength(incidentId)).to.equal(1n);
             expect(await integrity.verifyMerkleRoot(incidentId, oldRoot)).to.equal(true);
         });
+
+        it("should reject duplicate investigator authorization", async function () {
+            const { ethers } = await network.connect();
+            const [, investigator] = await ethers.getSigners();
+            const integrity = await deployContract(ethers);
+
+            await integrity.authorizeInvestigator(investigator.address);
+
+            await expect(
+                integrity.authorizeInvestigator(investigator.address)
+            ).to.be.revertedWith("Already authorized");
+        });
+
+        it("should reject authorization of the zero address", async function () {
+            const integrity = await deployContract();
+
+            await expect(
+                integrity.authorizeInvestigator("0x0000000000000000000000000000000000000000")
+            ).to.be.revertedWith("Invalid investigator address");
+        });
+
+        it("should reject revoking an investigator who was never authorized", async function () {
+            const { ethers } = await network.connect();
+            const [, investigator] = await ethers.getSigners();
+            const integrity = await deployContract(ethers);
+
+            await expect(
+                integrity.revokeInvestigator(investigator.address)
+            ).to.be.revertedWith("Not authorized");
+        });
+
+        it("should keep the owner authorized after investigator access is revoked", async function () {
+            const { ethers } = await network.connect();
+            const [owner, investigator] = await ethers.getSigners();
+            const integrity = await deployContract(ethers);
+
+            await integrity.authorizeInvestigator(investigator.address);
+            await integrity.revokeInvestigator(investigator.address);
+
+            expect(await integrity.isAuthorized(owner.address)).to.equal(true);
+
+            const root =
+                "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
+
+            await integrity.anchorMerkleRoot("INC-AUTH-OWNER", root);
+
+            expect(
+                await integrity.verifyMerkleRoot("INC-AUTH-OWNER", root)
+            ).to.equal(true);
+        });
+
+        it("should emit events when investigator access is granted and revoked", async function () {
+            const { ethers } = await network.connect();
+            const [owner, investigator] = await ethers.getSigners();
+            const integrity = await deployContract(ethers);
+
+            await expect(
+                integrity.authorizeInvestigator(investigator.address)
+            )
+                .to.emit(integrity, "InvestigatorAuthorized")
+                .withArgs(investigator.address, owner.address);
+
+            await expect(
+                integrity.revokeInvestigator(investigator.address)
+            )
+                .to.emit(integrity, "InvestigatorRevoked")
+                .withArgs(investigator.address, owner.address);
+        });
     });
 });
