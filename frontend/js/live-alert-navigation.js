@@ -27,7 +27,7 @@
     }
 
     function makeAlertClickable(element, incidentId) {
-        if (!element || !incidentId) {
+        if (!element || !incidentId || element.dataset.incidentNavigationReady === "true") {
             return;
         }
 
@@ -35,6 +35,7 @@
         element.setAttribute("role", "link");
         element.setAttribute("tabindex", "0");
         element.setAttribute("title", `Open incident ${incidentId}`);
+        element.dataset.incidentNavigationReady = "true";
 
         element.addEventListener("click", () => {
             navigateToIncident(incidentId);
@@ -48,24 +49,27 @@
         });
     }
 
+    function getIncidentId(element) {
+        return element?.querySelector(".live-alert-meta")?.textContent
+            ?.match(/INC-[A-Z0-9-]+/i)?.[0] || "";
+    }
+
     function initializeLiveAlertNavigation() {
-        const originalAppendChild = Element.prototype.appendChild;
+        const container = document.getElementById("liveAlertContainer");
 
-        Element.prototype.appendChild = function (child) {
-            const result = originalAppendChild.call(this, child);
+        if (container) {
+            container.querySelectorAll(".live-alert-toast").forEach(toast => {
+                makeAlertClickable(toast, getIncidentId(toast));
+            });
 
-            if (
-                this.id === "liveAlertContainer" &&
-                child?.classList?.contains("live-alert-toast")
-            ) {
-                const incidentId = child.querySelector(".live-alert-meta")?.textContent
-                    ?.match(/INC-[A-Z0-9-]+/i)?.[0];
+            const toastObserver = new MutationObserver(() => {
+                container.querySelectorAll(".live-alert-toast").forEach(toast => {
+                    makeAlertClickable(toast, getIncidentId(toast));
+                });
+            });
 
-                makeAlertClickable(child, incidentId);
-            }
-
-            return result;
-        };
+            toastObserver.observe(container, { childList: true });
+        }
 
         const list = document.getElementById("liveAlertList");
 
@@ -75,17 +79,7 @@
 
         const observeAlerts = () => {
             list.querySelectorAll(".live-alert-item").forEach(item => {
-                if (item.dataset.incidentNavigationReady === "true") {
-                    return;
-                }
-
-                const incidentId = item.querySelector(".live-alert-meta")?.textContent
-                    ?.match(/INC-[A-Z0-9-]+/i)?.[0];
-
-                if (incidentId) {
-                    makeAlertClickable(item, incidentId);
-                    item.dataset.incidentNavigationReady = "true";
-                }
+                makeAlertClickable(item, getIncidentId(item));
             });
         };
 
@@ -95,5 +89,9 @@
         observer.observe(list, { childList: true });
     }
 
-    document.addEventListener("DOMContentLoaded", initializeLiveAlertNavigation);
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initializeLiveAlertNavigation);
+    } else {
+        initializeLiveAlertNavigation();
+    }
 })();
