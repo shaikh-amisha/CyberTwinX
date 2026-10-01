@@ -2,8 +2,13 @@ import { expect } from "chai";
 import { network } from "hardhat";
 
 describe("CyberTwinXIntegrity", function () {
-    async function deployContract() {
-        const { ethers } = await network.connect();
+    async function deployContract(ethers) {
+        // Use the same network connection for deployment and wallet signers.
+        if (!ethers) {
+            const connection = await network.connect();
+            ethers = connection.ethers;
+        }
+
         const integrity = await ethers.deployContract("CyberTwinXIntegrity");
 
         await integrity.waitForDeployment();
@@ -186,7 +191,7 @@ describe("CyberTwinXIntegrity", function () {
         it("should make the contract deployer the owner", async function () {
             const { ethers } = await network.connect();
             const [owner] = await ethers.getSigners();
-            const integrity = await deployContract();
+            const integrity = await deployContract(ethers);
 
             expect(await integrity.owner()).to.equal(owner.address);
             expect(await integrity.isAuthorized(owner.address)).to.equal(true);
@@ -195,7 +200,7 @@ describe("CyberTwinXIntegrity", function () {
         it("should allow the owner to authorize an investigator", async function () {
             const { ethers } = await network.connect();
             const [, investigator] = await ethers.getSigners();
-            const integrity = await deployContract();
+            const integrity = await deployContract(ethers);
 
             await integrity.authorizeInvestigator(investigator.address);
 
@@ -205,7 +210,7 @@ describe("CyberTwinXIntegrity", function () {
         it("should not allow another wallet to authorize an investigator", async function () {
             const { ethers } = await network.connect();
             const [, investigator, unauthorized] = await ethers.getSigners();
-            const integrity = await deployContract();
+            const integrity = await deployContract(ethers);
 
             await expect(
                 integrity.connect(unauthorized).authorizeInvestigator(investigator.address)
@@ -215,7 +220,7 @@ describe("CyberTwinXIntegrity", function () {
         it("should allow an authorized investigator to anchor a Merkle Root", async function () {
             const { ethers } = await network.connect();
             const [, investigator] = await ethers.getSigners();
-            const integrity = await deployContract();
+            const integrity = await deployContract(ethers);
             const incidentId = "INC-AUTH-001";
             const root =
                 "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
@@ -229,7 +234,7 @@ describe("CyberTwinXIntegrity", function () {
         it("should reject a Merkle Root from an unauthorized wallet", async function () {
             const { ethers } = await network.connect();
             const [, unauthorized] = await ethers.getSigners();
-            const integrity = await deployContract();
+            const integrity = await deployContract(ethers);
             const root =
                 "0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc";
 
@@ -241,7 +246,7 @@ describe("CyberTwinXIntegrity", function () {
         it("should allow only the owner to revoke an investigator", async function () {
             const { ethers } = await network.connect();
             const [, investigator, unauthorized] = await ethers.getSigners();
-            const integrity = await deployContract();
+            const integrity = await deployContract(ethers);
 
             await integrity.authorizeInvestigator(investigator.address);
 
@@ -253,7 +258,7 @@ describe("CyberTwinXIntegrity", function () {
         it("should stop a revoked investigator from anchoring new roots", async function () {
             const { ethers } = await network.connect();
             const [, investigator] = await ethers.getSigners();
-            const integrity = await deployContract();
+            const integrity = await deployContract(ethers);
             const incidentId = "INC-AUTH-003";
             const oldRoot =
                 "0xdddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd";
