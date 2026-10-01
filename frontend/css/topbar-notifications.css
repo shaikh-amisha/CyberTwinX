@@ -6,7 +6,12 @@
     position: relative;
     display: flex;
     align-items: center;
+    order: 4;
     margin-left: 18px;
+}
+
+.topbar > .system-status {
+    order: 5;
 }
 
 .topbar-notification-button {
