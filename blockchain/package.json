@@ -7,10 +7,10 @@
     "test": "hardhat test"
   },
   "devDependencies": {
-    "@nomicfoundation/hardhat-toolbox-mocha-ethers": "^4.0.0",
-    "@types/node": "^22.20.4",
-    "hardhat": "^3.18.0",
-    "typescript": "~6.0.3"
+    "@nomicfoundation/hardhat-ethers": "^4.2.0",
+    "@nomicfoundation/hardhat-ethers-chai-matchers": "^3.0.11",
+    "@nomicfoundation/hardhat-mocha": "^4.0.0",
+    "hardhat": "^3.18.0"
   },
   "dependencies": {
     "ethers": "^6.17.0"
