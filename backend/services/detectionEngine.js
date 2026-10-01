@@ -557,17 +557,12 @@ function detectUserAccountManipulationV2(authentication) {
 /* 04 — Privilege Escalation */
 function detectPrivilegeEscalationV2(authentication, processes) {
     const authEvents = arr(authentication?.events);
-    const procEvents = processEvents(processes);
 
     const sudoEvents = authEvents.filter(e =>
         /sudo:.*USER=root|session opened for user root|sudo.*COMMAND=/i.test(msg(e))
     );
 
-    const rootProcesses = procEvents.filter(p =>
-        /^(0|root)$/i.test(str(p?.uid ?? p?.user ?? p?.username))
-    );
-
-    const count = sudoEvents.length + rootProcesses.length;
+    const count = sudoEvents.length;
 
     if (!count) return null;
 
