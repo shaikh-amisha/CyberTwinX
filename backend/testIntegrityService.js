@@ -131,14 +131,20 @@ async function testIntegrityService() {
             throw new Error("The generated Merkle Root could not be verified on-chain.");
         }
 
-        // Confirm that the expected root is the latest root in the contract.
-        const latestRoot = await contract.getLatestRoot(incidentId);
+        // getLatestRoot returns a tuple: root, timestamp, registrar and version.
+        const latestRootRecord = await contract.getLatestRoot(incidentId);
+        const latestRoot = latestRootRecord[0];
+        const latestRootVersion = latestRootRecord[3];
 
-        if (latestRoot.toLowerCase() !== result.merkleRoot.toLowerCase()) {
+        if (String(latestRoot).toLowerCase() !== result.merkleRoot.toLowerCase()) {
             throw new Error("The latest on-chain Merkle Root does not match the generated root.");
         }
 
-        // Confirm that the contract recorded the expected root version.
+        if (latestRootVersion !== BigInt(result.version)) {
+            throw new Error("The latest on-chain Merkle Root version is incorrect.");
+        }
+
+        // Confirm that the contract recorded the expected number of root versions.
         const rootHistoryLength = await contract.getRootHistoryLength(incidentId);
 
         if (rootHistoryLength !== BigInt(result.version)) {
