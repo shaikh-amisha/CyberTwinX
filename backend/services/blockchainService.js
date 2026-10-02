@@ -90,7 +90,7 @@ async function getBlockchainStatus() {
     };
 }
 
-// Submit a Merkle Root to the smart contract and wait for confirmation.
+// Submit a Merkle Root, wait for confirmation and verify the saved root.
 async function anchorMerkleRootOnChain(incidentId, merkleRoot) {
     if (typeof incidentId !== "string" || incidentId.trim().length === 0) {
         throw new Error("A valid incident ID is required.");
@@ -100,7 +100,7 @@ async function anchorMerkleRootOnChain(incidentId, merkleRoot) {
         throw new Error("A valid non-zero 32-byte Merkle Root is required.");
     }
 
-    const { contract, signer } = await getBlockchainSignerConnection();
+    const { provider, signer, contract } = await getBlockchainSignerConnection();
 
     const transaction = await contract.anchorMerkleRoot(
         incidentId.trim(),
@@ -113,13 +113,31 @@ async function anchorMerkleRootOnChain(incidentId, merkleRoot) {
         throw new Error("Merkle Root anchoring transaction failed.");
     }
 
+    // Confirm that the submitted root is now the latest root on-chain.
+    const isVerified = await contract.verifyMerkleRoot(
+        incidentId.trim(),
+        merkleRoot
+    );
+
+    if (!isVerified) {
+        throw new Error("Transaction was confirmed, but on-chain root verification failed.");
+    }
+
+    const network = await provider.getNetwork();
+    const contractAddress = await contract.getAddress();
+    const block = await provider.getBlock(receipt.blockNumber);
+
     return {
         incidentId: incidentId.trim(),
         merkleRoot,
         registrar: signer.address,
         transactionHash: receipt.hash,
         blockNumber: receipt.blockNumber,
-        gasUsed: receipt.gasUsed.toString()
+        gasUsed: receipt.gasUsed.toString(),
+        contractAddress,
+        chainId: network.chainId.toString(),
+        anchoredAt: block ? new Date(Number(block.timestamp) * 1000) : null,
+        verified: true
     };
 }
 
