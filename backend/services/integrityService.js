@@ -9,6 +9,10 @@ const {
     recordCustodyEvent
 } = require("./chainOfCustodyService");
 
+const {
+    anchorMerkleRootOnChain
+} = require("./blockchainService");
+
 
 // Build the next version number for an incident.
 function getNextRootVersion(rootVersions) {
@@ -22,8 +26,7 @@ function getNextRootVersion(rootVersions) {
 }
 
 
-// Generate a Merkle Tree from an incident's evidence
-// and save the generated integrity information in MongoDB.
+// Generate a Merkle Tree, save it in MongoDB and anchor its root on-chain.
 async function generateIncidentIntegrity(incidentId) {
 
     // Ensure the Incident ID is provided.
@@ -96,10 +99,10 @@ async function generateIncidentIntegrity(incidentId) {
         transaction: {}
     });
 
-    // Save the generated integrity information in MongoDB.
+    // Save the generated integrity information before blockchain submission.
     await integrityRecord.save();
 
-    // Record the initial integrity event for the incident.
+    // Record the initial hash-generation event for each evidence record.
     for (const evidenceRecord of evidenceRecords) {
         await recordCustodyEvent({
             incidentId,
@@ -115,15 +118,80 @@ async function generateIncidentIntegrity(incidentId) {
         });
     }
 
-    // Return the newly generated integrity information.
-    return {
-        incidentId,
-        version,
-        merkleRoot: merkleTree.root,
-        hashAlgorithm: merkleTree.hashAlgorithm,
-        leafCount: merkleTree.leafCount,
-        evidenceRecords
-    };
+    // Submit the Merkle Root and update its blockchain status.
+    try {
+        const anchorResult = await anchorMerkleRootOnChain(
+            incidentId,
+            merkleTree.root
+        );
+
+        // Find the root version that was just generated.
+        const savedRootVersion = integrityRecord.rootVersions.find(
+            item => item.version === version
+        );
+
+        if (!savedRootVersion) {
+            throw new Error("Generated Merkle Root version could not be found.");
+        }
+
+        // Store the confirmed blockchain transaction details.
+        savedRootVersion.blockchainStatus = "ANCHORED";
+        savedRootVersion.transaction = {
+            transactionHash: anchorResult.transactionHash,
+            blockNumber: anchorResult.blockNumber,
+            contractAddress: anchorResult.contractAddress,
+            chainId: anchorResult.chainId,
+            registrar: anchorResult.registrar,
+            anchoredAt: anchorResult.anchoredAt
+        };
+
+        await integrityRecord.save();
+
+        // Record that the Merkle Root was anchored on the blockchain.
+        const custodyEventType = version === 1
+            ? "ROOT_ANCHORED"
+            : "ROOT_REANCHORED";
+
+        for (const evidenceRecord of evidenceRecords) {
+            await recordCustodyEvent({
+                incidentId,
+                evidenceId: evidenceRecord.evidenceId,
+                eventType: custodyEventType,
+                integrity: {
+                    status: "PENDING",
+                    evidenceHash: evidenceRecord.evidenceHash,
+                    merkleRoot: merkleTree.root,
+                    rootVersion: version
+                },
+                details: `Merkle Root version ${version} anchored on-chain. Transaction: ${anchorResult.transactionHash}`
+            });
+        }
+
+        // Return the generated integrity information and transaction details.
+        return {
+            incidentId,
+            version,
+            merkleRoot: merkleTree.root,
+            hashAlgorithm: merkleTree.hashAlgorithm,
+            leafCount: merkleTree.leafCount,
+            blockchainStatus: "ANCHORED",
+            transaction: savedRootVersion.transaction,
+            evidenceRecords
+        };
+
+    } catch (error) {
+        // Mark the version as failed if blockchain submission did not complete.
+        const failedRootVersion = integrityRecord.rootVersions.find(
+            item => item.version === version
+        );
+
+        if (failedRootVersion) {
+            failedRootVersion.blockchainStatus = "FAILED";
+            await integrityRecord.save();
+        }
+
+        throw error;
+    }
 }
 
 
