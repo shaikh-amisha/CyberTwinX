@@ -100,14 +100,27 @@ async function testIntegrityService() {
             savedVersion.merkleRoot !== result.merkleRoot ||
             savedVersion.evidenceRecords.length !== evidenceIds.length ||
             savedVersion.blockchainStatus !== "ANCHORED" ||
-            savedVersion.transaction.transactionHash !== result.transaction.transactionHash
+            savedVersion.transaction.transactionHash !== result.transaction.transactionHash ||
+            savedVersion.transaction.blockNumber !== result.transaction.blockNumber ||
+            savedVersion.transaction.contractAddress !== result.transaction.contractAddress ||
+            savedVersion.transaction.chainId !== result.transaction.chainId ||
+            savedVersion.transaction.registrar !== result.transaction.registrar
         ) {
             throw new Error("Saved integrity or transaction details do not match the generated result.");
         }
 
-        console.log("Blockchain Integrity MongoDB storage successful.");
+        if (
+            !/^0x[0-9a-fA-F]{64}$/.test(result.transaction.transactionHash) ||
+            !result.transaction.contractAddress ||
+            !result.transaction.registrar ||
+            !result.transaction.blockNumber
+        ) {
+            throw new Error("Blockchain transaction metadata is incomplete or invalid.");
+        }
 
-        // Verify that the same Merkle Root is recorded on the smart contract.
+        console.log("Blockchain Integrity and transaction metadata storage successful.");
+
+        // Verify the generated Merkle Root using the deployed smart contract.
         const { contract } = getBlockchainConnection();
         const onChainVerified = await contract.verifyMerkleRoot(
             incidentId,
@@ -118,7 +131,21 @@ async function testIntegrityService() {
             throw new Error("The generated Merkle Root could not be verified on-chain.");
         }
 
-        console.log("On-chain Merkle Root verification successful.");
+        // Confirm that the expected root is the latest root in the contract.
+        const latestRoot = await contract.getLatestRoot(incidentId);
+
+        if (latestRoot.toLowerCase() !== result.merkleRoot.toLowerCase()) {
+            throw new Error("The latest on-chain Merkle Root does not match the generated root.");
+        }
+
+        // Confirm that the contract recorded the expected root version.
+        const rootHistoryLength = await contract.getRootHistoryLength(incidentId);
+
+        if (rootHistoryLength !== BigInt(result.version)) {
+            throw new Error("The on-chain Merkle Root history length is incorrect.");
+        }
+
+        console.log("On-chain Merkle Root and history verification successful.");
 
         // Confirm that hash-generation custody events were recorded.
         const hashEvents = await ChainOfCustody.find({
