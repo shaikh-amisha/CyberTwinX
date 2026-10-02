@@ -25,6 +25,7 @@ const integritySchema = new mongoose.Schema(
             enum: [
                 "NOT_CHECKED",
                 "PENDING",
+                "ANCHORED",
                 "VERIFIED",
                 "FAILED"
             ],
