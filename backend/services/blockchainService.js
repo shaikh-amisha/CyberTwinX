@@ -1,4 +1,3 @@
-
 const { ethers } = require("ethers");
 
 // Load the deployed contract information.
@@ -25,6 +24,50 @@ function getBlockchainConnection() {
     return { provider, contract };
 }
 
+// Create a transaction-enabled connection for the configured local signer.
+async function getBlockchainSignerConnection() {
+    const privateKey = process.env.BLOCKCHAIN_PRIVATE_KEY;
+    const expectedChainId = process.env.BLOCKCHAIN_CHAIN_ID;
+
+    if (!privateKey) {
+        throw new Error("BLOCKCHAIN_PRIVATE_KEY is missing.");
+    }
+
+    if (!expectedChainId) {
+        throw new Error("BLOCKCHAIN_CHAIN_ID is missing.");
+    }
+
+    const { provider, contract: readOnlyContract } = getBlockchainConnection();
+    const network = await provider.getNetwork();
+
+    if (network.chainId !== BigInt(expectedChainId)) {
+        throw new Error(
+            `Connected to unexpected network. Expected chain ID ${expectedChainId}, received ${network.chainId}.`
+        );
+    }
+
+    const contractAddress = await readOnlyContract.getAddress();
+    const contractCode = await provider.getCode(contractAddress);
+
+    if (contractCode === "0x") {
+        throw new Error("No smart contract found at the configured address.");
+    }
+
+    const signer = new ethers.Wallet(privateKey, provider);
+    const contract = readOnlyContract.connect(signer);
+
+    // Only the owner or an authorized investigator can anchor roots.
+    const isAuthorized = await contract.isAuthorized(signer.address);
+
+    if (!isAuthorized) {
+        throw new Error(
+            `Wallet ${signer.address} is not authorized to anchor Merkle roots.`
+        );
+    }
+
+    return { provider, signer, contract };
+}
+
 // Check the blockchain connection and contract deployment.
 async function getBlockchainStatus() {
     const { provider, contract } = getBlockchainConnection();
@@ -47,7 +90,42 @@ async function getBlockchainStatus() {
     };
 }
 
+// Submit a Merkle Root to the smart contract and wait for confirmation.
+async function anchorMerkleRootOnChain(incidentId, merkleRoot) {
+    if (typeof incidentId !== "string" || incidentId.trim().length === 0) {
+        throw new Error("A valid incident ID is required.");
+    }
+
+    if (!ethers.isHexString(merkleRoot, 32) || merkleRoot === ethers.ZeroHash) {
+        throw new Error("A valid non-zero 32-byte Merkle Root is required.");
+    }
+
+    const { contract, signer } = await getBlockchainSignerConnection();
+
+    const transaction = await contract.anchorMerkleRoot(
+        incidentId.trim(),
+        merkleRoot
+    );
+
+    const receipt = await transaction.wait();
+
+    if (!receipt || receipt.status !== 1) {
+        throw new Error("Merkle Root anchoring transaction failed.");
+    }
+
+    return {
+        incidentId: incidentId.trim(),
+        merkleRoot,
+        registrar: signer.address,
+        transactionHash: receipt.hash,
+        blockNumber: receipt.blockNumber,
+        gasUsed: receipt.gasUsed.toString()
+    };
+}
+
 module.exports = {
     getBlockchainConnection,
-    getBlockchainStatus
+    getBlockchainSignerConnection,
+    getBlockchainStatus,
+    anchorMerkleRootOnChain
 };
