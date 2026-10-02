@@ -228,25 +228,154 @@ const updateIncidentTwin = async (req, res) => {
             incidentId
         } = req.params;
 
-
-        const updateData =
-            req.body;
-
+        const {
+            evidence,
+            incidentId: ignoredIncidentId,
+            _id,
+            __v,
+            createdAt,
+            updatedAt,
+            ...updateData
+        } = req.body || {};
 
         /* ---------------------------------------------
-           Update Incident Twin
+           Validate evidence input
         --------------------------------------------- */
+
+        if (
+            evidence !== undefined &&
+            !Array.isArray(evidence)
+        ) {
+
+            return res.status(400).json({
+
+                success: false,
+
+                message: "Evidence must be provided as an array"
+
+            });
+
+        }
+
+        const incomingEvidence = evidence || [];
+
+        const evidenceIds = incomingEvidence.map(
+            (record) => record && record.evidenceId
+        );
+
+        if (
+            evidenceIds.some(
+                (evidenceId) =>
+                    typeof evidenceId !== "string" ||
+                    evidenceId.trim().length === 0
+            )
+        ) {
+
+            return res.status(400).json({
+
+                success: false,
+
+                message: "Every evidence record must have a valid evidenceId"
+
+            });
+
+        }
+
+        if (
+            new Set(evidenceIds).size !== evidenceIds.length
+        ) {
+
+            return res.status(409).json({
+
+                success: false,
+
+                message: "Duplicate evidenceId values were provided"
+
+            });
+
+        }
+
+        /* ---------------------------------------------
+           Build update operations
+
+           Ordinary incident fields use $set.
+           New evidence records use $push/$each so
+           existing evidence is never overwritten.
+        --------------------------------------------- */
+
+        const updateOperations = {};
+
+        if (Object.keys(updateData).length > 0) {
+
+            updateOperations.$set = updateData;
+
+        }
+
+        if (incomingEvidence.length > 0) {
+
+            updateOperations.$push = {
+
+                evidence: {
+
+                    $each: incomingEvidence
+
+                }
+
+            };
+
+        }
+
+        if (Object.keys(updateOperations).length === 0) {
+
+            return res.status(400).json({
+
+                success: false,
+
+                message: "No valid incident updates were provided"
+
+            });
+
+        }
+
+        /* ---------------------------------------------
+           Prevent evidence IDs already stored on this
+           incident from being inserted a second time.
+           The condition is part of the update query,
+           making the duplicate check atomic.
+        --------------------------------------------- */
+
+        const query = {
+            incidentId: incidentId
+        };
+
+        if (evidenceIds.length > 0) {
+
+            query.evidence = {
+
+                $not: {
+
+                    $elemMatch: {
+
+                        evidenceId: {
+
+                            $in: evidenceIds
+
+                        }
+
+                    }
+
+                }
+
+            };
+
+        }
 
         const incident =
             await IncidentTwin.findOneAndUpdate(
 
-                {
-                    incidentId: incidentId
-                },
+                query,
 
-                {
-                    $set: updateData
-                },
+                updateOperations,
 
                 {
                     new: true,
@@ -256,12 +385,30 @@ const updateIncidentTwin = async (req, res) => {
 
             );
 
-
         /* ---------------------------------------------
-           Incident not found
+           Distinguish duplicate evidence from a missing
+           incident when the conditional update matches
+           no document.
         --------------------------------------------- */
 
         if (!incident) {
+
+            const existingIncident =
+                await IncidentTwin.findOne({
+                    incidentId: incidentId
+                }).select("_id");
+
+            if (existingIncident && evidenceIds.length > 0) {
+
+                return res.status(409).json({
+
+                    success: false,
+
+                    message: "One or more evidenceId values already exist for this incident"
+
+                });
+
+            }
 
             return res.status(404).json({
 
@@ -274,7 +421,6 @@ const updateIncidentTwin = async (req, res) => {
             });
 
         }
-
 
         return res.status(200).json({
 
@@ -295,7 +441,6 @@ const updateIncidentTwin = async (req, res) => {
             error
         );
 
-
         return res.status(500).json({
 
             success: false,
@@ -309,7 +454,6 @@ const updateIncidentTwin = async (req, res) => {
     }
 
 };
-
 
 /* =========================================================
    DELETE INCIDENT TWIN
