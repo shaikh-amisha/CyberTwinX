@@ -1,4 +1,5 @@
 const BlockchainIntegrity = require("../models/BlockchainIntegrity");
+const IncidentTwin = require("../models/IncidentTwin");
 
 const {
     getBlockchainConnection,
@@ -14,6 +15,7 @@ const {
 } = require("../services/chainOfCustodyService");
 
 const {
+    createEvidenceSnapshot,
     hashEvidenceSnapshot,
     verifyMerkleProof
 } = require("../services/merkleService");
@@ -154,22 +156,52 @@ async function verifyIntegrityVersion(req, res) {
             });
         }
 
+        // Load the current Incident Twin evidence to detect changes made after anchoring.
+        const incident = await IncidentTwin.findOne({
+            incidentId
+        }).lean();
+
+        const currentEvidence = Array.isArray(incident?.evidence)
+            ? incident.evidence
+            : [];
+
         const evidenceResults = rootVersion.evidenceRecords.map(record => {
+            // First verify that the originally saved snapshot still matches its stored hash.
             const calculatedHash = `0x${hashEvidenceSnapshot(record.snapshot)}`;
             const hashMatches = calculatedHash.toLowerCase() ===
                 record.evidenceHash.toLowerCase();
 
+            // Verify the saved evidence proof against the anchored Merkle Root.
             const proofValid = hashMatches && verifyMerkleProof(
                 calculatedHash,
                 record.merkleProof,
                 rootVersion.merkleRoot
             );
 
+            // Compare the current source evidence with the originally anchored snapshot.
+            const currentRecord = currentEvidence.find(
+                item => String(item.evidenceId) === String(record.evidenceId)
+            );
+
+            let sourceDataMatches = false;
+
+            if (currentRecord) {
+                const currentSnapshot = createEvidenceSnapshot(
+                    incidentId,
+                    currentRecord
+                );
+                const currentSnapshotHash = hashEvidenceSnapshot(currentSnapshot);
+
+                sourceDataMatches = currentSnapshotHash.toLowerCase() ===
+                    record.evidenceHash.replace(/^0x/, "").toLowerCase();
+            }
+
             return {
                 evidenceId: record.evidenceId,
                 hashMatches,
                 merkleProofValid: proofValid,
-                verified: hashMatches && proofValid
+                sourceDataMatches,
+                verified: hashMatches && proofValid && sourceDataMatches
             };
         });
 
