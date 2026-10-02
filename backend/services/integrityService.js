@@ -158,7 +158,7 @@ async function generateIncidentIntegrity(incidentId) {
                 evidenceId: evidenceRecord.evidenceId,
                 eventType: custodyEventType,
                 integrity: {
-                    status: "PENDING",
+                    status: "ANCHORED",
                     evidenceHash: evidenceRecord.evidenceHash,
                     merkleRoot: merkleTree.root,
                     rootVersion: version
