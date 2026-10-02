@@ -7,11 +7,15 @@ const BlockchainIntegrity = require("./models/BlockchainIntegrity");
 const ChainOfCustody = require("./models/ChainOfCustody");
 
 const {
+    getBlockchainConnection
+} = require("./services/blockchainService");
+
+const {
     generateIncidentIntegrity
 } = require("./services/integrityService");
 
 
-// Test Merkle Tree generation and MongoDB integrity storage.
+// Test Merkle Tree generation, MongoDB storage and blockchain anchoring.
 async function testIntegrityService() {
     const testSuffix = crypto.randomUUID();
 
@@ -22,7 +26,7 @@ async function testIntegrityService() {
     ];
 
     try {
-        // Ensure the MongoDB connection string is configured.
+        // Ensure the required connection settings are configured.
         if (!process.env.MONGODB_URI) {
             throw new Error("MONGODB_URI is missing from backend/.env");
         }
@@ -60,12 +64,22 @@ async function testIntegrityService() {
 
         console.log("Temporary Incident Twin created.");
 
-        // Generate the Merkle Tree and save its integrity record.
+        // Generate the Merkle Tree, save it and anchor its root on-chain.
         const result = await generateIncidentIntegrity(incidentId);
 
         console.log("Merkle Root generated:", result.merkleRoot);
         console.log("Evidence count:", result.leafCount);
         console.log("Root version:", result.version);
+        console.log("Blockchain status:", result.blockchainStatus);
+        console.log("Transaction hash:", result.transaction.transactionHash);
+
+        if (result.blockchainStatus !== "ANCHORED") {
+            throw new Error("The generated Merkle Root was not marked as ANCHORED.");
+        }
+
+        if (!result.transaction.transactionHash) {
+            throw new Error("Blockchain transaction hash was not returned.");
+        }
 
         // Retrieve the saved integrity document.
         const savedIntegrity = await BlockchainIntegrity.findOne({
@@ -76,7 +90,7 @@ async function testIntegrityService() {
             throw new Error("Blockchain Integrity record was not saved.");
         }
 
-        // Confirm the generated root and evidence records were stored.
+        // Confirm the root, evidence records and transaction were stored.
         const savedVersion = savedIntegrity.rootVersions.find(
             item => item.version === result.version
         );
@@ -84,26 +98,52 @@ async function testIntegrityService() {
         if (
             !savedVersion ||
             savedVersion.merkleRoot !== result.merkleRoot ||
-            savedVersion.evidenceRecords.length !== evidenceIds.length
+            savedVersion.evidenceRecords.length !== evidenceIds.length ||
+            savedVersion.blockchainStatus !== "ANCHORED" ||
+            savedVersion.transaction.transactionHash !== result.transaction.transactionHash
         ) {
-            throw new Error("Saved Merkle Root version does not match the generated result.");
+            throw new Error("Saved integrity or transaction details do not match the generated result.");
         }
 
         console.log("Blockchain Integrity MongoDB storage successful.");
 
-        // Retrieve the generated custody events.
-        const custodyEvents = await ChainOfCustody.find({
+        // Verify that the same Merkle Root is recorded on the smart contract.
+        const { contract } = getBlockchainConnection();
+        const onChainVerified = await contract.verifyMerkleRoot(
+            incidentId,
+            result.merkleRoot
+        );
+
+        if (!onChainVerified) {
+            throw new Error("The generated Merkle Root could not be verified on-chain.");
+        }
+
+        console.log("On-chain Merkle Root verification successful.");
+
+        // Confirm that hash-generation custody events were recorded.
+        const hashEvents = await ChainOfCustody.find({
             incidentId,
             evidenceId: { $in: evidenceIds },
             eventType: "HASH_GENERATED"
         }).lean();
 
-        if (custodyEvents.length !== evidenceIds.length) {
+        if (hashEvents.length !== evidenceIds.length) {
             throw new Error("Expected HASH_GENERATED custody events were not found.");
         }
 
-        console.log("Chain of Custody event creation successful.");
-        console.log("TEST PASSED");
+        // Confirm that blockchain anchoring custody events were recorded.
+        const anchorEvents = await ChainOfCustody.find({
+            incidentId,
+            evidenceId: { $in: evidenceIds },
+            eventType: "ROOT_ANCHORED"
+        }).lean();
+
+        if (anchorEvents.length !== evidenceIds.length) {
+            throw new Error("Expected ROOT_ANCHORED custody events were not found.");
+        }
+
+        console.log("Chain of Custody hash and anchoring events successful.");
+        console.log("FULL INTEGRITY WORKFLOW TEST PASSED");
 
     } catch (error) {
         console.error("TEST FAILED:", error.message);
