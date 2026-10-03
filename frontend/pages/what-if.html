@@ -28,33 +28,37 @@
     </aside>
 
     <main class="main-content">
-        <header class="topbar">
-            <div class="topbar-item topbar-endpoint-item"><span class="topbar-endpoint-dot"></span><span class="topbar-label">ENDPOINT</span><strong id="topbarEndpoint">—</strong></div>
-            <div class="topbar-divider"></div>
-            <div class="topbar-state-item"><span class="topbar-label">STATE</span><span class="state-badge unknown" id="topbarState">UNKNOWN</span></div>
-            <div class="topbar-risk"><span class="topbar-label">RISK</span><strong id="topbarRisk">0</strong><span>/100</span></div>
-            <div class="system-status"><span class="status-dot"></span><span id="topbarSystemStatus">ONLINE</span></div>
+        <header class="topbar whatif-topbar">
+            <div class="whatif-topbar-main">
+                <div class="whatif-topbar-item"><span class="topbar-label">Endpoint</span><strong id="topbarEndpoint">—</strong></div>
+                <div class="whatif-topbar-item"><span class="topbar-label">State</span><span class="state-badge unknown" id="topbarState">Unknown</span></div>
+                <div class="whatif-topbar-item"><span class="topbar-label">Risk</span><strong id="topbarRisk">0</strong><span>/100</span></div>
+                <span class="dry-run-badge">Dry run</span>
+            </div>
+            <div class="whatif-incident-line" id="incidentContextLine">Loading incident…</div>
+            <div class="whatif-incident-selector">
+                <label for="incidentSelector">Incident</label>
+                <select id="incidentSelector" class="whatif-incident-select" aria-label="Select incident">
+                    <option value="">Loading incident…</option>
+                </select>
+            </div>
         </header>
 
         <section class="page-content whatif-page">
-            <div class="page-header whatif-header"><div><h2>What-If Analysis</h2><p>Run a dry-run response against an observed incident stage without changing the endpoint.</p></div><div class="whatif-header-status">Dry-run simulator</div></div>
-
-            <section class="whatif-incident-row"><label for="incidentSelector">Incident</label><select id="incidentSelector" class="whatif-incident-select"><option value="">Loading incident…</option></select></section>
-
             <section class="whatif-card" id="stageCard">
-                <div class="card-heading"><div><h3>Where would you have intervened?</h3><p>Only stages observed by the Incident Twin can be selected.</p></div></div>
+                <div class="card-heading"><div><h3>Where would you have intervened?</h3></div></div>
                 <div class="stage-timeline" id="stageTimeline"><div class="whatif-empty">Loading incident…</div></div>
             </section>
 
             <section class="whatif-two-column hidden-until-stage" id="stageDetails">
                 <article class="whatif-card evidence-card">
-                    <div class="card-heading"><div><h3>Evidence</h3><p>Evidence recorded for the selected stage.</p></div></div>
+                    <div class="card-heading"><div><h3>Evidence</h3></div></div>
                     <div class="evidence-summary"><div><span>Event count</span><strong id="evidenceEventCount">0</strong></div><div><span>Confidence</span><strong id="evidenceConfidence">0%</strong></div></div>
                     <ul class="evidence-list" id="evidenceList"></ul>
-                    <p class="model-interpretation" id="modelInterpretation">No stage selected.</p>
+                    <p class="model-interpretation" id="modelInterpretation"></p>
                 </article>
                 <article class="whatif-card response-card">
-                    <div class="card-heading"><div><h3>Response options</h3><p>Choose one modeled response for this stage.</p></div><span class="modeled-badge hidden" id="modeledDataBadge">Modeled data</span></div>
+                    <div class="card-heading"><div><h3>Response options</h3></div><span class="modeled-badge hidden" id="modeledDataBadge">Modeled data</span></div>
                     <div class="response-options" id="responseOptions"></div>
                 </article>
             </section>
@@ -65,7 +69,7 @@
             </section>
 
             <section class="whatif-card hidden" id="resultsCard">
-                <div class="card-heading"><div><h3>Simulation result</h3><p>Counterfactual outcome compared with the observed incident.</p></div></div>
+                <div class="card-heading"><div><h3>Simulation result</h3></div></div>
                 <div class="result-metrics"><div class="result-metric"><span>Risk change</span><strong id="riskChangeMetric">—</strong></div><div class="result-metric"><span>Attack paths</span><strong id="attackPathsMetric">—</strong></div><div class="result-metric"><span>Security state</span><strong id="securityStateMetric">—</strong></div></div>
                 <div class="path-comparison"><div class="path-panel"><div class="path-panel-title">Actual path</div><ol id="actualPath"></ol></div><div class="path-panel whatif-path-panel"><div class="path-panel-title">What-if path</div><ol id="whatIfPath"></ol></div></div>
                 <div class="result-reading"><div><span>What changes</span><p id="whatChanges">—</p></div><div><span>What remains</span><p id="whatRemains">—</p></div></div>
