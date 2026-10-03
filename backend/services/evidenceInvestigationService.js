@@ -61,6 +61,18 @@ const INCIDENT_EVIDENCE_REQUIREMENTS = {
         "NETWORK"
     ],
 
+    BRUTE_FORCE: [
+        "AUTHENTICATION",
+        "NETWORK",
+        "PROCESS"
+    ],
+
+    PASSWORD_SPRAYING: [
+        "AUTHENTICATION",
+        "NETWORK",
+        "PRIVILEGE"
+    ],
+
     ACCOUNT_COMPROMISE: [
         "AUTHENTICATION",
         "PRIVILEGE",
@@ -69,7 +81,14 @@ const INCIDENT_EVIDENCE_REQUIREMENTS = {
 
     USER_ACCOUNT_MODIFICATION: [
         "AUTHENTICATION",
-        "PRIVILEGE"
+        "PRIVILEGE",
+        "PROCESS"
+    ],
+
+    USER_ACCOUNT_MANIPULATION: [
+        "AUTHENTICATION",
+        "PRIVILEGE",
+        "PROCESS"
     ],
 
     PRIVILEGE_ESCALATION: [
@@ -94,9 +113,54 @@ const INCIDENT_EVIDENCE_REQUIREMENTS = {
         "NETWORK"
     ],
 
+    SUSPICIOUS_PROCESS_EXECUTION: [
+        "PROCESS",
+        "NETWORK"
+    ],
+
+    LIVING_OFF_THE_LAND: [
+        "PROCESS",
+        "NETWORK",
+        "AUTHENTICATION"
+    ],
+
+    RANSOMWARE_LIKE_ACTIVITY: [
+        "FILE_INTEGRITY",
+        "PROCESS",
+        "NETWORK"
+    ],
+
     NETWORK_ACTIVITY: [
         "NETWORK",
         "PROCESS"
+    ],
+
+    NETWORK_SCANNING: [
+        "NETWORK",
+        "PROCESS"
+    ],
+
+    C2_LIKE_COMMUNICATION: [
+        "NETWORK",
+        "PROCESS"
+    ],
+
+    DATA_EXFILTRATION: [
+        "NETWORK",
+        "PROCESS",
+        "FILE_INTEGRITY"
+    ],
+
+    SUSPICIOUS_SERVICE_ACTIVITY: [
+        "PROCESS",
+        "PRIVILEGE",
+        "NETWORK"
+    ],
+
+    ABNORMAL_FILE_SYSTEM_ACTIVITY: [
+        "FILE_INTEGRITY",
+        "PROCESS",
+        "NETWORK"
     ],
 
     FILE_INTEGRITY: [
@@ -193,10 +257,6 @@ function inferEvidenceCategory(evidence) {
         `${type} ${description}`;
 
 
-    /* -----------------------------------------------------
-       AUTHENTICATION
-    ----------------------------------------------------- */
-
     if (
         /AUTH|LOGIN|PASSWORD|CREDENTIAL|ACCOUNT|USER|SESSION/.test(
             combined
@@ -218,10 +278,6 @@ function inferEvidenceCategory(evidence) {
     }
 
 
-    /* -----------------------------------------------------
-       PRIVILEGE
-    ----------------------------------------------------- */
-
     if (
         /PRIVILEGE|ROOT|SUDO|ESCALAT|ADMIN/.test(
             combined
@@ -232,10 +288,6 @@ function inferEvidenceCategory(evidence) {
 
     }
 
-
-    /* -----------------------------------------------------
-       PROCESS
-    ----------------------------------------------------- */
 
     if (
         /PROCESS|EXECUTION|COMMAND|SHELL|MALWARE|BINARY/.test(
@@ -248,10 +300,6 @@ function inferEvidenceCategory(evidence) {
     }
 
 
-    /* -----------------------------------------------------
-       NETWORK
-    ----------------------------------------------------- */
-
     if (
         /NETWORK|CONNECTION|TRAFFIC|SOCKET|IP|PORT|DNS|HTTP|HTTPS|TCP|UDP/.test(
             combined
@@ -262,10 +310,6 @@ function inferEvidenceCategory(evidence) {
 
     }
 
-
-    /* -----------------------------------------------------
-       FILE INTEGRITY
-    ----------------------------------------------------- */
 
     if (
         /FILE|INTEGRITY|MODIFICATION|MODIFIED|DELETED|CREATED|PERSISTENCE/.test(
