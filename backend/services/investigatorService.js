@@ -12,7 +12,7 @@ const OLLAMA_API_URL =
 
 const OLLAMA_MODEL =
     process.env.OLLAMA_MODEL ||
-    "phi3.5:latest";
+    "gemma3:1b";
 
 const OLLAMA_TIMEOUT_MS = 300000;
 const OLLAMA_KEEP_ALIVE = "10m";
