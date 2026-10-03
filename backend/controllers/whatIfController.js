@@ -8,6 +8,12 @@ const {
     simulateModeledResponse
 } = require("../services/whatIfResponseModel");
 
+const {
+    isAccountCompromise,
+    buildAccountCompromiseResponses,
+    simulateAccountCompromise
+} = require("../services/accountCompromiseWhatIf");
+
 const IncidentTwin =
     require("../models/IncidentTwin");
 
@@ -36,24 +42,28 @@ async function getWhatIfContextController(req, res) {
         /*
          * Response actions are attack-driven. The existing
          * service remains the source of actual incident,
-         * evidence, finding and risk data. When an observed
-         * attack is not covered by the older generic response
-         * catalogue, use the dedicated modeled response set.
+         * evidence, finding and risk data.
          */
         if (attackType) {
-            const modeled = buildResponseScenarios(
-                attackType,
-                context?.evidence || []
-            );
+            if (isAccountCompromise(attackType)) {
+                context.responseScenarios = buildAccountCompromiseResponses(
+                    context?.evidence || []
+                );
+            } else {
+                const modeled = buildResponseScenarios(
+                    attackType,
+                    context?.evidence || []
+                );
 
-            if (modeled.length) {
-                context.responseScenarios = modeled;
-            } else if (Array.isArray(context?.responseScenarios)) {
-                context.responseScenarios =
-                    context.responseScenarios.filter(
-                        scenario =>
-                            scenario?.status !== "NOT_APPLICABLE"
-                    );
+                if (modeled.length) {
+                    context.responseScenarios = modeled;
+                } else if (Array.isArray(context?.responseScenarios)) {
+                    context.responseScenarios =
+                        context.responseScenarios.filter(
+                            scenario =>
+                                scenario?.status !== "NOT_APPLICABLE"
+                        );
+                }
             }
         } else if (Array.isArray(context?.responseScenarios)) {
             context.responseScenarios =
@@ -116,6 +126,19 @@ async function simulateWhatIfController(req, res) {
                 incidentId,
                 attackType
             });
+
+        if (isAccountCompromise(attackType)) {
+            const result = await simulateAccountCompromise({
+                context: modeledContext,
+                attackType,
+                action
+            });
+
+            return res.status(200).json({
+                success: true,
+                data: result
+            });
+        }
 
         const modeledScenarios =
             buildResponseScenarios(
