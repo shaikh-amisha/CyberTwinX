@@ -32,6 +32,24 @@ async function getWhatIfContextController(req, res) {
             });
 
 
+        /*
+         * Only expose response actions that are relevant
+         * to the selected observed attack. The service still
+         * evaluates applicability, but NOT_APPLICABLE actions
+         * are removed from the What-If UI context so unrelated
+         * response cards do not clutter the page.
+         */
+        if (Array.isArray(context?.responseScenarios)) {
+
+            context.responseScenarios =
+                context.responseScenarios.filter(
+                    scenario =>
+                        scenario?.status !== "NOT_APPLICABLE"
+                );
+
+        }
+
+
         return res.status(200).json({
 
             success: true,
