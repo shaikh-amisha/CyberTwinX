@@ -1,4 +1,5 @@
 const IncidentTwin = require("../models/IncidentTwin");
+const Alert = require("../models/Alert");
 
 
 /* =========================================================
@@ -136,6 +137,29 @@ function getExpectedCategories(incidentType) {
     return ["AUTHENTICATION", "PROCESS", "NETWORK"];
 }
 
+function getExpectedCategoriesForIncident(incidentType, detectedAttackTypes = []) {
+    const types = [incidentType, ...detectedAttackTypes]
+        .map(normalizeValue)
+        .filter(Boolean);
+
+    const expected = [];
+
+    types.forEach(type => {
+        const categories = INCIDENT_EVIDENCE_REQUIREMENTS[type];
+        if (!categories) return;
+
+        categories.forEach(category => {
+            if (!expected.includes(category)) {
+                expected.push(category);
+            }
+        });
+    });
+
+    return expected.length
+        ? expected
+        : getExpectedCategories(incidentType);
+}
+
 function getPresentCategories(evidence) {
     const present = new Set();
     evidence.forEach(item => {
@@ -170,8 +194,11 @@ function calculateSufficiency(expectedCategories, presentCategories) {
     return Math.round((covered / expectedCategories.length) * 100);
 }
 
-function buildSummary(incident, evidence) {
-    const expectedCategories = getExpectedCategories(incident.incidentType);
+function buildSummary(incident, evidence, detectedAttackTypes = []) {
+    const expectedCategories = getExpectedCategoriesForIncident(
+        incident.incidentType,
+        detectedAttackTypes
+    );
     const presentCategories = getPresentCategories(evidence);
     const missingCategories = getMissingCategories(expectedCategories, presentCategories);
     const supportingEvidence = evidence.filter(item => item.status === "SUPPORTING");
@@ -179,6 +206,7 @@ function buildSummary(incident, evidence) {
     return {
         incidentId: incident.incidentId,
         incidentType: incident.incidentType,
+        detectedAttackTypes,
         supportingCount: supportingEvidence.length,
         missingCount: missingCategories.length,
         sufficiency: calculateSufficiency(expectedCategories, presentCategories),
@@ -252,11 +280,24 @@ async function getIncident(incidentId) {
     return incident;
 }
 
+async function getDetectedAttackTypes(incidentId) {
+    const alerts = await Alert.find({ incidentId })
+        .select("detectionType -_id")
+        .lean();
+
+    return [...new Set(
+        alerts
+            .map(alert => normalizeValue(alert.detectionType))
+            .filter(Boolean)
+    )];
+}
+
 async function getInvestigation(incidentId) {
     const incident = await getIncident(incidentId);
     const evidence = (Array.isArray(incident.evidence) ? incident.evidence : [])
         .map(normalizeEvidence);
-    const summary = buildSummary(incident, evidence);
+    const detectedAttackTypes = await getDetectedAttackTypes(incidentId);
+    const summary = buildSummary(incident, evidence, detectedAttackTypes);
     const details = buildDetails(evidence);
     const timeline = buildTimeline(incident, evidence);
     const missingEvidence = buildMissingEvidence(summary.missingCategories);
@@ -286,7 +327,8 @@ async function getSummary(incidentId) {
     const incident = await getIncident(incidentId);
     const evidence = (Array.isArray(incident.evidence) ? incident.evidence : [])
         .map(normalizeEvidence);
-    return buildSummary(incident, evidence);
+    const detectedAttackTypes = await getDetectedAttackTypes(incidentId);
+    return buildSummary(incident, evidence, detectedAttackTypes);
 }
 
 async function getDetails(incidentId) {
@@ -314,6 +356,7 @@ module.exports = {
     normalizeEvidence,
     inferEvidenceCategory,
     getExpectedCategories,
+    getExpectedCategoriesForIncident,
     getPresentCategories,
     getMissingCategories,
     calculateSufficiency,
@@ -321,6 +364,7 @@ module.exports = {
     buildDetails,
     buildTimeline,
     buildMissingEvidence,
+    getDetectedAttackTypes,
     getInvestigation,
     getSummary,
     getDetails,
