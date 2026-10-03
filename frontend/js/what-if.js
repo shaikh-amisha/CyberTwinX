@@ -158,19 +158,52 @@ function renderStages() {
     E.stage.querySelectorAll(".stage-item").forEach(button => button.addEventListener("click", () => selectStage(Number(button.dataset.i))));
 }
 
-function selectStage(index) {
+async function selectStage(index) {
     const a = stages();
     if (!a[index]) return;
-    S.stage = { index, value: a[index] };
+
+    const selectedStage = a[index];
+    S.stage = { index, value: selectedStage };
     S.response = null;
     S.simulation = null;
-    E.stage.querySelectorAll(".stage-item").forEach((button, i) => { const selected = i === index; button.classList.toggle("selected", selected); button.setAttribute("aria-pressed", String(selected)); });
-    renderTop();
-    renderEvidence(a[index]);
-    renderResponses();
+    S.options = [];
+
+    E.stage.querySelectorAll(".stage-item").forEach((button, i) => {
+        const selected = i === index;
+        button.classList.toggle("selected", selected);
+        button.setAttribute("aria-pressed", String(selected));
+    });
+
+    hide(E.error);
+    E.responses.innerHTML = '<div class="whatif-empty">Loading response options for this attack stage...</div>';
     show(E.details);
     show(E.bar);
     resetSimulation();
+
+    try {
+        const q = new URLSearchParams();
+        if (S.incidentId) q.set("incidentId", S.incidentId);
+        q.set("attackType", selectedStage);
+
+        const p = await api(`${WHAT_IF_API}?${q}`);
+        if (!p.data) throw Error("Attack-stage context is empty.");
+
+        S.context = p.data;
+        S.incidentId = p.data.incident?.incidentId || S.incidentId;
+        S.stage = { index, value: selectedStage };
+
+        renderIncidentSelector();
+        updateIncidentSelectorLabel();
+        renderTop();
+        renderEvidence(selectedStage);
+        renderResponses();
+        resetSimulation();
+    } catch (error) {
+        console.error("[CyberTwin] Failed to load attack-stage responses:", error);
+        E.error.textContent = error.message || "Couldn't load response options for this attack stage.";
+        show(E.error);
+        E.responses.innerHTML = '<div class="whatif-empty">Unable to load response options for this attack stage.</div>';
+    }
 }
 
 function renderEvidence(stage) {
