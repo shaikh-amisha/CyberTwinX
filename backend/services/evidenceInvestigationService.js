@@ -46,127 +46,28 @@ const EVIDENCE_TAXONOMY = {
 
 const INCIDENT_EVIDENCE_REQUIREMENTS = {
 
-    AUTHENTICATION: [
-        "AUTHENTICATION",
-        "NETWORK"
-    ],
-
-    AUTHENTICATION_FAILURE: [
-        "AUTHENTICATION",
-        "NETWORK"
-    ],
-
-    FAILED_AUTHENTICATION: [
-        "AUTHENTICATION",
-        "NETWORK"
-    ],
-
-    BRUTE_FORCE: [
-        "AUTHENTICATION",
-        "NETWORK",
-        "PROCESS"
-    ],
-
-    PASSWORD_SPRAYING: [
-        "AUTHENTICATION",
-        "NETWORK",
-        "PRIVILEGE"
-    ],
-
-    ACCOUNT_COMPROMISE: [
-        "AUTHENTICATION",
-        "PRIVILEGE",
-        "PROCESS"
-    ],
-
-    USER_ACCOUNT_MODIFICATION: [
-        "AUTHENTICATION",
-        "PRIVILEGE",
-        "PROCESS"
-    ],
-
-    USER_ACCOUNT_MANIPULATION: [
-        "AUTHENTICATION",
-        "PRIVILEGE",
-        "PROCESS"
-    ],
-
-    PRIVILEGE_ESCALATION: [
-        "AUTHENTICATION",
-        "PRIVILEGE",
-        "PROCESS"
-    ],
-
-    PRIVILEGED_ACTIVITY: [
-        "AUTHENTICATION",
-        "PRIVILEGE",
-        "PROCESS"
-    ],
-
-    PROCESS_EXECUTION: [
-        "PROCESS",
-        "NETWORK"
-    ],
-
-    SUSPICIOUS_PROCESS: [
-        "PROCESS",
-        "NETWORK"
-    ],
-
-    SUSPICIOUS_PROCESS_EXECUTION: [
-        "PROCESS",
-        "NETWORK"
-    ],
-
-    LIVING_OFF_THE_LAND: [
-        "PROCESS",
-        "NETWORK",
-        "AUTHENTICATION"
-    ],
-
-    RANSOMWARE_LIKE_ACTIVITY: [
-        "FILE_INTEGRITY",
-        "PROCESS",
-        "NETWORK"
-    ],
-
-    NETWORK_ACTIVITY: [
-        "NETWORK",
-        "PROCESS"
-    ],
-
-    NETWORK_SCANNING: [
-        "NETWORK",
-        "PROCESS"
-    ],
-
-    C2_LIKE_COMMUNICATION: [
-        "NETWORK",
-        "PROCESS"
-    ],
-
-    DATA_EXFILTRATION: [
-        "NETWORK",
-        "PROCESS",
-        "FILE_INTEGRITY"
-    ],
-
-    SUSPICIOUS_SERVICE_ACTIVITY: [
-        "PROCESS",
-        "PRIVILEGE",
-        "NETWORK"
-    ],
-
-    ABNORMAL_FILE_SYSTEM_ACTIVITY: [
-        "FILE_INTEGRITY",
-        "PROCESS",
-        "NETWORK"
-    ],
-
-    FILE_INTEGRITY: [
-        "FILE_INTEGRITY",
-        "PROCESS"
-    ]
+    AUTHENTICATION: ["AUTHENTICATION", "NETWORK"],
+    AUTHENTICATION_FAILURE: ["AUTHENTICATION", "NETWORK"],
+    FAILED_AUTHENTICATION: ["AUTHENTICATION", "NETWORK"],
+    BRUTE_FORCE: ["AUTHENTICATION", "NETWORK", "PROCESS"],
+    PASSWORD_SPRAYING: ["AUTHENTICATION", "NETWORK", "PRIVILEGE"],
+    ACCOUNT_COMPROMISE: ["AUTHENTICATION", "PRIVILEGE", "PROCESS"],
+    USER_ACCOUNT_MODIFICATION: ["AUTHENTICATION", "PRIVILEGE", "PROCESS"],
+    USER_ACCOUNT_MANIPULATION: ["AUTHENTICATION", "PRIVILEGE", "PROCESS"],
+    PRIVILEGE_ESCALATION: ["AUTHENTICATION", "PRIVILEGE", "PROCESS"],
+    PRIVILEGED_ACTIVITY: ["AUTHENTICATION", "PRIVILEGE", "PROCESS"],
+    PROCESS_EXECUTION: ["PROCESS", "NETWORK"],
+    SUSPICIOUS_PROCESS: ["PROCESS", "NETWORK"],
+    SUSPICIOUS_PROCESS_EXECUTION: ["PROCESS", "NETWORK"],
+    LIVING_OFF_THE_LAND: ["PROCESS", "NETWORK", "AUTHENTICATION"],
+    RANSOMWARE_LIKE_ACTIVITY: ["FILE_INTEGRITY", "PROCESS", "NETWORK"],
+    NETWORK_ACTIVITY: ["NETWORK", "PROCESS"],
+    NETWORK_SCANNING: ["NETWORK", "PROCESS"],
+    C2_LIKE_COMMUNICATION: ["NETWORK", "PROCESS"],
+    DATA_EXFILTRATION: ["NETWORK", "PROCESS", "FILE_INTEGRITY"],
+    SUSPICIOUS_SERVICE_ACTIVITY: ["PROCESS", "PRIVILEGE", "NETWORK"],
+    ABNORMAL_FILE_SYSTEM_ACTIVITY: ["FILE_INTEGRITY", "PROCESS", "NETWORK"],
+    FILE_INTEGRITY: ["FILE_INTEGRITY", "PROCESS"]
 
 };
 
@@ -192,20 +93,11 @@ function normalizeValue(value) {
 
 function normalizeStatus(value) {
 
-    const status =
-        normalizeValue(value);
+    const status = normalizeValue(value);
 
-    if (status === "SUPPORTING") {
-        return "SUPPORTING";
-    }
-
-    if (status === "CONTRADICTING") {
-        return "CONTRADICTING";
-    }
-
-    if (status === "NEUTRAL") {
-        return "NEUTRAL";
-    }
+    if (status === "SUPPORTING") return "SUPPORTING";
+    if (status === "CONTRADICTING") return "CONTRADICTING";
+    if (status === "NEUTRAL") return "NEUTRAL";
 
     return "SUPPORTING";
 
@@ -218,112 +110,25 @@ function normalizeStatus(value) {
 
 function inferEvidenceCategory(evidence) {
 
-    if (!evidence) {
-        return "OTHER";
-    }
+    if (!evidence) return "OTHER";
 
+    const explicitCategory = normalizeValue(evidence.category);
 
-    const explicitCategory =
-        normalizeValue(
-            evidence.category
-        );
-
-
-    if (
-        Object.prototype.hasOwnProperty.call(
-            EVIDENCE_TAXONOMY,
-            explicitCategory
-        )
-    ) {
-
+    if (Object.prototype.hasOwnProperty.call(EVIDENCE_TAXONOMY, explicitCategory)) {
         return explicitCategory;
-
     }
 
+    const type = normalizeValue(evidence.type);
+    const description = normalizeValue(evidence.description);
+    const combined = `${type} ${description}`;
 
-    const type =
-        normalizeValue(
-            evidence.type
-        );
-
-
-    const description =
-        normalizeValue(
-            evidence.description
-        );
-
-
-    const combined =
-        `${type} ${description}`;
-
-
-    if (
-        /AUTH|LOGIN|PASSWORD|CREDENTIAL|ACCOUNT|USER|SESSION/.test(
-            combined
-        )
-    ) {
-
-        if (
-            /PRIVILEGE|ROOT|SUDO|ESCALAT/.test(
-                combined
-            )
-        ) {
-
-            return "PRIVILEGE";
-
-        }
-
-        return "AUTHENTICATION";
-
-    }
-
-
-    if (
-        /PRIVILEGE|ROOT|SUDO|ESCALAT|ADMIN/.test(
-            combined
-        )
-    ) {
-
-        return "PRIVILEGE";
-
-    }
-
-
-    if (
-        /PROCESS|EXECUTION|COMMAND|SHELL|MALWARE|BINARY/.test(
-            combined
-        )
-    ) {
-
-        return "PROCESS";
-
-    }
-
-
-    if (
-        /NETWORK|CONNECTION|TRAFFIC|SOCKET|IP|PORT|DNS|HTTP|HTTPS|TCP|UDP/.test(
-            combined
-        )
-    ) {
-
-        return "NETWORK";
-
-    }
-
-
-    if (
-        /FILE|INTEGRITY|MODIFICATION|MODIFIED|DELETED|CREATED|PERSISTENCE/.test(
-            combined
-        )
-    ) {
-
-        return "FILE_INTEGRITY";
-
-    }
-
+    if (/AUTH|LOGIN|PASSWORD|ACCOUNT/.test(combined)) return "AUTHENTICATION";
+    if (/PRIVILEGE|SUDO|ROOT|ESCALAT/.test(combined)) return "PRIVILEGE";
+    if (/PROCESS|EXECUTION|COMMAND|MALWARE/.test(combined)) return "PROCESS";
+    if (/NETWORK|CONNECTION|IP|PORT|TRAFFIC|C2/.test(combined)) return "NETWORK";
+    if (/FILE|RANSOM|MODIF|DELETE|RENAME|INTEGRITY/.test(combined)) return "FILE_INTEGRITY";
 
     return "OTHER";
-
 }
 
 
@@ -331,244 +136,67 @@ function inferEvidenceCategory(evidence) {
    NORMALIZE EVIDENCE
 ========================================================= */
 
-function normalizeEvidence(
-    evidence,
-    index = 0
-) {
+function normalizeEvidence(evidence) {
 
-    const category =
-        inferEvidenceCategory(
-            evidence
-        );
-
-
-    const status =
-        normalizeStatus(
-            evidence.status
-        );
-
+    const category = inferEvidenceCategory(evidence);
 
     return {
-
-        evidenceId:
-            evidence.evidenceId ||
-            `EVIDENCE-${String(index + 1).padStart(3, "0")}`,
-
-        type:
-            evidence.type ||
-            "UNKNOWN",
-
+        ...evidence,
         category,
-
-        severity:
-            normalizeValue(
-                evidence.severity
-            ) || "LOW",
-
-        status,
-
-        description:
-            evidence.description ||
-            "Evidence associated with the incident.",
-
-        timestamp:
-            evidence.timestamp ||
-            null,
-
-        telemetryId:
-            evidence.telemetryId ||
-            null
-
+        status: normalizeStatus(evidence?.status),
+        timestamp: evidence?.timestamp || null,
+        type: evidence?.type || `${category} Evidence`,
+        description: evidence?.description || "Evidence associated with the incident."
     };
-
 }
 
 
 /* =========================================================
-   GET EXPECTED CATEGORIES
+   EXPECTED / PRESENT / MISSING CATEGORIES
 ========================================================= */
 
-function getExpectedCategories(
-    incidentType
-) {
+function getExpectedCategories(incident) {
 
-    const normalizedType =
-        normalizeValue(
-            incidentType
-        );
+    const incidentType = normalizeValue(incident?.incidentType);
 
-
-    if (
-        INCIDENT_EVIDENCE_REQUIREMENTS[
-            normalizedType
-        ]
-    ) {
-
-        return [
-            ...INCIDENT_EVIDENCE_REQUIREMENTS[
-                normalizedType
-            ]
-        ];
-
-    }
-
-
-    return [
+    return INCIDENT_EVIDENCE_REQUIREMENTS[incidentType] || [
         "AUTHENTICATION",
         "PROCESS",
         "NETWORK"
     ];
-
 }
 
 
-/* =========================================================
-   GET PRESENT CATEGORIES
-========================================================= */
-
-function getPresentCategories(
-    evidence
-) {
-
-    const present =
-        new Set();
-
-
-    evidence.forEach(
-        item => {
-
-            if (
-                item.status !==
-                "SUPPORTING"
-            ) {
-
-                return;
-
-            }
-
-
-            if (
-                Object.prototype.hasOwnProperty.call(
-                    EVIDENCE_TAXONOMY,
-                    item.category
-                )
-            ) {
-
-                present.add(
-                    item.category
-                );
-
-            }
-
-        }
-    );
-
+function getPresentCategories(evidence) {
 
     return [
-        ...present
+        ...new Set(
+            evidence
+                .filter(item => normalizeStatus(item?.status) === "SUPPORTING")
+                .map(item => inferEvidenceCategory(item))
+                .filter(category => category !== "OTHER")
+        )
     ];
-
 }
 
 
-/* =========================================================
-   GET MISSING CATEGORIES
-========================================================= */
+function getMissingCategories(expectedCategories, presentCategories) {
 
-function getMissingCategories(
-    expectedCategories,
-    presentCategories
-) {
+    const present = new Set(presentCategories || []);
 
-    const present =
-        new Set(
-            presentCategories
-        );
-
-
-    return expectedCategories.filter(
-        category =>
-            !present.has(
-                category
-            )
+    return (expectedCategories || []).filter(
+        category => !present.has(category)
     );
-
 }
 
 
-/* =========================================================
-   BUILD MISSING EVIDENCE
-========================================================= */
+function calculateSufficiency(expectedCategories, presentCategories) {
 
-function buildMissingEvidence(
-    missingCategories
-) {
-
-    return missingCategories.map(
-        category => {
-
-            const definition =
-                EVIDENCE_TAXONOMY[
-                    category
-                ];
-
-
-            return {
-
-                category,
-
-                label:
-                    definition?.label ||
-                    category,
-
-                description:
-                    definition?.description ||
-                    "Additional evidence may improve investigation confidence."
-
-            };
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   CALCULATE SUFFICIENCY
-========================================================= */
-
-function calculateSufficiency(
-    expectedCategories,
-    presentCategories
-) {
-
-    if (!expectedCategories.length) {
-        return 100;
-    }
-
-
-    const present =
-        new Set(
-            presentCategories
-        );
-
-
-    const covered =
-        expectedCategories.filter(
-            category =>
-                present.has(
-                    category
-                )
-        ).length;
-
+    if (!expectedCategories.length) return 100;
 
     return Math.round(
-        (
-            covered /
-            expectedCategories.length
-        ) * 100
+        (presentCategories.length / expectedCategories.length) * 100
     );
-
 }
 
 
@@ -576,81 +204,30 @@ function calculateSufficiency(
    BUILD SUMMARY
 ========================================================= */
 
-function buildSummary(
-    incident,
-    evidence
-) {
+function buildSummary(incident, evidence) {
 
-    const expectedCategories =
-        getExpectedCategories(
-            incident.incidentType
-        );
+    const expectedCategories = getExpectedCategories(incident);
+    const presentCategories = getPresentCategories(evidence);
+    const missingCategories = getMissingCategories(
+        expectedCategories,
+        presentCategories
+    );
 
-
-    const presentCategories =
-        getPresentCategories(
-            evidence
-        );
-
-
-    const missingCategories =
-        getMissingCategories(
-            expectedCategories,
-            presentCategories
-        );
-
-
-    const supportingEvidence =
-        evidence.filter(
-            item =>
-                item.status ===
-                "SUPPORTING"
-        );
-
-
-    const sufficiency =
-        calculateSufficiency(
-            expectedCategories,
-            presentCategories
-        );
-
+    const supportingEvidence = evidence.filter(
+        item => normalizeStatus(item?.status) === "SUPPORTING"
+    );
 
     return {
-
-        incidentId:
-            incident.incidentId,
-
-        incidentType:
-            incident.incidentType,
-
-        supportingCount:
-            supportingEvidence.length,
-
-        missingCount:
-            missingCategories.length,
-
-        sufficiency,
-
-        currentState:
-            incident.currentState,
-
-        riskScore:
-            incident.riskScore ?? 0,
-
-        riskLevel:
-            incident.riskLevel || "LOW",
-
-        confidence:
-            incident.confidence ?? 0,
-
+        supportingEvidence: supportingEvidence.length,
+        missingEvidence: missingCategories.length,
+        sufficiency: calculateSufficiency(
+            expectedCategories,
+            presentCategories
+        ),
         expectedCategories,
-
         presentCategories,
-
         missingCategories
-
     };
-
 }
 
 
@@ -658,69 +235,30 @@ function buildSummary(
    BUILD DETAILS
 ========================================================= */
 
-function buildDetails(
-    evidence
-) {
+function buildDetails(evidence) {
 
-    const categories =
-        Object.keys(
-            EVIDENCE_TAXONOMY
+    return Object.keys(EVIDENCE_TAXONOMY).map(category => {
+
+        const records = evidence.filter(
+            item => inferEvidenceCategory(item) === category
         );
 
+        const supporting = records.filter(
+            item => normalizeStatus(item?.status) === "SUPPORTING"
+        );
 
-    return categories.map(
-        category => {
+        const latest = records[records.length - 1];
 
-            const records =
-                evidence.filter(
-                    item =>
-                        item.category ===
-                        category
-                );
-
-
-            const supporting =
-                records.filter(
-                    item =>
-                        item.status ===
-                        "SUPPORTING"
-                );
-
-
-            const latest =
-                records[
-                    records.length - 1
-                ];
-
-
-            return {
-
-                category,
-
-                label:
-                    EVIDENCE_TAXONOMY[
-                        category
-                    ].label,
-
-                description:
-                    latest?.description ||
-                    EVIDENCE_TAXONOMY[
-                        category
-                    ].description,
-
-                status:
-                    supporting.length
-                        ? "SUPPORTING"
-                        : "MISSING",
-
-                evidence:
-                    records
-
-            };
-
-        }
-    );
-
+        return {
+            category,
+            label: EVIDENCE_TAXONOMY[category].label,
+            description:
+                latest?.description ||
+                EVIDENCE_TAXONOMY[category].description,
+            status: supporting.length ? "SUPPORTING" : "MISSING",
+            evidence: records
+        };
+    });
 }
 
 
@@ -728,103 +266,38 @@ function buildDetails(
    BUILD TIMELINE
 ========================================================= */
 
-function buildTimeline(
-    incident,
-    evidence
-) {
+function buildTimeline(incident, evidence) {
 
-    const timeline =
-        Array.isArray(
-            incident.timeline
-        )
-            ? incident.timeline.map(
-                event => ({
-                    time:
-                        event.time ||
-                        null,
+    const timeline = Array.isArray(incident.timeline)
+        ? incident.timeline.map(event => ({
+            time: event.time || null,
+            title: event.title || "Evidence Event",
+            description: event.description || ""
+        }))
+        : [];
 
-                    title:
-                        event.title ||
-                        "Evidence Event",
+    evidence.forEach(item => {
 
-                    description:
-                        event.description ||
-                        ""
-                })
-            )
-            : [];
+        if (!item.timestamp) return;
 
+        const alreadyExists = timeline.some(event => {
+            const sameTime = new Date(event.time).getTime() === new Date(item.timestamp).getTime();
+            const sameDescription = event.description === item.description;
+            return sameTime && sameDescription;
+        });
 
-    evidence.forEach(
-        item => {
+        if (alreadyExists) return;
 
-            if (!item.timestamp) {
-                return;
-            }
-
-
-            const alreadyExists =
-                timeline.some(
-                    event => {
-
-                        const sameTime =
-                            new Date(
-                                event.time
-                            ).getTime() ===
-                            new Date(
-                                item.timestamp
-                            ).getTime();
-
-
-                        const sameDescription =
-                            event.description ===
-                            item.description;
-
-
-                        return (
-                            sameTime &&
-                            sameDescription
-                        );
-
-                    }
-                );
-
-
-            if (alreadyExists) {
-                return;
-            }
-
-
-            timeline.push({
-
-                time:
-                    item.timestamp,
-
-                title:
-                    item.type ||
-                    `${item.category} Evidence`,
-
-                description:
-                    item.description ||
-                    "Evidence associated with the incident."
-
-            });
-
-        }
-    );
-
+        timeline.push({
+            time: item.timestamp,
+            title: item.type || `${item.category} Evidence`,
+            description: item.description || "Evidence associated with the incident."
+        });
+    });
 
     return timeline
-        .filter(
-            event =>
-                event.time
-        )
-        .sort(
-            (a, b) =>
-                new Date(a.time) -
-                new Date(b.time)
-        );
-
+        .filter(event => event.time)
+        .sort((a, b) => new Date(a.time) - new Date(b.time));
 }
 
 
@@ -832,35 +305,17 @@ function buildTimeline(
    GET INCIDENT
 ========================================================= */
 
-async function getIncident(
-    incidentId
-) {
+async function getIncident(incidentId) {
 
-    const incident =
-        await IncidentTwin
-            .findOne({
-                incidentId
-            })
-            .lean();
-
+    const incident = await IncidentTwin.findOne({ incidentId }).lean();
 
     if (!incident) {
-
-        const error =
-            new Error(
-                "Incident not found"
-            );
-
-        error.statusCode =
-            404;
-
+        const error = new Error("Incident not found");
+        error.statusCode = 404;
         throw error;
-
     }
 
-
     return incident;
-
 }
 
 
@@ -868,102 +323,38 @@ async function getIncident(
    GET COMPLETE INVESTIGATION
 ========================================================= */
 
-async function getInvestigation(
-    incidentId
-) {
+async function getInvestigation(incidentId) {
 
-    const incident =
-        await getIncident(
-            incidentId
-        );
+    const incident = await getIncident(incidentId);
 
+    const evidence = (
+        Array.isArray(incident.evidence) ? incident.evidence : []
+    ).map(normalizeEvidence);
 
-    const evidence =
-        (
-            Array.isArray(
-                incident.evidence
-            )
-                ? incident.evidence
-                : []
-        ).map(
-            normalizeEvidence
-        );
-
-
-    const summary =
-        buildSummary(
-            incident,
-            evidence
-        );
-
-
-    const details =
-        buildDetails(
-            evidence
-        );
-
-
-    const timeline =
-        buildTimeline(
-            incident,
-            evidence
-        );
-
-
-    const missingEvidence =
-        buildMissingEvidence(
-            summary.missingCategories
-        );
-
+    const summary = buildSummary(incident, evidence);
+    const details = buildDetails(evidence);
+    const timeline = buildTimeline(incident, evidence);
+    const missingEvidence = buildMissingEvidence(summary.missingCategories);
 
     return {
-
         incident: {
-
-            incidentId:
-                incident.incidentId,
-
-            incidentType:
-                incident.incidentType,
-
-            severity:
-                incident.severity,
-
-            currentState:
-                incident.currentState,
-
-            confidence:
-                incident.confidence,
-
-            riskScore:
-                incident.riskScore,
-
-            riskLevel:
-                incident.riskLevel,
-
-            endpointId:
-                incident.endpointId,
-
-            endpointHostname:
-                incident.endpointHostname,
-
-            endpointState:
-                incident.endpointState
-
+            incidentId: incident.incidentId,
+            incidentType: incident.incidentType,
+            severity: incident.severity,
+            currentState: incident.currentState,
+            confidence: incident.confidence,
+            riskScore: incident.riskScore,
+            riskLevel: incident.riskLevel,
+            endpointId: incident.endpointId,
+            endpointHostname: incident.endpointHostname,
+            endpointState: incident.endpointState
         },
-
         summary,
-
         evidence,
-
         details,
-
         timeline,
-
         missingEvidence
-
     };
-
 }
 
 
@@ -971,33 +362,15 @@ async function getInvestigation(
    GET SUMMARY
 ========================================================= */
 
-async function getSummary(
-    incidentId
-) {
+async function getSummary(incidentId) {
 
-    const incident =
-        await getIncident(
-            incidentId
-        );
+    const incident = await getIncident(incidentId);
 
+    const evidence = (
+        Array.isArray(incident.evidence) ? incident.evidence : []
+    ).map(normalizeEvidence);
 
-    const evidence =
-        (
-            Array.isArray(
-                incident.evidence
-            )
-                ? incident.evidence
-                : []
-        ).map(
-            normalizeEvidence
-        );
-
-
-    return buildSummary(
-        incident,
-        evidence
-    );
-
+    return buildSummary(incident, evidence);
 }
 
 
@@ -1005,32 +378,15 @@ async function getSummary(
    GET DETAILS
 ========================================================= */
 
-async function getDetails(
-    incidentId
-) {
+async function getDetails(incidentId) {
 
-    const incident =
-        await getIncident(
-            incidentId
-        );
+    const incident = await getIncident(incidentId);
 
+    const evidence = (
+        Array.isArray(incident.evidence) ? incident.evidence : []
+    ).map(normalizeEvidence);
 
-    const evidence =
-        (
-            Array.isArray(
-                incident.evidence
-            )
-                ? incident.evidence
-                : []
-        ).map(
-            normalizeEvidence
-        );
-
-
-    return buildDetails(
-        evidence
-    );
-
+    return buildDetails(evidence);
 }
 
 
@@ -1038,33 +394,15 @@ async function getDetails(
    GET TIMELINE
 ========================================================= */
 
-async function getTimeline(
-    incidentId
-) {
+async function getTimeline(incidentId) {
 
-    const incident =
-        await getIncident(
-            incidentId
-        );
+    const incident = await getIncident(incidentId);
 
+    const evidence = (
+        Array.isArray(incident.evidence) ? incident.evidence : []
+    ).map(normalizeEvidence);
 
-    const evidence =
-        (
-            Array.isArray(
-                incident.evidence
-            )
-                ? incident.evidence
-                : []
-        ).map(
-            normalizeEvidence
-        );
-
-
-    return buildTimeline(
-        incident,
-        evidence
-    );
-
+    return buildTimeline(incident, evidence);
 }
 
 
@@ -1072,20 +410,74 @@ async function getTimeline(
    GET MISSING EVIDENCE
 ========================================================= */
 
-async function getMissing(
-    incidentId
-) {
+async function getMissing(incidentId) {
 
-    const summary =
-        await getSummary(
-            incidentId
-        );
+    const summary = await getSummary(incidentId);
+
+    return buildMissingEvidence(summary.missingCategories);
+}
 
 
-    return buildMissingEvidence(
-        summary.missingCategories
+/* =========================================================
+   BUILD MISSING EVIDENCE
+========================================================= */
+
+function buildMissingEvidence(missingCategories = []) {
+
+    return missingCategories.map(category => ({
+        category,
+        label: EVIDENCE_TAXONOMY[category]?.label || `${category} Evidence`,
+        description:
+            EVIDENCE_TAXONOMY[category]?.description ||
+            "Additional evidence may improve investigation confidence."
+    }));
+}
+
+
+/* =========================================================
+   REQUEST EVIDENCE
+========================================================= */
+
+async function requestEvidence(incidentId, category) {
+
+    const incident = await getIncident(incidentId);
+    const normalizedCategory = normalizeValue(category);
+
+    if (!EVIDENCE_TAXONOMY[normalizedCategory]) {
+        const error = new Error("Unsupported evidence category");
+        error.statusCode = 400;
+        throw error;
+    }
+
+    const expectedCategories = getExpectedCategories(incident);
+
+    if (!expectedCategories.includes(normalizedCategory)) {
+        const error = new Error("Evidence category is not required for this incident");
+        error.statusCode = 400;
+        throw error;
+    }
+
+    const requestedAt = new Date();
+
+    await IncidentTwin.updateOne(
+        { incidentId },
+        {
+            $push: {
+                timeline: {
+                    time: requestedAt,
+                    title: "Evidence Requested",
+                    description: `${EVIDENCE_TAXONOMY[normalizedCategory].label} requested for the investigation.`
+                }
+            }
+        }
     );
 
+    return {
+        incidentId,
+        category: normalizedCategory,
+        label: EVIDENCE_TAXONOMY[normalizedCategory].label,
+        requestedAt
+    };
 }
 
 
@@ -1094,39 +486,22 @@ async function getMissing(
 ========================================================= */
 
 module.exports = {
-
     EVIDENCE_TAXONOMY,
-
     INCIDENT_EVIDENCE_REQUIREMENTS,
-
     normalizeEvidence,
-
     inferEvidenceCategory,
-
     getExpectedCategories,
-
     getPresentCategories,
-
     getMissingCategories,
-
     calculateSufficiency,
-
     buildSummary,
-
     buildDetails,
-
     buildTimeline,
-
     buildMissingEvidence,
-
     getInvestigation,
-
     getSummary,
-
     getDetails,
-
     getTimeline,
-
-    getMissing
-
+    getMissing,
+    requestEvidence
 };
