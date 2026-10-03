@@ -5,39 +5,15 @@ const {
     simulateWhatIfController,
     getWhatIfIncidentsController
 } = require("../controllers/whatIfController");
-
+const {
+    recordWhatIfDecisionController
+} = require("../controllers/whatIfDecisionController");
 
 const router = express.Router();
 
-
-/* =========================================================
-   INCIDENT LIST
-   ========================================================= */
-
-router.get(
-    "/incidents",
-    getWhatIfIncidentsController
-);
-
-
-/* =========================================================
-   GET CURRENT WHAT-IF CONTEXT
-   ========================================================= */
-
-router.get(
-    "/",
-    getWhatIfContextController
-);
-
-
-/* =========================================================
-   RUN COUNTERFACTUAL SIMULATION
-   ========================================================= */
-
-router.post(
-    "/simulate",
-    simulateWhatIfController
-);
-
+router.get("/incidents", getWhatIfIncidentsController);
+router.get("/", getWhatIfContextController);
+router.post("/simulate", simulateWhatIfController);
+router.post("/decisions", recordWhatIfDecisionController);
 
 module.exports = router;
