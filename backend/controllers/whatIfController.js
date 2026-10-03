@@ -3,6 +3,11 @@ const {
     simulateWhatIf
 } = require("../services/whatIfService");
 
+const {
+    buildResponseScenarios,
+    simulateModeledResponse
+} = require("../services/whatIfResponseModel");
+
 const IncidentTwin =
     require("../models/IncidentTwin");
 
@@ -21,67 +26,61 @@ async function getWhatIfContextController(req, res) {
             attackType
         } = req.query;
 
-
         const context =
             await getWhatIfContext({
-
                 endpointId,
                 incidentId,
                 attackType
-
             });
 
-
         /*
-         * Only expose response actions that are relevant
-         * to the selected observed attack. The service still
-         * evaluates applicability, but NOT_APPLICABLE actions
-         * are removed from the What-If UI context so unrelated
-         * response cards do not clutter the page.
+         * Response actions are attack-driven. The existing
+         * service remains the source of actual incident,
+         * evidence, finding and risk data. When an observed
+         * attack is not covered by the older generic response
+         * catalogue, use the dedicated modeled response set.
          */
-        if (Array.isArray(context?.responseScenarios)) {
+        if (attackType) {
+            const modeled = buildResponseScenarios(
+                attackType,
+                context?.evidence || []
+            );
 
+            if (modeled.length) {
+                context.responseScenarios = modeled;
+            } else if (Array.isArray(context?.responseScenarios)) {
+                context.responseScenarios =
+                    context.responseScenarios.filter(
+                        scenario =>
+                            scenario?.status !== "NOT_APPLICABLE"
+                    );
+            }
+        } else if (Array.isArray(context?.responseScenarios)) {
             context.responseScenarios =
                 context.responseScenarios.filter(
                     scenario =>
                         scenario?.status !== "NOT_APPLICABLE"
                 );
-
         }
 
-
         return res.status(200).json({
-
             success: true,
-
             data: context
-
         });
 
-    }
-
-    catch (error) {
+    } catch (error) {
 
         console.error(
             "[What-If] Context error:",
             error
         );
 
-
         return res.status(500).json({
-
             success: false,
-
-            message:
-                "Failed to load What-If context.",
-
-            error:
-                error.message
-
+            message: "Failed to load What-If context.",
+            error: error.message
         });
-
     }
-
 }
 
 
@@ -100,70 +99,76 @@ async function simulateWhatIfController(req, res) {
             action
         } = req.body;
 
-
         if (!action) {
-
             return res.status(400).json({
-
                 success: false,
-
-                message:
-                    "Simulation action is required."
-
+                message: "Simulation action is required."
             });
-
         }
 
+        /*
+         * Attack-driven modeled responses are simulated here
+         * without changing MongoDB or the Endpoint Twin.
+         */
+        const modeledContext =
+            await getWhatIfContext({
+                endpointId,
+                incidentId,
+                attackType
+            });
+
+        const modeledScenarios =
+            buildResponseScenarios(
+                attackType,
+                modeledContext?.evidence || []
+            );
+
+        if (modeledScenarios.some(scenario => scenario.action === action)) {
+            const result = await simulateModeledResponse({
+                context: modeledContext,
+                attackType,
+                action
+            });
+
+            return res.status(200).json({
+                success: true,
+                data: result
+            });
+        }
 
         const result =
             await simulateWhatIf({
-
                 endpointId,
                 incidentId,
                 attackType,
                 action
-
             });
 
-
         return res.status(200).json({
-
             success: true,
-
             data: result
-
         });
 
-    }
-
-    catch (error) {
+    } catch (error) {
 
         console.error(
             "[What-If] Simulation error:",
             error
         );
 
-
         const statusCode =
             error.statusCode || 500;
 
-
         return res.status(statusCode).json({
-
             success: false,
-
             message:
                 error.message ||
                 "Failed to run What-If simulation.",
-
-            error:
-                error.message
-
+            error: error.message
         });
-
     }
-
 }
+
 
 /* =========================================================
    GET INCIDENT LIST
@@ -197,39 +202,24 @@ async function getWhatIfIncidentsController(
                 })
                 .lean();
 
-
         return res.status(200).json({
-
             success: true,
-
             data: incidents
-
         });
 
-    }
-
-    catch (error) {
+    } catch (error) {
 
         console.error(
             "[What-If] Incident list error:",
             error
         );
 
-
         return res.status(500).json({
-
             success: false,
-
-            message:
-                "Failed to load incidents.",
-
-            error:
-                error.message
-
+            message: "Failed to load incidents.",
+            error: error.message
         });
-
     }
-
 }
 
 
@@ -238,11 +228,7 @@ async function getWhatIfIncidentsController(
    ========================================================= */
 
 module.exports = {
-
     getWhatIfContextController,
-
     simulateWhatIfController,
-
     getWhatIfIncidentsController
-
 };
