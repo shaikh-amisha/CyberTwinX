@@ -130,15 +130,15 @@ async function buildInvestigationContext(
      * Full endpoint telemetry is deliberately excluded.
      */
     const incidentEvidence = Array.isArray(incident.evidence)
-        ? incident.evidence.slice(-20)
+        ? incident.evidence.slice(-10)
         : [];
 
     const incidentTimeline = Array.isArray(incident.timeline)
-        ? incident.timeline.slice(-20)
+        ? incident.timeline.slice(-10)
         : [];
 
     const incidentLifecycle = Array.isArray(incident.lifecycle)
-        ? incident.lifecycle.slice(-10)
+        ? incident.lifecycle.slice(-5)
         : [];
 
     const investigation = evidenceInvestigation || {};
@@ -146,7 +146,7 @@ async function buildInvestigationContext(
     const evidenceSummary = investigation.summary || {};
     const evidenceDetails = investigation.details || {};
     const evidenceTimeline = Array.isArray(investigation.timeline)
-        ? investigation.timeline.slice(-20)
+        ? investigation.timeline.slice(-10)
         : [];
     const missingEvidence = Array.isArray(investigation.missingEvidence)
         ? investigation.missingEvidence
@@ -155,11 +155,11 @@ async function buildInvestigationContext(
             : [];
 
     const supportingEvidence = Array.isArray(investigation.supportingEvidence)
-        ? investigation.supportingEvidence.slice(-20)
+        ? investigation.supportingEvidence.slice(-10)
         : [];
 
     const contradictingEvidence = Array.isArray(investigation.contradictingEvidence)
-        ? investigation.contradictingEvidence.slice(-20)
+        ? investigation.contradictingEvidence.slice(-10)
         : [];
 
     return {
@@ -341,7 +341,10 @@ async function askMistral(
                             options: {
 
                                 temperature:
-                                    0.2
+                                    0.2,
+
+                                num_predict:
+                                    350
 
                             }
 
