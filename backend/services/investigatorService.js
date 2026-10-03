@@ -101,6 +101,30 @@ async function findEndpoint(
    BUILD INVESTIGATION CONTEXT
    ========================================================= */
 
+function compactEvidence(item) {
+    if (!item) return null;
+
+    return {
+        evidenceId: item.evidenceId || "",
+        type: item.type || "",
+        category: item.category || "",
+        severity: item.severity || "",
+        status: item.status || "",
+        description: String(item.description || "").slice(0, 240),
+        timestamp: item.timestamp || null
+    };
+}
+
+function compactTimelineEvent(event) {
+    if (!event) return null;
+
+    return {
+        time: event.time || null,
+        title: event.title || "",
+        description: String(event.description || "").slice(0, 240)
+    };
+}
+
 async function buildInvestigationContext(
     incidentId
 ) {
@@ -126,40 +150,56 @@ async function buildInvestigationContext(
 
     /*
      * Keep the local-model context intentionally small.
-     * The Investigator is limited to Incident Twin and Evidence Investigation.
-     * Full endpoint telemetry is deliberately excluded.
+     * Only investigation-relevant fields are sent to the model.
+     * Full endpoint telemetry and raw evidence objects are excluded.
      */
     const incidentEvidence = Array.isArray(incident.evidence)
-        ? incident.evidence.slice(-10)
+        ? incident.evidence.slice(-6).map(compactEvidence)
         : [];
 
     const incidentTimeline = Array.isArray(incident.timeline)
-        ? incident.timeline.slice(-10)
+        ? incident.timeline.slice(-6).map(compactTimelineEvent)
         : [];
 
     const incidentLifecycle = Array.isArray(incident.lifecycle)
-        ? incident.lifecycle.slice(-5)
+        ? incident.lifecycle.slice(-4).map(compactTimelineEvent)
         : [];
 
     const investigation = evidenceInvestigation || {};
-
     const evidenceSummary = investigation.summary || {};
-    const evidenceDetails = investigation.details || {};
-    const evidenceTimeline = Array.isArray(investigation.timeline)
-        ? investigation.timeline.slice(-10)
+
+    const compactDetails = Array.isArray(investigation.details)
+        ? investigation.details.map(detail => ({
+            category: detail.category || "",
+            label: detail.label || "",
+            status: detail.status || "MISSING"
+        }))
         : [];
+
+    const evidenceTimeline = Array.isArray(investigation.timeline)
+        ? investigation.timeline.slice(-6).map(compactTimelineEvent)
+        : [];
+
     const missingEvidence = Array.isArray(investigation.missingEvidence)
-        ? investigation.missingEvidence
+        ? investigation.missingEvidence.map(item => ({
+            category: item.category || "",
+            label: item.label || "",
+            description: String(item.description || "").slice(0, 200)
+        }))
         : Array.isArray(investigation.missing)
-            ? investigation.missing
+            ? investigation.missing.map(item => ({
+                category: item.category || "",
+                label: item.label || "",
+                description: String(item.description || "").slice(0, 200)
+            }))
             : [];
 
     const supportingEvidence = Array.isArray(investigation.supportingEvidence)
-        ? investigation.supportingEvidence.slice(-10)
+        ? investigation.supportingEvidence.slice(-6).map(compactEvidence)
         : [];
 
     const contradictingEvidence = Array.isArray(investigation.contradictingEvidence)
-        ? investigation.contradictingEvidence.slice(-10)
+        ? investigation.contradictingEvidence.slice(-6).map(compactEvidence)
         : [];
 
     return {
@@ -182,8 +222,23 @@ async function buildInvestigationContext(
         incidentLifecycle,
 
         evidenceInvestigation: {
-            summary: evidenceSummary,
-            details: evidenceDetails,
+            summary: {
+                incidentType: evidenceSummary.incidentType,
+                detectedAttackTypes: Array.isArray(evidenceSummary.detectedAttackTypes)
+                    ? evidenceSummary.detectedAttackTypes
+                    : [],
+                supportingCount: evidenceSummary.supportingCount ?? 0,
+                missingCount: evidenceSummary.missingCount ?? 0,
+                sufficiency: evidenceSummary.sufficiency ?? 0,
+                currentState: evidenceSummary.currentState || "",
+                riskScore: evidenceSummary.riskScore ?? 0,
+                riskLevel: evidenceSummary.riskLevel || "",
+                confidence: evidenceSummary.confidence ?? 0,
+                expectedCategories: evidenceSummary.expectedCategories || [],
+                presentCategories: evidenceSummary.presentCategories || [],
+                missingCategories: evidenceSummary.missingCategories || []
+            },
+            details: compactDetails,
             supportingEvidence,
             contradictingEvidence,
             missingEvidence,
