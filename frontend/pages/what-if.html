@@ -13,85 +13,41 @@
     <aside class="sidebar">
         <div class="brand">
             <div class="brand-logo">CT</div>
-            <div class="brand-content">
-                <h1>CYBERTWIN</h1>
-                <span>Security Intelligence</span>
-            </div>
+            <div class="brand-content"><h1>CYBERTWIN</h1><span>Security Intelligence</span></div>
         </div>
         <nav class="sidebar-nav">
             <div class="nav-section">
                 <div class="nav-title">OVERVIEW</div>
-                <a href="./dashboard.html" class="nav-item">
-                    <span class="nav-icon"><i class="bi bi-grid-1x2-fill" aria-hidden="true"></i></span>
-                    <span>Dashboard</span>
-                </a>
+                <a href="./dashboard.html" class="nav-item"><span class="nav-icon"><i class="bi bi-grid-1x2-fill" aria-hidden="true"></i></span><span>Dashboard</span></a>
             </div>
             <div class="nav-section">
                 <div class="nav-title">INVESTIGATION</div>
-                <a href="./endpoint-twin.html" class="nav-item">
-                    <span class="nav-icon"><i class="bi bi-diagram-3-fill" aria-hidden="true"></i></span>
-                    <span>Endpoint Twin</span>
-                </a>
-                <a href="./incident-twin.html" class="nav-item">
-                    <span class="nav-icon"><i class="bi bi-shield-exclamation" aria-hidden="true"></i></span>
-                    <span>Incident Twin</span>
-                </a>
-                <a href="./evidence.html" class="nav-item">
-                    <span class="nav-icon"><i class="bi bi-file-earmark-text-fill" aria-hidden="true"></i></span>
-                    <span>Evidence Investigation</span>
-                </a>
-                <a href="./attack-path.html" class="nav-item">
-                    <span class="nav-icon"><i class="bi bi-diagram-2-fill" aria-hidden="true"></i></span>
-                    <span>Attack Path Analysis</span>
-                </a>
-                <a href="./ai-investigator.html" class="nav-item">
-                    <span class="nav-icon"><i class="bi bi-stars" aria-hidden="true"></i></span>
-                    <span>AI Investigator</span>
-                </a>
-                <a href="./what-if.html" class="nav-item active">
-                    <span class="nav-icon"><i class="bi bi-arrow-left-right" aria-hidden="true"></i></span>
-                    <span>What-If Analysis</span>
-                </a>
+                <a href="./endpoint-twin.html" class="nav-item"><span class="nav-icon"><i class="bi bi-diagram-3-fill" aria-hidden="true"></i></span><span>Endpoint Twin</span></a>
+                <a href="./incident-twin.html" class="nav-item"><span class="nav-icon"><i class="bi bi-shield-exclamation" aria-hidden="true"></i></span><span>Incident Twin</span></a>
+                <a href="./evidence.html" class="nav-item"><span class="nav-icon"><i class="bi bi-file-earmark-text-fill" aria-hidden="true"></i></span><span>Evidence Investigation</span></a>
+                <a href="./attack-path.html" class="nav-item"><span class="nav-icon"><i class="bi bi-diagram-2-fill" aria-hidden="true"></i></span><span>Attack Path Analysis</span></a>
+                <a href="./ai-investigator.html" class="nav-item"><span class="nav-icon"><i class="bi bi-stars" aria-hidden="true"></i></span><span>AI Investigator</span></a>
+                <a href="./what-if.html" class="nav-item active"><span class="nav-icon"><i class="bi bi-arrow-left-right" aria-hidden="true"></i></span><span>What-If Analysis</span></a>
             </div>
             <div class="nav-section">
                 <div class="nav-title">INTEGRITY</div>
-                <a href="./blockchain.html" class="nav-item">
-                    <span class="nav-icon"><i class="bi bi-link-45deg" aria-hidden="true"></i></span>
-                    <span>Blockchain Integrity</span>
-                </a>
+                <a href="./blockchain.html" class="nav-item"><span class="nav-icon"><i class="bi bi-link-45deg" aria-hidden="true"></i></span><span>Blockchain Integrity</span></a>
             </div>
         </nav>
         <div class="sidebar-footer">
-            <div class="system-status">
-                <span class="status-dot"></span>
-                <span id="sidebarSystemStatus">SYSTEM ONLINE</span>
-            </div>
+            <div class="system-status"><span class="status-dot"></span><span id="sidebarSystemStatus">SYSTEM ONLINE</span></div>
             <div class="version">CyberTwin v1.0</div>
         </div>
     </aside>
 
     <main class="main-content">
-        <!-- Existing CyberTwinX topbar — intentionally unchanged -->
+        <!-- Existing CyberTwinX topbar — unchanged -->
         <header class="topbar">
-            <div class="topbar-item topbar-endpoint-item">
-                <span class="topbar-endpoint-dot"></span>
-                <span class="topbar-label">ENDPOINT</span>
-                <strong id="topbarEndpoint">—</strong>
-            </div>
+            <div class="topbar-item topbar-endpoint-item"><span class="topbar-endpoint-dot"></span><span class="topbar-label">ENDPOINT</span><strong id="topbarEndpoint">—</strong></div>
             <div class="topbar-divider"></div>
-            <div class="topbar-state-item">
-                <span class="topbar-label">STATE</span>
-                <span class="state-badge unknown" id="topbarState">UNKNOWN</span>
-            </div>
-            <div class="topbar-risk">
-                <span class="topbar-label">RISK</span>
-                <strong id="topbarRisk">0</strong>
-                <span>/100</span>
-            </div>
-            <div class="system-status">
-                <span class="status-dot"></span>
-                <span id="topbarSystemStatus">ONLINE</span>
-            </div>
+            <div class="topbar-state-item"><span class="topbar-label">STATE</span><span class="state-badge unknown" id="topbarState">UNKNOWN</span></div>
+            <div class="topbar-risk"><span class="topbar-label">RISK</span><strong id="topbarRisk">0</strong><span>/100</span></div>
+            <div class="system-status"><span class="status-dot"></span><span id="topbarSystemStatus">ONLINE</span></div>
         </header>
 
         <section class="page-content whatif-page">
@@ -101,84 +57,49 @@
                     <h2>What-If Analysis</h2>
                     <p>Model a response against an observed attack stage before applying anything to the endpoint.</p>
                 </div>
-                <div class="whatif-header-status">
-                    <span class="status-badge simulation">DRY-RUN SIMULATOR</span>
-                </div>
+                <div class="whatif-header-status"><span class="status-badge simulation">DRY-RUN SIMULATOR</span></div>
             </div>
 
             <section class="dashboard-section whatif-incident-section">
                 <div class="section-heading">
                     <span class="section-number">01</span>
-                    <div>
-                        <h3>Incident selector</h3>
-                        <p>Select the incident whose attack stages and evidence you want to simulate.</p>
-                    </div>
+                    <div><h3>Incident selector</h3><p>Select the incident whose attack stages and evidence you want to simulate.</p></div>
                 </div>
                 <div class="scope-control" id="incidentSelectorContainer">
                     <label>INCIDENT</label>
                     <div class="incident-selector" id="incidentSelector">
                         <div class="incident-selector-current" id="selectedIncidentLabel">Loading incidents...</div>
                         <span class="incident-selector-arrow"><i class="bi bi-chevron-down" aria-hidden="true"></i></span>
-                        <div class="incident-selector-panel" id="incidentSelectorPanel">
-                            <div class="incident-selector-empty">Loading incidents...</div>
-                        </div>
+                        <div class="incident-selector-panel" id="incidentSelectorPanel"><div class="incident-selector-empty">Loading incidents...</div></div>
                     </div>
                 </div>
             </section>
 
             <section class="dashboard-section whatif-stage-section">
                 <div class="whatif-card">
-                    <div class="card-heading">
-                        <div>
-                            <h3>Where would you have intervened?</h3>
-                            <p>Select one observed attack stage to reveal its evidence and relevant responses.</p>
-                        </div>
-                    </div>
-                    <div class="stage-timeline" id="stageTimeline">
-                        <div class="whatif-empty">Loading observed attack stages...</div>
-                    </div>
+                    <div class="card-heading"><div><h3>Where would you have intervened?</h3><p>Select one observed attack stage to reveal its evidence and relevant responses.</p></div></div>
+                    <div class="stage-timeline" id="stageTimeline"><div class="whatif-empty">Loading observed attack stages...</div></div>
                 </div>
             </section>
 
             <section class="whatif-two-column hidden-until-stage" id="stageDetails">
                 <article class="whatif-card">
-                    <div class="card-heading">
-                        <div>
-                            <h3>Evidence</h3>
-                            <p>Evidence connected to the selected attack stage.</p>
-                        </div>
-                    </div>
-                    <div class="evidence-summary">
-                        <div><span>Events</span><strong id="evidenceEventCount">0</strong></div>
-                        <div><span>Confidence</span><strong id="evidenceConfidence">0%</strong></div>
-                    </div>
-                    <ul class="evidence-list" id="evidenceList">
-                        <li class="whatif-empty">Select a stage.</li>
-                    </ul>
+                    <div class="card-heading"><div><h3>Evidence</h3><p>Evidence connected to the selected attack stage.</p></div></div>
+                    <div class="evidence-summary"><div><span>Events</span><strong id="evidenceEventCount">0</strong></div><div><span>Confidence</span><strong id="evidenceConfidence">0%</strong></div></div>
+                    <ul class="evidence-list" id="evidenceList"><li class="whatif-empty">Select a stage.</li></ul>
                     <p class="model-interpretation" id="modelInterpretation">Select a stage to inspect the supporting evidence.</p>
                 </article>
 
                 <article class="whatif-card">
-                    <div class="card-heading">
-                        <div>
-                            <h3>Response options</h3>
-                            <p>Only responses relevant to the selected attack stage are shown.</p>
-                        </div>
-                        <span class="modeled-badge hidden" id="modeledDataBadge">Modeled data</span>
-                    </div>
-                    <div class="response-options" id="responseOptions">
-                        <div class="whatif-empty">Resolving response options...</div>
-                    </div>
+                    <div class="card-heading"><div><h3>Response options</h3><p>Only responses relevant to the selected attack stage are shown.</p></div><span class="modeled-badge hidden" id="modeledDataBadge">Modeled data</span></div>
+                    <div class="response-options" id="responseOptions"><div class="whatif-empty">Resolving response options...</div></div>
                 </article>
             </section>
 
             <section class="hidden-until-stage" id="actionBarCard">
                 <div class="whatif-card">
                     <div class="action-bar">
-                        <div>
-                            <strong id="actionSelectionText">Choose a response</strong>
-                            <p>Simulation only. No endpoint action is performed.</p>
-                        </div>
+                        <div><strong id="actionSelectionText">Choose a response</strong><p>Simulation only. No endpoint action is performed.</p></div>
                         <div class="action-buttons">
                             <button type="button" class="primary-button" id="runSimulation">Run simulation</button>
                             <button type="button" class="secondary-button hidden" id="rejectResponse">Reject</button>
@@ -186,73 +107,34 @@
                         </div>
                     </div>
                     <div class="inline-error hidden" id="actionError"></div>
+                    <div class="decision-confirmation hidden" id="decisionConfirmation"></div>
                 </div>
             </section>
 
             <section class="hidden" id="resultsCard">
                 <div class="whatif-card">
-                    <div class="card-heading">
-                        <div>
-                            <h3>Result</h3>
-                            <p>Calculated counterfactual outcome for the selected attack and response.</p>
-                        </div>
-                    </div>
+                    <div class="card-heading"><div><h3>Result</h3><p>Calculated counterfactual outcome for the selected attack and response.</p></div></div>
                     <div class="result-metrics">
                         <div class="result-metric"><span>Risk change</span><strong id="riskChangeMetric">—</strong></div>
                         <div class="result-metric"><span>Attack paths</span><strong id="attackPathsMetric">—</strong></div>
                         <div class="result-metric"><span>Security state</span><strong id="securityStateMetric">—</strong></div>
                     </div>
                     <div class="path-comparison">
-                        <div class="path-panel">
-                            <div class="path-panel-title">Actual path</div>
-                            <ol id="actualPath"><li class="path-note">Observed path will appear here.</li></ol>
-                        </div>
-                        <div class="path-panel whatif-path-panel">
-                            <div class="path-panel-title">What-if path</div>
-                            <ol id="whatIfPath"><li class="path-note">Run the simulation to see the modeled path.</li></ol>
-                        </div>
+                        <div class="path-panel"><div class="path-panel-title">Actual path</div><ol id="actualPath"><li class="path-note">Observed path will appear here.</li></ol></div>
+                        <div class="path-panel whatif-path-panel"><div class="path-panel-title">What-if path</div><ol id="whatIfPath"><li class="path-note">Run the simulation to see the modeled path.</li></ol></div>
                     </div>
-                    <div class="result-reading">
-                        <div><span>What changes</span><p id="whatChanges">—</p></div>
-                        <div><span>What remains</span><p id="whatRemains">—</p></div>
-                    </div>
-                </div>
-            </section>
-
-            <section class="hidden" id="decisionSection">
-                <div class="whatif-card">
-                    <div class="card-heading">
-                        <div>
-                            <h3>Decision</h3>
-                            <p>Approve or reject the modeled response. This does not execute an endpoint action.</p>
-                        </div>
-                    </div>
-                    <div class="action-bar">
-                        <div>
-                            <strong id="decisionSelectionText">Simulation complete</strong>
-                            <p>Record the analyst decision for this dry run.</p>
-                        </div>
-                        <div class="decision-actions">
-                            <button type="button" class="secondary-button" id="decisionReject">Reject</button>
-                            <button type="button" class="primary-button" id="decisionApprove">Approve</button>
-                        </div>
-                    </div>
-                    <div class="decision-confirmation hidden" id="decisionConfirmation"></div>
+                    <div class="result-reading"><div><span>What changes</span><p id="whatChanges">—</p></div><div><span>What remains</span><p id="whatRemains">—</p></div></div>
                 </div>
             </section>
 
             <div class="whatif-state-message hidden" id="stateMessage">
                 <div class="state-message-icon"><i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i></div>
-                <div>
-                    <strong>Unable to load What-If analysis</strong>
-                    <p id="stateMessageText">Couldn't load incident data.</p>
-                </div>
+                <div><strong>Unable to load What-If analysis</strong><p id="stateMessageText">Couldn't load incident data.</p></div>
                 <button type="button" class="secondary-button" id="retryWhatIf">Retry</button>
             </div>
         </section>
     </main>
 </div>
-
 <script src="../js/what-if.js"></script>
 <script src="../js/topbar.js"></script>
 </body>
