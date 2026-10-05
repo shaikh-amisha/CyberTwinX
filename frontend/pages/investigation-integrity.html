@@ -137,29 +137,44 @@
                 </div>
             </div>
 
-            <!-- 01 MERKLE ROOT HISTORY -->
-            <!-- 01 MERKLE ROOT HISTORY -->
+            <!-- 01 INTEGRITY VERIFICATION -->
             <section class="dashboard-section">
                 <div class="section-heading">
-                    <span class="section-number">02</span>
+                    <span class="section-number">01</span>
                     <div>
-                        <h3>Merkle Root History</h3>
-                        <p>Review previous integrity states of the evidence set and inspect their blockchain anchors.</p>
+                        <h3>Integrity Verification</h3>
+                        <p>Traverse the blockchain anchor, compare the Merkle Root and determine whether the selected evidence remains intact.</p>
                     </div>
                 </div>
 
-                <article class="dashboard-card root-history-card root-history-summary-card">
-                    <div class="root-history-summary-main">
-                        <div class="root-history-summary-copy">
-                            <span class="card-label">CURRENT ROOT STATE</span>
-                            <strong class="root-history-current-root" id="rootHistoryCurrentRoot">—</strong>
-                            <span class="root-history-summary-sub" id="rootHistorySummarySub">Loading current root state...</span>
+                <article class="dashboard-card verification-card">
+                    <div class="verification-layout">
+
+                        <div class="verification-path-panel">
+                            <div class="verification-panel-header">
+                                <div>
+                                    <span class="card-label">VERIFICATION PATH</span>
+                                    <span class="verification-subtitle">Each stage is evaluated against the anchored evidence state.</span>
+                                </div>
+                                <span class="verification-panel-state" id="verificationPanelState">READY</span>
+                            </div>
+
+                            <div class="verification-path-list" id="verificationPathList"></div>
                         </div>
-                        <div class="root-history-version-strip" id="rootHistoryVersionStrip" aria-label="Merkle Root versions"></div>
-                    </div>
-                    <div class="root-history-summary-footer">
-                        <span><i class="bi bi-clock-history"></i> <span id="rootHistoryVersionCount">0 registered root versions</span></span>
-                        <button class="integrity-detail-button" id="viewRootHistoryButton" type="button"><span>View Root History</span><i class="bi bi-arrow-up-right"></i></button>
+
+                        <div class="verification-action-panel">
+                            <div class="verification-current-result" id="verificationCurrentResult" data-status="IDLE">
+                                <span class="verification-current-label">CURRENT RESULT</span>
+                                <strong id="verificationCurrentTitle">READY TO VERIFY</strong>
+                                <p id="verificationCurrentText">Run the integrity check to compare the reconstructed Merkle Root with the root anchored on-chain for the current evidence set.</p>
+                            </div>
+
+                            <button class="verify-integrity-button" id="verifyIntegrityButton" type="button">
+                                <i class="bi bi-shield-check"></i>
+                                <span>Verify Integrity</span>
+                            </button>
+                        </div>
+
                     </div>
                 </article>
             </section>
