@@ -3341,3 +3341,85 @@ body.integrity-modal-open {
         min-width: 620px;
     }
 }
+
+
+/* =========================================================
+   INTEGRITY MODAL — BLOCK HOVER INTERACTIONS
+   ========================================================= */
+
+.integrity-modal-stage,
+.integrity-modal-evidence-item,
+.integrity-merkle-node,
+.integrity-modal-check,
+.integrity-modal-root-row,
+.integrity-modal-analysis,
+.integrity-modal-detail-section {
+    transition:
+        transform 180ms ease,
+        border-color 180ms ease,
+        background 180ms ease,
+        box-shadow 180ms ease,
+        filter 180ms ease;
+}
+
+.integrity-modal-stage:hover,
+.integrity-modal-evidence-item:hover,
+.integrity-merkle-node:hover,
+.integrity-modal-check:hover {
+    transform: translateY(-3px);
+    border-color: rgba(99,243,255,.48);
+    background: rgba(99,243,255,.07);
+    box-shadow:
+        0 9px 24px rgba(0,0,0,.24),
+        0 0 20px rgba(99,243,255,.08);
+}
+
+.integrity-modal-stage[data-status="VALID"]:hover,
+.integrity-modal-evidence-item[data-status="VALID"]:hover,
+.integrity-modal-check[data-status="VALID"]:hover,
+.integrity-merkle-node[data-status="VALID"]:hover {
+    border-color: rgba(83,245,155,.52);
+    background: rgba(83,245,155,.075);
+    box-shadow:
+        0 9px 24px rgba(0,0,0,.24),
+        0 0 20px rgba(83,245,155,.09);
+}
+
+.integrity-modal-stage[data-status="MISMATCH"]:hover,
+.integrity-modal-evidence-item[data-status="MISMATCH"]:hover,
+.integrity-modal-check[data-status="MISMATCH"]:hover,
+.integrity-merkle-node[data-status="MISMATCH"]:hover {
+    border-color: rgba(255,108,108,.58);
+    background: rgba(255,108,108,.075);
+    box-shadow:
+        0 9px 24px rgba(0,0,0,.24),
+        0 0 20px rgba(255,108,108,.09);
+}
+
+.integrity-modal-root-row:hover {
+    transform: translateY(-2px);
+    border-color: rgba(99,243,255,.48);
+    background: rgba(99,243,255,.065);
+    box-shadow:
+        0 8px 22px rgba(0,0,0,.2),
+        0 0 18px rgba(99,243,255,.07);
+}
+
+.integrity-modal-analysis:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255,200,90,.34);
+    background: rgba(255,200,90,.045);
+    box-shadow: 0 8px 22px rgba(0,0,0,.18);
+}
+
+.integrity-modal-detail-section:hover {
+    border-color: rgba(99,243,255,.2);
+    box-shadow: 0 7px 20px rgba(0,0,0,.14);
+}
+
+.integrity-modal-stage:hover > strong,
+.integrity-modal-evidence-item:hover strong,
+.integrity-modal-check:hover strong,
+.integrity-merkle-node:hover strong {
+    filter: brightness(1.18);
+}
