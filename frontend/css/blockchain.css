@@ -1636,3 +1636,87 @@
         animation: none;
     }
 }
+
+
+/* =========================================================
+   MERKLE TREE — VISIBLE BLOCK ZOOM EFFECT
+   Scoped only to the separate Merkle Tree visualization.
+   ========================================================= */
+
+.merkle-svg .merkle-evidence-node,
+.merkle-svg .merkle-parent-node,
+.merkle-svg .merkle-root-node {
+    transform-box: fill-box;
+    transform-origin: center;
+}
+
+.merkle-svg .merkle-evidence-node {
+    animation: merkleBlockZoom 3.6s ease-in-out infinite;
+}
+
+.merkle-svg .merkle-parent-node {
+    animation: merkleBlockZoom 3.6s ease-in-out infinite;
+}
+
+.merkle-svg .merkle-evidence-node:nth-of-type(1) { animation-delay: 0s; }
+.merkle-svg .merkle-evidence-node:nth-of-type(2) { animation-delay: 0.35s; }
+.merkle-svg .merkle-evidence-node:nth-of-type(3) { animation-delay: 0.7s; }
+.merkle-svg .merkle-evidence-node:nth-of-type(4) { animation-delay: 1.05s; }
+
+.merkle-svg .merkle-parent-node:nth-of-type(1) { animation-delay: 1.4s; }
+.merkle-svg .merkle-parent-node:nth-of-type(2) { animation-delay: 1.75s; }
+
+.merkle-svg .merkle-root-node {
+    animation: merkleRootZoom 3.8s ease-in-out infinite;
+}
+
+@keyframes merkleBlockZoom {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.075);
+    }
+}
+
+@keyframes merkleRootZoom {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.10);
+    }
+}
+
+.merkle-svg .merkle-evidence-node:hover,
+.merkle-svg .merkle-parent-node:hover {
+    animation-play-state: paused;
+    transform: scale(1.13);
+    filter: drop-shadow(0 0 12px rgba(34, 211, 238, 0.3));
+}
+
+.merkle-svg .merkle-root-node:hover {
+    animation-play-state: paused;
+    transform: scale(1.15);
+    filter: drop-shadow(0 0 18px rgba(34, 211, 238, 0.4));
+}
+
+.merkle-svg .merkle-node-label {
+    font-size: 9.5px;
+}
+
+.merkle-svg .merkle-node-text {
+    font-size: 10.5px;
+}
+
+.merkle-svg .merkle-root-text {
+    font-size: 12px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .merkle-svg .merkle-evidence-node,
+    .merkle-svg .merkle-parent-node,
+    .merkle-svg .merkle-root-node {
+        animation: none;
+    }
+}
