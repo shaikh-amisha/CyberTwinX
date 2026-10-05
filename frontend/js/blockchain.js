@@ -57,6 +57,7 @@ const elements = {
     evidenceHashList: document.getElementById("evidenceHashList"),
     merkleRootChip: document.getElementById("merkleRootChip"),
     merkleRootSvg: document.getElementById("merkleRootSvg"),
+    merkleSvg: document.querySelector(".merkle-svg"),
 
     anchorNetwork: document.getElementById("anchorNetwork"),
     anchorNetworkOutput: document.getElementById("anchorNetworkOutput"),
@@ -73,7 +74,10 @@ const elements = {
     verificationMessage: document.getElementById("verificationMessage"),
     verifyIntegrityButton: document.getElementById("verifyIntegrityButton"),
 
-    rootHistory: document.getElementById("rootHistory")
+    rootHistory: document.getElementById("rootHistory"),
+    verificationEvidenceStatus: document.getElementById("verificationEvidenceStatus"),
+    verificationProofStatus: document.getElementById("verificationProofStatus"),
+    verificationChainStatus: document.getElementById("verificationChainStatus")
 };
 
 function setText(element, value) {
@@ -444,7 +448,195 @@ function initializeHashCopyButtons() {
         });
 }
 
-function renderMerkleRoot() {
+function bytesToHex(buffer) {
+    return Array.from(new Uint8Array(buffer))
+        .map(byte => byte.toString(16).padStart(2, "0"))
+        .join("");
+}
+
+function hexToBytes(hex) {
+    const clean = String(hex || "").replace(/^0x/, "");
+    const bytes = new Uint8Array(clean.length / 2);
+
+    for (let index = 0; index < clean.length; index += 2) {
+        bytes[index / 2] = parseInt(clean.slice(index, index + 2), 16);
+    }
+
+    return bytes;
+}
+
+async function sha256HexBytes(bytes) {
+    const digest = await crypto.subtle.digest("SHA-256", bytes);
+    return bytesToHex(digest);
+}
+
+async function hashPairBrowser(left, right) {
+    const leftBytes = hexToBytes(left);
+    const rightBytes = hexToBytes(right);
+    const combined = new Uint8Array(
+        leftBytes.length + rightBytes.length
+    );
+
+    combined.set(leftBytes, 0);
+    combined.set(rightBytes, leftBytes.length);
+
+    return sha256HexBytes(combined);
+}
+
+async function buildMerkleLevelsBrowser(evidence) {
+    let currentLevel = evidence.map(item =>
+        String(item.hash || "").replace(/^0x/, "")
+    );
+
+    const levels = [currentLevel];
+
+    while (currentLevel.length > 1) {
+        const nextLevel = [];
+
+        for (let index = 0; index < currentLevel.length; index += 2) {
+            const left = currentLevel[index];
+            const right = currentLevel[index + 1] || left;
+
+            nextLevel.push(
+                await hashPairBrowser(left, right)
+            );
+        }
+
+        levels.push(nextLevel);
+        currentLevel = nextLevel;
+    }
+
+    return levels;
+}
+
+function createSvgNode(x, y, width, height, label, value, className) {
+    return `
+        <g class="merkle-${className}-node">
+            <rect class="merkle-node ${className}" x="${x}" y="${y}" width="${width}" height="${height}" rx="8"></rect>
+            <text class="merkle-node-label" x="${x + width / 2}" y="${y + 20}">${escapeHTML(label)}</text>
+            <text class="merkle-node-text" x="${x + width / 2}" y="${y + 40}">${escapeHTML(shortHash(value, 6, 4))}</text>
+        </g>
+    `;
+}
+
+async function renderMerkleTree() {
+    if (!elements.merkleSvg) return;
+
+    const evidence = blockchainState.evidence;
+
+    if (!evidence.length) {
+        elements.merkleSvg.innerHTML = "";
+        return;
+    }
+
+    const levels = await buildMerkleLevelsBrowser(evidence);
+    const svgWidth = 760;
+    const leafY = 45;
+    const levelGap = 95;
+    const nodeWidth = 120;
+    const nodeHeight = 50;
+
+    const positions = [];
+
+    for (let level = 0; level < levels.length; level++) {
+        const hashes = levels[level];
+        const y = leafY + level * levelGap;
+        const spacing = svgWidth / (hashes.length + 1);
+        const levelPositions = [];
+
+        for (let index = 0; index < hashes.length; index++) {
+            levelPositions.push({
+                x: spacing * (index + 1),
+                y
+            });
+        }
+
+        positions.push(levelPositions);
+    }
+
+    let markup = "";
+
+    for (let level = 0; level < positions.length - 1; level++) {
+        const current = positions[level];
+        const parent = positions[level + 1];
+
+        for (let index = 0; index < current.length; index++) {
+            const parentIndex = Math.floor(index / 2);
+            const child = current[index];
+            const parentNode = parent[parentIndex];
+
+            markup += `
+                <line
+                    class="merkle-line"
+                    x1="${child.x}"
+                    y1="${child.y + nodeHeight}"
+                    x2="${parentNode.x}"
+                    y2="${parentNode.y}"
+                ></line>
+            `;
+        }
+    }
+
+    const leafLabels = evidence.map(item => item.id);
+
+    for (let index = 0; index < positions[0].length; index++) {
+        const node = positions[0][index];
+        markup += createSvgNode(
+            node.x - nodeWidth / 2,
+            node.y,
+            nodeWidth,
+            nodeHeight,
+            leafLabels[index] || `EVID-${index + 1}`,
+            levels[0][index],
+            "evidence"
+        );
+    }
+
+    for (let level = 1; level < positions.length - 1; level++) {
+        for (let index = 0; index < positions[level].length; index++) {
+            const node = positions[level][index];
+
+            markup += createSvgNode(
+                node.x - nodeWidth / 2,
+                node.y,
+                nodeWidth,
+                nodeHeight,
+                `PARENT H${level}`,
+                levels[level][index],
+                "parent"
+            );
+        }
+    }
+
+    const rootLevel = positions[positions.length - 1];
+
+    if (rootLevel.length) {
+        const root = rootLevel[0];
+
+        markup += `
+            <g class="merkle-root-node">
+                <rect
+                    class="merkle-node root"
+                    x="${root.x - 85}"
+                    y="${root.y}"
+                    width="170"
+                    height="65"
+                    rx="10"
+                ></rect>
+                <text class="merkle-node-label" x="${root.x}" y="${root.y + 23}">
+                    MERKLE ROOT
+                </text>
+                <text class="merkle-root-text" x="${root.x}" y="${root.y + 49}">
+                    ${escapeHTML(shortHash(`0x${levels[levels.length - 1][0]}`, 8, 6))}
+                </text>
+            </g>
+        `;
+    }
+
+    elements.merkleSvg.innerHTML = markup;
+}
+
+async function renderMerkleRoot() {
     const root = blockchainState.integrity.merkleRoot;
     const short = shortHash(root, 8, 6);
 
@@ -457,6 +649,8 @@ function renderMerkleRoot() {
         elements.merkleRootSvg,
         root ? short : "—"
     );
+
+    await renderMerkleTree();
 }
 
 function renderAnchor() {
@@ -760,6 +954,21 @@ async function verifyIntegrity() {
                 ? "The evidence hashes, Merkle proofs and historical on-chain root are valid."
                 : "One or more evidence records, Merkle proofs or the anchored root failed verification."
         );
+
+        setText(
+            elements.verificationEvidenceStatus,
+            result.evidenceValid ? "VALID" : "MISMATCH"
+        );
+
+        setText(
+            elements.verificationProofStatus,
+            result.evidenceValid ? "VALID" : "MISMATCH"
+        );
+
+        setText(
+            elements.verificationChainStatus,
+            result.historicalRootValid ? "MATCH" : "MISMATCH"
+        );
     } catch (error) {
         console.error(
             "[CyberTwin] Integrity verification error:",
@@ -809,11 +1018,11 @@ function initializeNavigation() {
         });
 }
 
-function refreshBlockchainPage() {
+async function refreshBlockchainPage() {
     updateTopbar();
     renderOverview();
     renderEvidenceHashes();
-    renderMerkleRoot();
+    await renderMerkleRoot();
     renderAnchor();
     renderVerification();
     renderRootHistory();
