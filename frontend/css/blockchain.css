@@ -678,6 +678,39 @@
     margin-top: 16px;
 }
 
+.verification-root-pair {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.verification-root-pair > div {
+    padding: 8px 9px;
+    border: 1px solid rgba(75, 95, 110, 0.35);
+    border-radius: 6px;
+    background: rgba(3, 8, 13, 0.42);
+}
+
+.verification-root-pair span {
+    display: block;
+    color: #718292;
+    font-size: 7px;
+    font-weight: 800;
+    letter-spacing: 0.7px;
+    text-transform: uppercase;
+}
+
+.verification-root-pair strong {
+    display: block;
+    margin-top: 5px;
+    overflow: hidden;
+    color: #22d3ee;
+    font-size: 8px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 /* =========================================================
    ROOT HISTORY
    ========================================================= */
