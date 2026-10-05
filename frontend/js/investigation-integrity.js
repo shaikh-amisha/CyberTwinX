@@ -799,6 +799,7 @@ async function hashPairBrowser(leftHex, rightHex) {
     }
 
     const digest = await crypto.subtle.digest("SHA-256", bytes);
+
     return Array.from(new Uint8Array(digest))
         .map(byte => byte.toString(16).padStart(2, "0"))
         .join("");
@@ -831,14 +832,16 @@ async function buildBrowserMerkleLevels(evidence) {
     return levels;
 }
 
-function createModalMerkleNode(hash, label, status = "VALID") {
+function createForensicNode(hash, label, type, status = "VALID") {
     const node = document.createElement("div");
-    node.className = "integrity-merkle-node";
+    node.className = "forensic-merkle-node";
+    node.dataset.type = type;
     node.dataset.status = status;
 
     node.innerHTML = `
-        <span class="integrity-merkle-node-label">${escapeHTML(label)}</span>
-        <strong title="${escapeHTML(hash)}">${escapeHTML(shortHash(hash, 8, 6))}</strong>
+        <span class="forensic-node-label">${escapeHTML(label)}</span>
+        <strong title="${escapeHTML(hash)}">${escapeHTML(shortHash(hash, 10, 8))}</strong>
+        <small>${status === "VALID" ? "✓ VERIFIED" : "⚠ MISMATCH"}</small>
     `;
 
     return node;
@@ -855,7 +858,7 @@ async function renderModalMerkleTree(result) {
     const levels = await buildBrowserMerkleLevels(result.evidence);
 
     if (!levels.length) {
-        container.innerHTML = '<div class="integrity-modal-empty">No evidence hashes are available to reconstruct the Merkle tree.</div>';
+        container.innerHTML = '<div class="forensic-empty-state">No evidence hashes are available to reconstruct the Merkle Tree.</div>';
         setText(stateLabel, "NO DATA");
         return;
     }
@@ -869,78 +872,111 @@ async function renderModalMerkleTree(result) {
 
     setText(stateLabel, rootMatches ? "ROOT MATCH" : "ROOT MISMATCH");
 
-    const tree = document.createElement("div");
-    tree.className = "integrity-merkle-tree";
+    const flow = document.createElement("div");
+    flow.className = "forensic-merkle-tree";
 
     levels.forEach((level, levelIndex) => {
-        const row = document.createElement("div");
-        row.className = `integrity-merkle-level level-${levelIndex}`;
+        const levelWrap = document.createElement("div");
+        levelWrap.className = `forensic-merkle-level level-${levelIndex}`;
+
+        const label = document.createElement("div");
+        label.className = "forensic-merkle-level-label";
+
+        if (levelIndex === 0) {
+            label.textContent = "EVIDENCE LEAVES";
+        } else if (levelIndex === levels.length - 1) {
+            label.textContent = "MERKLE ROOT";
+        } else {
+            label.textContent = "PARENT HASHES";
+        }
+
+        levelWrap.appendChild(label);
+
+        const nodes = document.createElement("div");
+        nodes.className = "forensic-merkle-nodes";
 
         level.forEach((hash, nodeIndex) => {
-            let label;
+            let nodeLabel;
+            let nodeType;
 
             if (levelIndex === 0) {
-                const evidence = result.evidence[nodeIndex];
-                label = evidence?.evidenceId || `LEAF ${nodeIndex + 1}`;
+                nodeLabel = result.evidence[nodeIndex]?.evidenceId || `LEAF ${nodeIndex + 1}`;
+                nodeType = "leaf";
             } else if (levelIndex === levels.length - 1) {
-                label = "MERKLE ROOT";
+                nodeLabel = "MERKLE ROOT";
+                nodeType = "root";
             } else {
-                label = `PARENT ${nodeIndex + 1}`;
+                nodeLabel = `PARENT H${nodeIndex + 1}`;
+                nodeType = "parent";
             }
 
-            const status =
+            const nodeStatus =
                 levelIndex === levels.length - 1
-                    ? (rootMatches ? "VALID" : "MISMATCH")
+                    ? (rootMatches && result.historicalRootValid ? "VALID" : "MISMATCH")
                     : "VALID";
 
-            row.appendChild(createModalMerkleNode(hash, label, status));
+            nodes.appendChild(createForensicNode(hash, nodeLabel, nodeType, nodeStatus));
         });
 
-        tree.appendChild(row);
+        levelWrap.appendChild(nodes);
+        flow.appendChild(levelWrap);
+
+        if (levelIndex < levels.length - 1) {
+            const connector = document.createElement("div");
+            connector.className = "forensic-merkle-connector";
+            connector.innerHTML = `
+                <i class="bi bi-chevron-down"></i>
+                <span>${levelIndex === 0 ? "PAIR HASHING" : "ROOT DERIVATION"}</span>
+                <i class="bi bi-chevron-down"></i>
+            `;
+            flow.appendChild(connector);
+        }
     });
 
-    const connector = document.createElement("div");
-    connector.className = "integrity-merkle-legend";
-    connector.innerHTML = `
-        <span><i class="bi bi-dot"></i> Evidence leaves</span>
-        <span><i class="bi bi-arrow-up"></i> Pair hashing</span>
+    const legend = document.createElement("div");
+    legend.className = "forensic-merkle-legend";
+    legend.innerHTML = `
+        <span><i class="bi bi-circle-fill"></i> Evidence leaf</span>
+        <span><i class="bi bi-diagram-3"></i> Parent hash</span>
         <span><i class="bi bi-shield-check"></i> Root compared with on-chain anchor</span>
     `;
 
-    container.appendChild(tree);
-    container.appendChild(connector);
+    container.appendChild(flow);
+    container.appendChild(legend);
 }
 
 function renderModalEvidence(result) {
     const list = document.getElementById("integrityModalEvidenceList");
     const stateLabel = document.getElementById("integrityModalEvidenceState");
+    const versionLabel = document.getElementById("forensicModalVersion");
 
     if (!list) return;
 
     const evidence = Array.isArray(result.evidence) ? result.evidence : [];
-    const allValid = evidence.length > 0 && evidence.every(item => item.verified);
+    const allValid = evidence.length > 0 && evidence.every(item =>
+        item.verified && item.hashMatches && item.merkleProofValid && item.sourceDataMatches
+    );
 
     setText(stateLabel, allValid ? "ALL VALID" : "MISMATCH");
+    setText(versionLabel, `V${result.version}`);
 
     list.innerHTML = evidence.map(item => {
         const valid = Boolean(item.verified);
 
         return `
-            <article class="integrity-modal-evidence-item" data-status="${valid ? "VALID" : "MISMATCH"}">
-                <div class="integrity-modal-evidence-icon">
-                    <i class="bi ${valid ? "bi-check2-circle" : "bi-exclamation-triangle"}"></i>
+            <article class="forensic-evidence-item" data-status="${valid ? "VALID" : "MISMATCH"}">
+                <div class="forensic-evidence-id">
+                    <span class="forensic-evidence-index">EVIDENCE</span>
+                    <strong>${escapeHTML(item.evidenceId)}</strong>
                 </div>
-                <div class="integrity-modal-evidence-main">
-                    <div class="integrity-modal-evidence-top">
-                        <strong>${escapeHTML(item.evidenceId)}</strong>
-                        <span>${valid ? "HASH + PROOF VALID" : "VERIFICATION FAILED"}</span>
-                    </div>
+                <div class="forensic-evidence-hash">
+                    <span>SHA-256 EVIDENCE HASH</span>
                     <code title="${escapeHTML(item.evidenceHash || "")}">${escapeHTML(item.evidenceHash || "HASH UNAVAILABLE")}</code>
-                    <div class="integrity-modal-evidence-meta">
-                        <span>HASH ${item.hashMatches ? "MATCH" : "MISMATCH"}</span>
-                        <span>PROOF ${item.merkleProofValid ? "VALID" : "INVALID"}</span>
-                        <span>SOURCE ${item.sourceDataMatches ? "MATCH" : "CHANGED"}</span>
-                    </div>
+                </div>
+                <div class="forensic-evidence-status">
+                    <i class="bi ${valid ? "bi-check2-circle" : "bi-exclamation-triangle"}"></i>
+                    <strong>${valid ? "VALID" : "MISMATCH"}</strong>
+                    <small>HASH ${item.hashMatches ? "✓" : "✕"} · PROOF ${item.merkleProofValid ? "✓" : "✕"} · SOURCE ${item.sourceDataMatches ? "✓" : "✕"}</small>
                 </div>
             </article>
         `;
@@ -949,6 +985,10 @@ function renderModalEvidence(result) {
 
 function renderModalChecks(result) {
     const checks = document.getElementById("integrityModalChecks");
+    const finalState = document.getElementById("integrityModalFinalState");
+    const anchorState = document.getElementById("integrityModalAnchorState");
+    const rootValue = document.getElementById("integrityModalRootValue");
+
     if (!checks) return;
 
     const evidenceValid =
@@ -958,6 +998,10 @@ function renderModalChecks(result) {
     const proofValid =
         result.evidence.length > 0 &&
         result.evidence.every(item => item.merkleProofValid);
+
+    const historicalValid = Boolean(result.historicalRootValid);
+    const anchorValid =
+        historicalValid && result.blockchainStatus === "ANCHORED";
 
     const checksData = [
         {
@@ -973,19 +1017,19 @@ function renderModalChecks(result) {
         {
             title: "Historical Root",
             detail: `Root V${result.version} verified by the integrity service`,
-            valid: Boolean(result.historicalRootValid)
+            valid: historicalValid
         },
         {
             title: "On-Chain Anchor",
-            detail: result.blockchainStatus === "ANCHORED"
+            detail: anchorValid
                 ? "Smart contract confirms the anchored root"
-                : "Root is not currently anchored",
-            valid: Boolean(result.historicalRootValid && result.blockchainStatus === "ANCHORED")
+                : "The selected root is not confirmed by the smart contract",
+            valid: anchorValid
         }
     ];
 
     checks.innerHTML = checksData.map(check => `
-        <div class="integrity-modal-check" data-status="${check.valid ? "VALID" : "MISMATCH"}">
+        <div class="forensic-check-item" data-status="${check.valid ? "VALID" : "MISMATCH"}">
             <i class="bi ${check.valid ? "bi-check-circle-fill" : "bi-x-circle-fill"}"></i>
             <div>
                 <strong>${escapeHTML(check.title)}</strong>
@@ -994,49 +1038,13 @@ function renderModalChecks(result) {
             <b>${check.valid ? "MATCH" : "MISMATCH"}</b>
         </div>
     `).join("");
-}
 
-function renderModalStageSummary(result) {
-    const chain = modalElements.chain;
-    if (!chain) return;
-
-    const evidenceValid =
-        result.evidence.length > 0 &&
-        result.evidence.every(item => item.hashMatches && item.sourceDataMatches);
-
-    const proofValid =
-        result.evidence.length > 0 &&
-        result.evidence.every(item => item.merkleProofValid);
-
-    const stages = [
-        ["EVIDENCE HASH", evidenceValid, `${result.evidenceCount} RECORDS`],
-        ["MERKLE PROOF", proofValid, "LEAF + PROOF"],
-        ["RECONSTRUCTED ROOT", Boolean(result.historicalRootValid), `V${result.version}`],
-        ["ON-CHAIN ROOT", Boolean(result.historicalRootValid && result.blockchainStatus === "ANCHORED"), "ANCHOR"]
-    ];
-
-    chain.innerHTML = `
-        <div class="integrity-modal-stage-summary">
-            ${stages.map((stage, index) => `
-                ${index > 0 ? '<i class="bi bi-arrow-right"></i>' : ""}
-                <div class="integrity-modal-stage" data-status="${stage[1] ? "VALID" : "MISMATCH"}">
-                    <span>${escapeHTML(stage[0])}</span>
-                    <strong>${escapeHTML(stage[2])}</strong>
-                    <small><i class="bi ${stage[1] ? "bi-check-circle-fill" : "bi-x-circle-fill"}"></i> ${stage[1] ? "MATCH" : "MISMATCH"}</small>
-                </div>
-            `).join("")}
-        </div>
-    `;
+    setText(finalState, result.verified ? "VERIFIED" : "INVESTIGATION REQUIRED");
+    setText(anchorState, anchorValid ? "✓ MATCH" : "✕ MISMATCH");
+    setText(rootValue, result.merkleRoot || "—");
 }
 
 async function renderModalDetailedVerification(result) {
-    const detailGrid = document.getElementById("integrityModalDetailGrid");
-
-    if (!detailGrid) return;
-
-    detailGrid.hidden = false;
-
-    renderModalStageSummary(result);
     renderModalEvidence(result);
     renderModalChecks(result);
     await renderModalMerkleTree(result);
@@ -1049,69 +1057,23 @@ function renderModalResult(result) {
         ? '<span class="status-dot"></span> VERIFIED'
         : '<span class="status-dot"></span> MISMATCH';
 
-    const analysisTitle = document.getElementById("integrityAnalysisTitle");
-    const analysisStatus = document.getElementById("integrityAnalysisStatus");
-    const analysisText = document.getElementById("integrityAnalysisText");
+    const footerMessage = document.getElementById("integrityModalFooterMessage");
 
-    if (analysisTitle) {
-        analysisTitle.textContent = result.verified
-            ? "Integrity verified"
-            : "Integrity mismatch detected";
-    }
-
-    if (analysisStatus) {
-        analysisStatus.textContent = result.verified
-            ? "VERIFIED"
-            : "INVESTIGATION REQUIRED";
-    }
-
-    if (analysisText) {
-        const failedEvidence = result.evidence
-            .filter(item => !item.verified)
-            .map(item => item.evidenceId);
-
-        analysisText.textContent = result.verified
-            ? "All stored evidence snapshots match their hashes and Merkle proofs, the current source data matches the anchored snapshot, and the smart contract confirms the historical root."
-            : failedEvidence.length
-                ? `Verification failed for ${failedEvidence.join(", ")}. Review the evidence-level API result and Chain of Custody history for the affected records.`
-                : "The selected root version did not pass the complete historical on-chain verification.";
-    }
-
-    if (modalElements.analysis) {
-        modalElements.analysis.hidden = false;
+    if (footerMessage) {
+        footerMessage.innerHTML = result.verified
+            ? '<i class="bi bi-shield-check"></i> Verification complete. Evidence, Merkle proofs, historical root and on-chain anchor are consistent.'
+            : '<i class="bi bi-shield-exclamation"></i> Real API verification found an integrity mismatch. Review the affected evidence and cryptographic path.';
     }
 
     const modalEvidence = document.getElementById("integrityModalEvidence");
     const modalRootVersion = document.getElementById("integrityModalRootVersion");
 
     if (modalEvidence) {
-        modalEvidence.textContent =
-            result.evidence.length > 1
-                ? `${result.evidence.length} RECORDS`
-                : result.evidence[0]?.evidenceId || "—";
+        modalEvidence.textContent = `${result.evidence.length} RECORDS`;
     }
 
     if (modalRootVersion) {
         modalRootVersion.textContent = `v${result.version}`;
-    }
-
-    if (modalElements.root) {
-        modalElements.root.hidden = false;
-        const rootStrong = modalElements.root.querySelector("strong");
-        if (rootStrong) rootStrong.textContent = result.merkleRoot || "—";
-
-        const rootStatus = modalElements.root.querySelector(".integrity-modal-root-status");
-        if (rootStatus) {
-            rootStatus.innerHTML = result.verified
-                ? '<i class="bi bi-check2-circle"></i> ANCHOR MATCH'
-                : '<i class="bi bi-exclamation-triangle"></i> ANCHOR MISMATCH';
-        }
-    }
-
-    if (modalElements.footerMessage) {
-        modalElements.footerMessage.innerHTML = result.verified
-            ? '<i class="bi bi-check-circle"></i> Real API verification complete. No simulated block tampering is used on this page.'
-            : '<i class="bi bi-shield-exclamation"></i> Real API verification found an integrity mismatch. Review the evidence-level result.';
     }
 }
 
@@ -1119,9 +1081,7 @@ const modalElements = {
     modal: document.getElementById("integrityInvestigationModal"),
     close: document.getElementById("closeIntegrityModal"),
     run: document.getElementById("runModalVerification"),
-    chain: document.getElementById("integrityModalChain"),
-    root: document.getElementById("integrityModalRootRow"),
-    analysis: document.getElementById("integrityModalAnalysis"),
+    chain: document.getElementById("integrityModalMerkle"),
     liveState: document.getElementById("integrityModalLiveState"),
     footerMessage: document.getElementById("integrityModalFooterMessage")
 };
