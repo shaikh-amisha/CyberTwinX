@@ -1,133 +1,24 @@
 /* =========================================================
-   INVESTIGATION INTEGRITY
-   Page 2 — Demo interactions
+   CYBERTWINX — INVESTIGATION INTEGRITY
+   Page 2 — API-driven evidence verification
    ========================================================= */
 
-const investigationIntegrityState = {
-    incidentId: "INC-001",
-    evidenceId: "EVID-001",
-    evidenceHash: "9f6c3a12b7d48e91f02a65c4d8837e10...",
-    merkleRoot: "8f91a2c7e4b61d09c5aa739f18d5de32...8a6c",
+const INTEGRITY_API_BASE_URL = "http://localhost:5000/api/integrity";
+const INCIDENT_API_BASE_URL = "http://localhost:5000/api/incident-twin";
 
-    // Demo state only. This will later be replaced by the
-    // real backend + blockchain verification result.
-    verification: "VERIFIED",
+const urlParams = new URLSearchParams(window.location.search);
 
-    verificationPath: [
-        {
-            number: "01",
-            title: "Evidence Hash",
-            description: "Recalculate SHA-256 from the evidence snapshot.",
-            value: "SHA-256 / EVID-001",
-            ready: "READY"
-        },
-        {
-            number: "02",
-            title: "Merkle Proof",
-            description: "Use the evidence leaf and its proof path.",
-            value: "LEAF + PROOF",
-            ready: "READY"
-        },
-        {
-            number: "03",
-            title: "Reconstructed Root",
-            description: "Rebuild the root from the verified evidence path.",
-            value: "8f91a2c7...8a6c",
-            ready: "MATCH"
-        },
-        {
-            number: "04",
-            title: "On-Chain Root",
-            description: "Compare against the immutable root anchor.",
-            value: "8f91a2c7...8a6c",
-            ready: "MATCH"
-        }
-    ],
-
-    rootHistory: [
-        {
-            version: "v1",
-            root: "3c71f4b8...19d2",
-            evidenceCount: 2,
-            timestamp: "2026-09-24 09:12:41",
-            status: "SUPERSEDED"
-        },
-        {
-            version: "v2",
-            root: "6a4e91c2...73bf",
-            evidenceCount: 3,
-            timestamp: "2026-09-24 11:36:18",
-            status: "SUPERSEDED"
-        },
-        {
-            version: "v3",
-            root: "8f91a2c7...8a6c",
-            evidenceCount: 4,
-            timestamp: "2026-09-25 14:08:52",
-            status: "CURRENT"
-        }
-    ],
-
-    custody: [
-        {
-            type: "CREATED",
-            actor: "Endpoint Twin",
-            actorRole: "SYSTEM",
-            evidence: "EVID-001",
-            hash: "9f6c3a12...4a6c",
-            time: "2026-09-25 13:42:18",
-            status: "RECORDED",
-            tone: "success",
-            icon: "bi-file-earmark-plus"
-        },
-        {
-            type: "HASHED",
-            actor: "Integrity Engine",
-            actorRole: "CRYPTOGRAPHIC SERVICE",
-            evidence: "EVID-001",
-            hash: "9f6c3a12...4a6c",
-            time: "2026-09-25 13:42:24",
-            status: "RECORDED",
-            tone: "success",
-            icon: "bi-fingerprint"
-        },
-        {
-            type: "REGISTERED",
-            actor: "Blockchain Service",
-            actorRole: "ON-CHAIN REGISTRAR",
-            evidence: "EVID-001",
-            hash: "9f6c3a12...4a6c",
-            time: "2026-09-25 14:08:52",
-            status: "CONFIRMED",
-            tone: "success",
-            icon: "bi-link-45deg"
-        },
-        {
-            type: "ACCESSED",
-            actor: "Investigator-01",
-            actorRole: "FORENSIC ANALYST",
-            evidence: "EVID-001",
-            hash: "9f6c3a12...4a6c",
-            time: "2026-09-25 14:21:07",
-            status: "LOGGED",
-            tone: "",
-            icon: "bi-person-check"
-        },
-        {
-            type: "VERIFIED",
-            actor: "Integrity Engine",
-            actorRole: "VERIFICATION SERVICE",
-            evidence: "EVID-001",
-            hash: "9f6c3a12...4a6c",
-            time: "2026-09-25 14:22:16",
-            status: "MATCH",
-            tone: "success",
-            icon: "bi-shield-check"
-        }
-    ]
+const state = {
+    incidentId: null,
+    incident: null,
+    integrity: null,
+    latestVersion: null,
+    custody: [],
+    blockchain: null,
+    verification: null
 };
 
-const pageElements = {
+const elements = {
     verifyButton: document.getElementById("verifyIntegrityButton"),
     verificationPathList: document.getElementById("verificationPathList"),
     verificationPanelState: document.getElementById("verificationPanelState"),
@@ -135,62 +26,408 @@ const pageElements = {
     verificationCurrentTitle: document.getElementById("verificationCurrentTitle"),
     verificationCurrentText: document.getElementById("verificationCurrentText"),
     verificationChainStage: document.getElementById("verificationChainStage"),
-    rootHistoryList: document.getElementById("rootHistoryList"),
-    custodyTimeline: document.getElementById("custodyTimeline")
+    pageLiveStatus: document.getElementById("pageLiveStatus"),
+
+    rootSummary: document.getElementById("rootHistoryCurrentRoot"),
+    rootSummarySub: document.getElementById("rootHistorySummarySub"),
+    rootVersionStrip: document.getElementById("rootHistoryVersionStrip"),
+    rootVersionCount: document.getElementById("rootHistoryVersionCount"),
+
+    custodyCount: document.getElementById("custodyEventCount"),
+    custodySummaryEvents: document.getElementById("custodySummaryEvents"),
+    custodyLatestType: document.getElementById("custodyLatestType"),
+    custodyLatestTime: document.getElementById("custodyLatestTime"),
+    custodyEvidence: document.getElementById("custodyEvidence"),
+
+    rootHistoryModalList: document.getElementById("rootHistoryModalList"),
+    custodyModalTimeline: document.getElementById("custodyModalTimeline")
 };
 
-function wait(ms) {
-    return new Promise(resolve => window.setTimeout(resolve, ms));
+function setText(element, value, fallback = "—") {
+    if (!element) return;
+    element.textContent =
+        value !== undefined && value !== null && value !== ""
+            ? value
+            : fallback;
 }
 
-function renderVerificationPath() {
-    if (!pageElements.verificationPathList) return;
-
-    pageElements.verificationPathList.innerHTML =
-        investigationIntegrityState.verificationPath.map(step => `
-            <div class="verification-path-item" data-state="${step.ready}">
-                <div class="verification-step-number">${step.number}</div>
-
-                <div class="verification-step-copy">
-                    <strong>${step.title}</strong>
-                    <span>${step.description}</span>
-                </div>
-
-                <div class="verification-step-value" title="${step.value}">
-                    ${step.value}
-                </div>
-
-                <div class="verification-step-status">
-                    ${step.ready}
-                </div>
-            </div>
-        `).join("");
+function escapeHTML(value) {
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 }
 
-function renderRootHistory() {
-    const modalList = document.getElementById("rootHistoryModalList");
-    if (!modalList) return;
+function shortHash(hash, start = 10, end = 8) {
+    if (!hash) return "—";
+    if (hash.length <= start + end + 3) return hash;
+    return `${hash.slice(0, start)}...${hash.slice(-end)}`;
+}
 
-    modalList.innerHTML = investigationIntegrityState.rootHistory.slice().reverse().map((record, index) => {
-        const current = record.status === "CURRENT";
+function formatDateTime(value) {
+    if (!value) return "—";
+
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "—";
+
+    return date.toLocaleString("en-IN", {
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false
+    });
+}
+
+function formatTime(value) {
+    if (!value) return "—";
+
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "—";
+
+    return date.toLocaleTimeString("en-IN", {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false
+    });
+}
+
+async function fetchJSON(url) {
+    const response = await fetch(url);
+
+    let result;
+    try {
+        result = await response.json();
+    } catch {
+        throw new Error(`Invalid API response (${response.status})`);
+    }
+
+    if (!response.ok || !result.success) {
+        throw new Error(
+            result.message || `API request failed (${response.status})`
+        );
+    }
+
+    return result.data;
+}
+
+async function fetchAllIncidents() {
+    return fetchJSON(INCIDENT_API_BASE_URL);
+}
+
+async function fetchIncident(incidentId) {
+    return fetchJSON(
+        `${INCIDENT_API_BASE_URL}/${encodeURIComponent(incidentId)}`
+    );
+}
+
+async function fetchIntegrity(incidentId) {
+    return fetchJSON(
+        `${INTEGRITY_API_BASE_URL}/${encodeURIComponent(incidentId)}`
+    );
+}
+
+async function fetchCustody(incidentId) {
+    return fetchJSON(
+        `${INTEGRITY_API_BASE_URL}/${encodeURIComponent(incidentId)}/custody`
+    );
+}
+
+async function fetchBlockchainStatus() {
+    return fetchJSON(`${INTEGRITY_API_BASE_URL}/blockchain/status`);
+}
+
+async function verifyVersion(incidentId, version) {
+    return fetchJSON(
+        `${INTEGRITY_API_BASE_URL}/${encodeURIComponent(incidentId)}/verify/${version}`
+    );
+}
+
+async function resolveIncidentId() {
+    const requested = urlParams.get("incidentId");
+
+    if (requested) return requested;
+
+    const incidents = await fetchAllIncidents();
+
+    if (!Array.isArray(incidents) || incidents.length === 0) {
+        throw new Error("No Incident Twin records are available.");
+    }
+
+    return [...incidents]
+        .sort((a, b) => {
+            const dateA = new Date(a.updatedAt || a.createdAt || 0).getTime();
+            const dateB = new Date(b.updatedAt || b.createdAt || 0).getTime();
+            return dateB - dateA;
+        })[0].incidentId;
+}
+
+function getLatestVersion() {
+    const versions = Array.isArray(state.integrity?.rootVersions)
+        ? state.integrity.rootVersions
+        : [];
+
+    if (!versions.length) return null;
+
+    return [...versions].sort(
+        (a, b) => Number(b.version) - Number(a.version)
+    )[0];
+}
+
+function setPageStatus(text, tone = "normal") {
+    setText(elements.pageLiveStatus, text);
+
+    if (elements.pageLiveStatus) {
+        elements.pageLiveStatus.dataset.tone = tone;
+    }
+}
+
+function renderRootSummary() {
+    const versions = [...(state.integrity?.rootVersions || [])]
+        .sort((a, b) => Number(a.version) - Number(b.version));
+
+    const latest = state.latestVersion;
+
+    setText(
+        elements.rootSummary,
+        latest?.merkleRoot || "No root anchored"
+    );
+
+    setText(
+        elements.rootSummarySub,
+        latest
+            ? `Merkle Root v${latest.version} · ${latest.leafCount ?? latest.evidenceRecords?.length ?? 0} evidence items · ${latest.blockchainStatus || "PENDING"}`
+            : "No anchored Merkle Root is available for this incident."
+    );
+
+    setText(
+        elements.rootVersionCount,
+        `${versions.length} registered root version${versions.length === 1 ? "" : "s"}`
+    );
+
+    if (elements.rootVersionStrip) {
+        if (!versions.length) {
+            elements.rootVersionStrip.innerHTML =
+                '<span class="root-history-empty">NO ROOT VERSIONS</span>';
+            return;
+        }
+
+        elements.rootVersionStrip.innerHTML = versions.map((version, index) => {
+            const current = latest && Number(version.version) === Number(latest.version);
+
+            return `
+                ${index > 0 ? '<i class="bi bi-arrow-right"></i>' : ""}
+                <div class="root-history-version-node${current ? " current" : ""}">
+                    <span>V${escapeHTML(version.version)}</span>
+                    <small>${current ? "CURRENT" : "SUPERSEDED"}</small>
+                </div>
+            `;
+        }).join("");
+    }
+}
+
+function renderCustodySummary() {
+    const events = Array.isArray(state.custody) ? state.custody : [];
+    const latest = events.length ? events[events.length - 1] : null;
+
+    setText(
+        elements.custodyCount,
+        `${events.length} recorded custody event${events.length === 1 ? "" : "s"}`
+    );
+
+    const eventTypes = events.map(event => event.eventType);
+    setText(
+        elements.custodySummaryEvents,
+        eventTypes.length
+            ? eventTypes.join(" → ")
+            : "NO CUSTODY EVENTS RECORDED"
+    );
+
+    setText(elements.custodyLatestType, latest?.eventType || "—");
+    setText(
+        elements.custodyLatestTime,
+        latest ? formatDateTime(latest.timestamp) : "—"
+    );
+
+    setText(
+        elements.custodyEvidence,
+        latest?.evidenceId
+            ? `Latest event · ${latest.evidenceId}`
+            : "No evidence custody event is available."
+    );
+}
+
+function renderRootHistoryModal() {
+    const list = elements.rootHistoryModalList;
+    if (!list) return;
+
+    const versions = [...(state.integrity?.rootVersions || [])]
+        .sort((a, b) => Number(b.version) - Number(a.version));
+
+    if (!versions.length) {
+        list.innerHTML =
+            '<div class="empty-state">No Merkle Root versions are available.</div>';
+        return;
+    }
+
+    list.innerHTML = versions.map((record, index) => {
+        const current =
+            state.latestVersion &&
+            Number(record.version) === Number(state.latestVersion.version);
+
+        const tx = record.transaction || {};
+        const count = record.leafCount ?? record.evidenceRecords?.length ?? 0;
+
         return `
             <article class="root-history-modal-item${current ? " current" : ""}" style="animation-delay:${index * 70}ms">
-                <div class="root-history-modal-marker"><i class="bi ${current ? "bi-check2-circle" : "bi-clock-history"}"></i></div>
+                <div class="root-history-modal-marker">
+                    <i class="bi ${current ? "bi-check2-circle" : "bi-clock-history"}"></i>
+                </div>
+
                 <div class="root-history-modal-main">
                     <div class="root-history-modal-top">
-                        <div><strong>${record.version.toUpperCase()}</strong><span>${current ? "CURRENT ROOT" : "SUPERSEDED ROOT"}</span></div>
-                        <span class="root-history-modal-status">${record.status}</span>
+                        <div>
+                            <strong>V${escapeHTML(record.version)}</strong>
+                            <span>${current ? "CURRENT ROOT" : "HISTORICAL ROOT"}</span>
+                        </div>
+                        <span class="root-history-modal-status">
+                            ${escapeHTML(record.blockchainStatus || "PENDING")}
+                        </span>
                     </div>
+
                     <div class="integrity-copy-row">
-    <strong class="root-history-modal-hash" title="${record.root}">${record.root}</strong>
-    <button class="integrity-copy-button" type="button" data-copy-hash="${record.root}" aria-label="Copy ${record.version} Merkle Root" title="Copy full Merkle Root">
-        <i class="bi bi-copy"></i><span>COPY</span>
-    </button>
-</div>
+                        <strong class="root-history-modal-hash" title="${escapeHTML(record.merkleRoot)}">
+                            ${escapeHTML(record.merkleRoot)}
+                        </strong>
+                        <button
+                            class="integrity-copy-button"
+                            type="button"
+                            data-copy-hash="${escapeHTML(record.merkleRoot)}"
+                            title="Copy full Merkle Root"
+                        >
+                            <i class="bi bi-copy"></i><span>COPY</span>
+                        </button>
+                    </div>
+
                     <div class="root-history-modal-meta">
-                        <span><i class="bi bi-database"></i> ${record.evidenceCount} EVIDENCE ITEMS</span>
-                        <span><i class="bi bi-clock"></i> ${record.timestamp}</span>
-                        <span><i class="bi bi-link-45deg"></i> ${current ? "CURRENT ON-CHAIN ANCHOR" : "HISTORICAL REFERENCE"}</span>
+                        <span><i class="bi bi-database"></i> ${count} EVIDENCE ITEMS</span>
+                        <span><i class="bi bi-clock"></i> ${formatDateTime(tx.anchoredAt || record.updatedAt || record.createdAt)}</span>
+                        <span><i class="bi bi-box-arrow-up-right"></i> BLOCK ${tx.blockNumber ?? "—"}</span>
+                    </div>
+
+                    <div class="root-history-modal-meta">
+                        <span><i class="bi bi-receipt"></i> TX ${shortHash(tx.transactionHash)}</span>
+                        <span><i class="bi bi-link-45deg"></i> ${escapeHTML(tx.contractAddress || "No contract")}</span>
+                    </div>
+
+                    <button
+                        class="integrity-detail-button secondary verify-history-button"
+                        type="button"
+                        data-verify-version="${record.version}"
+                    >
+                        <i class="bi bi-shield-check"></i>
+                        <span>Verify V${record.version}</span>
+                    </button>
+                </div>
+            </article>
+        `;
+    }).join("");
+
+    list.querySelectorAll("[data-verify-version]").forEach(button => {
+        button.addEventListener("click", async () => {
+            const version = Number(button.dataset.verifyVersion);
+            closeDetailModal("rootHistoryModal");
+            openIntegrityModal();
+            await runRealVerification(version);
+        });
+    });
+}
+
+function renderCustodyModal() {
+    const timeline = elements.custodyModalTimeline;
+    if (!timeline) return;
+
+    const events = Array.isArray(state.custody)
+        ? [...state.custody].reverse()
+        : [];
+
+    if (!events.length) {
+        timeline.innerHTML =
+            '<div class="empty-state">No Chain of Custody events are available.</div>';
+        return;
+    }
+
+    timeline.innerHTML = events.map((event, index) => {
+        const status = event.integrity?.status || "NOT_CHECKED";
+        const tone = ["VERIFIED", "ANCHORED"].includes(status)
+            ? "success"
+            : status === "FAILED"
+                ? "failed"
+                : "";
+
+        return `
+            <article class="custody-modal-event ${tone}" style="animation-delay:${index * 70}ms">
+                <div class="custody-modal-marker">
+                    <i class="bi ${custodyIcon(event.eventType)}"></i>
+                </div>
+
+                <div class="custody-modal-event-main">
+                    <div class="custody-modal-event-top">
+                        <div>
+                            <strong>${escapeHTML(event.eventType)}</strong>
+                            <span>${escapeHTML(event.actor?.actorId || "SYSTEM")} · ${escapeHTML(event.actor?.actorRole || "SYSTEM")}</span>
+                        </div>
+                        <span class="custody-modal-status">${escapeHTML(status)}</span>
+                    </div>
+
+                    <div class="custody-modal-details">
+                        <span>
+                            <b>Evidence</b>
+                            ${escapeHTML(event.evidenceId)}
+                        </span>
+
+                        <span>
+                            <b>Timestamp</b>
+                            ${escapeHTML(formatDateTime(event.timestamp))}
+                        </span>
+
+                        <span>
+                            <b>Details</b>
+                            ${escapeHTML(event.details || "No additional details recorded.")}
+                        </span>
+                    </div>
+
+                    <div class="custody-modal-details">
+                        <span>
+                            <b>Root Version</b>
+                            ${event.integrity?.rootVersion ?? "—"}
+                        </span>
+
+                        <span>
+                            <b>Merkle Root</b>
+                            ${shortHash(event.integrity?.merkleRoot)}
+                        </span>
+
+                        <span>
+                            <b>Evidence Hash</b>
+                            <span class="integrity-copy-row">
+                                <code>${escapeHTML(event.integrity?.evidenceHash || "—")}</code>
+                                ${event.integrity?.evidenceHash ? `
+                                    <button
+                                        class="integrity-copy-button compact"
+                                        type="button"
+                                        data-copy-hash="${escapeHTML(event.integrity.evidenceHash)}"
+                                    >
+                                        <i class="bi bi-copy"></i><span>COPY</span>
+                                    </button>
+                                ` : ""}
+                            </span>
+                        </span>
                     </div>
                 </div>
             </article>
@@ -198,378 +435,352 @@ function renderRootHistory() {
     }).join("");
 }
 
-function renderCustodyTimeline() {
-    const modalTimeline = document.getElementById("custodyModalTimeline");
-    if (!modalTimeline) return;
+function custodyIcon(type) {
+    const icons = {
+        EVIDENCE_CREATED: "bi-file-earmark-plus",
+        HASH_GENERATED: "bi-fingerprint",
+        ROOT_ANCHORED: "bi-link-45deg",
+        ROOT_REANCHORED: "bi-arrow-repeat",
+        EVIDENCE_ACCESSED: "bi-person-check",
+        VERIFICATION_PASSED: "bi-shield-check",
+        INTEGRITY_FAILED: "bi-shield-exclamation"
+    };
 
-    modalTimeline.innerHTML = investigationIntegrityState.custody.slice().reverse().map((event, index) => `
-        <article class="custody-modal-event ${event.tone}" style="animation-delay:${index * 70}ms">
-            <div class="custody-modal-marker"><i class="bi ${event.icon}"></i></div>
-            <div class="custody-modal-event-main">
-                <div class="custody-modal-event-top">
-                    <div><strong>${event.type}</strong><span>${event.actor} · ${event.actorRole}</span></div>
-                    <span class="custody-modal-status">${event.status}</span>
-                </div>
-                <div class="custody-modal-details">
-                    <span><b>Evidence</b> ${event.evidence}</span>
-                    <span><b>Timestamp</b> ${event.time}</span>
-                    <span><b>Hash</b><span class="integrity-copy-row">
-    <code>${event.hash}</code>
-    <button class="integrity-copy-button compact" type="button" data-copy-hash="${event.hash}" aria-label="Copy ${event.type} evidence hash" title="Copy full evidence hash">
-        <i class="bi bi-copy"></i><span>COPY</span>
-    </button>
-</span></span>
-                </div>
-            </div>
-        </article>
-    `).join("");
+    return icons[type] || "bi-clock-history";
 }
 
 function setResult(status, title, description) {
-    if (!pageElements.verificationCurrentResult) return;
+    if (!elements.verificationCurrentResult) return;
 
-    pageElements.verificationCurrentResult.dataset.status = status;
-    pageElements.verificationCurrentTitle.textContent = title;
-    pageElements.verificationCurrentText.textContent = description;
+    elements.verificationCurrentResult.dataset.status = status;
+    setText(elements.verificationCurrentTitle, title);
+    setText(elements.verificationCurrentText, description);
 }
 
-function setPathStepState(index, state) {
-    const item = pageElements.verificationPathList?.children[index];
-    if (!item) return;
+function renderVerificationPath(result = null) {
+    if (!elements.verificationPathList) return;
 
-    item.dataset.state = state;
+    const latest = result || state.verification;
+    const evidence = latest?.evidence || [];
+    const evidenceValid = latest?.evidenceValid;
+    const proofValid = evidence.length > 0 &&
+        evidence.every(item => item.merkleProofValid);
+    const sourceMatches = evidence.length > 0 &&
+        evidence.every(item => item.sourceDataMatches);
+    const historicalValid = Boolean(latest?.historicalRootValid);
+    const verified = Boolean(latest?.verified);
 
-    const status = item.querySelector(".verification-step-status");
-    if (status) status.textContent = state;
+    const evidenceState = latest
+        ? (sourceMatches && evidence.every(item => item.hashMatches) ? "MATCH" : "MISMATCH")
+        : "READY";
+
+    const proofState = latest
+        ? (proofValid ? "MATCH" : "MISMATCH")
+        : "READY";
+
+    const rootState = latest
+        ? (evidenceValid && historicalValid ? "MATCH" : "MISMATCH")
+        : "READY";
+
+    const chainState = latest
+        ? (historicalValid && latest.blockchainStatus === "ANCHORED" ? "MATCH" : "MISMATCH")
+        : "READY";
+
+    const rootValue = latest?.merkleRoot
+        ? shortHash(latest.merkleRoot)
+        : state.latestVersion?.merkleRoot
+            ? shortHash(state.latestVersion.merkleRoot)
+            : "WAITING";
+
+    const path = [
+        {
+            number: "01",
+            title: "Evidence Hash",
+            description: "Recalculate the saved evidence snapshot hash and compare it with the anchored record.",
+            value: latest ? `${latest.evidenceCount} evidence records` : "SHA-256",
+            status: evidenceState
+        },
+        {
+            number: "02",
+            title: "Merkle Proof",
+            description: "Validate each saved proof against the preserved Merkle Root.",
+            value: latest ? "LEAF + PROOF" : "WAITING",
+            status: proofState
+        },
+        {
+            number: "03",
+            title: "Reconstructed Root",
+            description: "Confirm the verified evidence path resolves to the saved root.",
+            value: rootValue,
+            status: rootState
+        },
+        {
+            number: "04",
+            title: "On-Chain Root",
+            description: "Ask the smart contract to verify the selected historical root version.",
+            value: latest
+                ? `V${latest.version} · ${latest.blockchainStatus}`
+                : "WAITING",
+            status: chainState
+        }
+    ];
+
+    elements.verificationPathList.innerHTML = path.map(step => `
+        <div class="verification-path-item" data-state="${step.status}">
+            <div class="verification-step-number">${step.number}</div>
+            <div class="verification-step-copy">
+                <strong>${escapeHTML(step.title)}</strong>
+                <span>${escapeHTML(step.description)}</span>
+            </div>
+            <div class="verification-step-value" title="${escapeHTML(step.value)}">
+                ${escapeHTML(step.value)}
+            </div>
+            <div class="verification-step-status">${escapeHTML(step.status)}</div>
+        </div>
+    `).join("");
 }
 
-
-const demoBlocks = [
-    { number: "0000", label: "GENESIS", meta: "CHAIN START", hash: "000000...GEN" },
-    { number: "0001", label: "BLOCK", meta: "ANCHOR TX", hash: "7e0021...a91f" },
-    { number: "0002", label: "BLOCK", meta: "ROOT V2", hash: "6b70c5...22d4" },
-    { number: "0003", label: "BLOCK", meta: "ROOT V3", hash: "4fcf45...e81b" }
-];
-
-function createLiveBlock(block, index) {
+function createVerificationNode(title, value, status, icon) {
     const wrapper = document.createElement("div");
     wrapper.className = "verification-live-node-wrap";
-    wrapper.dataset.index = String(index);
 
-    if (index > 0) {
-        const arrow = document.createElement("i");
-        arrow.className = "bi bi-arrow-right verification-live-arrow";
-        arrow.dataset.fromIndex = String(index - 1);
-        wrapper.appendChild(arrow);
-    }
-
-    const node = document.createElement("button");
-    node.type = "button";
+    const node = document.createElement("div");
     node.className = "verification-live-node";
-    node.dataset.blockIndex = String(index);
-    node.dataset.status = "VALID";
-    node.disabled = index === 0;
+    node.dataset.status = status;
 
     node.innerHTML = `
         <div class="verification-live-node-top">
-            <span>${block.label}</span>
-            <i class="bi ${index === 0 ? "bi-circle-fill" : "bi-check-circle-fill"}"></i>
+            <span>${escapeHTML(title)}</span>
+            <i class="bi ${escapeHTML(icon)}"></i>
         </div>
-        <strong>#${block.number}</strong>
+        <strong>${escapeHTML(value)}</strong>
         <div class="verification-live-node-meta">
-            <span>${block.meta}</span>
-            <strong>${block.hash}</strong>
+            <span>API RESULT</span>
+            <strong>${escapeHTML(status)}</strong>
         </div>
     `;
-
-    if (index > 0) {
-        node.addEventListener("click", () => selectTamperedBlock(index));
-    }
 
     wrapper.appendChild(node);
     return wrapper;
 }
 
-function getLiveNode(index) {
-    return pageElements.verificationChainStage?.querySelector(
-        `.verification-live-node[data-block-index="${index}"]`
-    );
-}
+function renderRealVerificationChain(result) {
+    if (!elements.verificationChainStage) return;
 
-function updateLiveChainVisual(tamperedIndex) {
-    const nodes = pageElements.verificationChainStage?.querySelectorAll(".verification-live-node");
-    const arrows = pageElements.verificationChainStage?.querySelectorAll(".verification-live-arrow");
-    if (!nodes) return;
+    const evidenceStatus =
+        result.evidenceValid && result.evidence.every(item => item.sourceDataMatches)
+            ? "VALID"
+            : "MISMATCH";
 
-    nodes.forEach((node, index) => {
-        node.classList.remove("is-selected");
-        node.dataset.status = "VALID";
+    const proofStatus =
+        result.evidence.length > 0 && result.evidence.every(item => item.merkleProofValid)
+            ? "VALID"
+            : "MISMATCH";
 
-        if (tamperedIndex > 0 && index === tamperedIndex) {
-            node.dataset.status = "TAMPERED";
-            node.classList.add("is-selected");
-            node.querySelector(".verification-live-node-top i").className =
-                "bi bi-exclamation-triangle-fill";
-        } else if (tamperedIndex > 0 && index > tamperedIndex) {
-            node.dataset.status = "INVALID";
-            node.querySelector(".verification-live-node-top i").className =
-                "bi bi-x-circle-fill";
-        } else {
-            node.querySelector(".verification-live-node-top i").className =
-                index === 0 ? "bi bi-circle-fill" : "bi bi-check-circle-fill";
+    const rootStatus = result.historicalRootValid ? "MATCH" : "MISMATCH";
+    const anchorStatus =
+        result.historicalRootValid && result.blockchainStatus === "ANCHORED"
+            ? "MATCH"
+            : "MISMATCH";
+
+    const track = document.createElement("div");
+    track.className = "verification-live-track";
+
+    const stages = [
+        ["EVIDENCE HASH", `${result.evidenceCount} RECORDS`, evidenceStatus, evidenceStatus === "VALID" ? "bi-check-circle-fill" : "bi-exclamation-triangle-fill"],
+        ["MERKLE PROOF", "LEAF + PROOF", proofStatus, proofStatus === "VALID" ? "bi-check-circle-fill" : "bi-exclamation-triangle-fill"],
+        ["HISTORICAL ROOT", `V${result.version}`, rootStatus, rootStatus === "MATCH" ? "bi-check-circle-fill" : "bi-x-circle-fill"],
+        ["ON-CHAIN ANCHOR", `BLOCK ${state.integrityVersionBlock ?? "—"}`, anchorStatus, anchorStatus === "MATCH" ? "bi-check-circle-fill" : "bi-x-circle-fill"]
+    ];
+
+    stages.forEach((stage, index) => {
+        if (index > 0) {
+            const arrow = document.createElement("i");
+            arrow.className = "bi bi-arrow-right verification-live-arrow";
+            arrow.dataset.invalid =
+                stage[2] === "MISMATCH" || stages[index - 1][2] === "MISMATCH"
+                    ? "true"
+                    : "false";
+            track.appendChild(arrow);
         }
+
+        const node = createVerificationNode(...stage);
+        track.appendChild(node);
     });
 
-    arrows?.forEach((arrow, index) => {
-        arrow.dataset.invalid =
-            tamperedIndex > 0 && index >= tamperedIndex ? "true" : "false";
-    });
+    const failedEvidence = result.evidence.filter(item => !item.verified);
+    const explanation = document.createElement("div");
+    explanation.className =
+        `verification-tamper-explanation${result.verified ? "" : " is-failure"}`;
 
-    pageElements.verificationChainStage
-        .querySelectorAll(".verification-tamper-option")
-        .forEach(button => {
-            button.classList.toggle(
-                "active",
-                Number(button.dataset.tamperIndex) === tamperedIndex
-            );
-        });
-
-    const status = document.getElementById("verificationTamperStatus");
-    const explanation = document.getElementById("verificationTamperExplanation");
-    const final = document.getElementById("verificationChainFinal");
-
-    if (!status || !explanation || !final) return;
-
-    if (tamperedIndex < 1) {
-        status.textContent = "NO TAMPER SELECTED";
+    if (result.verified) {
         explanation.innerHTML = `
-            <i class="bi bi-info-circle"></i>
-            <span>Choose a block or click a block above to simulate a tamper event.</span>
-        `;
-        final.className = "verification-chain-final";
-        final.innerHTML = `
             <i class="bi bi-shield-check"></i>
-            CHAIN TRAVERSAL COMPLETE · ANCHOR VALID
+            <span>Backend verification passed. Every stored evidence snapshot matches its hash, Merkle proof and current source data, and the smart contract confirms the historical root.</span>
         `;
-        return;
+    } else if (failedEvidence.length) {
+        const ids = failedEvidence.map(item => escapeHTML(item.evidenceId)).join(", ");
+        explanation.innerHTML = `
+            <i class="bi bi-shield-exclamation"></i>
+            <span>Integrity mismatch detected for: <strong>${ids}</strong>. The API result identifies which evidence hash, proof or source-data comparison failed.</span>
+        `;
+    } else {
+        explanation.innerHTML = `
+            <i class="bi bi-exclamation-triangle"></i>
+            <span>The selected root version did not pass the complete historical on-chain verification.</span>
+        `;
     }
 
-    const blockNumber = demoBlocks[tamperedIndex].number.replace(/^0+/, "");
-    status.textContent = `BLOCK ${blockNumber} TAMPERED`;
+    elements.verificationChainStage.innerHTML = "";
+    elements.verificationChainStage.appendChild(track);
+    elements.verificationChainStage.appendChild(explanation);
 
-    explanation.innerHTML = `
-        <i class="bi bi-exclamation-triangle"></i>
-        <span>Block ${blockNumber} changed: its hash changed, so every later block's previous-hash link is invalid.</span>
-    `;
+    const final = document.createElement("div");
+    final.className = `verification-chain-final${result.verified ? "" : " tampered"}`;
+    final.innerHTML = result.verified
+        ? '<i class="bi bi-shield-check"></i> VERIFICATION COMPLETE · HISTORICAL ROOT MATCHES ON-CHAIN'
+        : '<i class="bi bi-shield-exclamation"></i> INTEGRITY FAILURE · INVESTIGATION REQUIRED';
 
-    final.className = "verification-chain-final tampered";
-    final.innerHTML = `
-        <i class="bi bi-shield-exclamation"></i>
-        TAMPER DETECTED · BLOCK ${blockNumber} + SUBSEQUENT LINKS INVALID
-    `;
+    elements.verificationChainStage.appendChild(final);
+    elements.verificationChainStage.classList.add("is-visible");
 }
 
-function selectTamperedBlock(index) {
-    if (!pageElements.verificationChainStage?.querySelector(".verification-live-node")) return;
+async function runRealVerification(version = null) {
+    if (!state.incidentId) return;
 
-    updateLiveChainVisual(index);
+    const selectedVersion =
+        Number(version) ||
+        Number(state.latestVersion?.version);
 
-    if (index < 1) {
-        pageElements.verificationPanelState.textContent = "MATCH";
+    if (!selectedVersion) {
         setResult(
-            "VERIFIED",
-            "INTEGRITY VERIFIED",
-            "The blockchain traversal is valid. No tamper event is selected."
+            "MISMATCH",
+            "NO ROOT VERSION",
+            "This incident does not have a saved Merkle Root version to verify."
         );
         return;
     }
 
-    const blockNumber = demoBlocks[index].number.replace(/^0+/, "");
-    pageElements.verificationPanelState.textContent = "TAMPERED";
-
-    setResult(
-        "TAMPERED",
-        `BLOCK ${blockNumber} TAMPERED`,
-        `Block ${blockNumber} was modified. Its hash no longer matches the chain, invalidating every subsequent link.`
-    );
-}
-
-function renderLiveChainShell() {
-    if (!pageElements.verificationChainStage) return;
-
-    pageElements.verificationChainStage.innerHTML = `
-        <div class="verification-chain-stage-live">
-            <div class="verification-live-caption">
-                <div>
-                    <strong>LIVE BLOCKCHAIN VERIFICATION</strong>
-                    <span>Traverse each block and inspect hash-link integrity.</span>
-                </div>
-                <span class="verification-live-state" id="verificationLiveState">TRAVERSING...</span>
-            </div>
-
-            <div class="verification-live-track" id="verificationLiveTrack"></div>
-
-            <div class="verification-chain-root" id="verificationLiveRoot" hidden>
-                <span>MERKLE ROOT ANCHORED ON-CHAIN</span>
-                <strong>${investigationIntegrityState.merkleRoot}</strong>
-            </div>
-
-            <div class="verification-chain-proof" id="verificationLiveProof" hidden>
-                <span>EVIDENCE PROOF · ${investigationIntegrityState.evidenceId} · SHA-256 MATCH</span>
-            </div>
-
-            <div class="verification-tamper-console" id="verificationTamperConsole">
-                <div class="verification-tamper-header">
-                    <div>
-                        <strong>TAMPER ANALYSIS</strong>
-                        <span>Select a block to see how a changed hash invalidates every later link.</span>
-                    </div>
-                    <span class="verification-tamper-status" id="verificationTamperStatus">NO TAMPER SELECTED</span>
-                </div>
-
-                <div class="verification-tamper-options" role="group" aria-label="Select tampered block">
-                    <button class="verification-tamper-option active" type="button" data-tamper-index="-1">—</button>
-                    <button class="verification-tamper-option" type="button" data-tamper-index="1">1</button>
-                    <button class="verification-tamper-option" type="button" data-tamper-index="2">2</button>
-                    <button class="verification-tamper-option" type="button" data-tamper-index="3">3</button>
-                </div>
-
-                <div class="verification-tamper-explanation" id="verificationTamperExplanation">
-                    <i class="bi bi-info-circle"></i>
-                    <span>Choose a block or click a block above to simulate a tamper event.</span>
-                </div>
-            </div>
-
-            <div class="verification-chain-final" id="verificationChainFinal">
-                <i class="bi bi-shield-check"></i>
-                CHAIN TRAVERSAL COMPLETE · ANCHOR VALID
-            </div>
-        </div>
-    `;
-
-    pageElements.verificationChainStage.classList.add("is-visible");
-
-    pageElements.verificationChainStage
-        .querySelectorAll(".verification-tamper-option")
-        .forEach(button => {
-            button.addEventListener("click", () => {
-                selectTamperedBlock(Number(button.dataset.tamperIndex));
-            });
-        });
-}
-
-async function runLiveBlockchainTraversal() {
-    renderLiveChainShell();
-
-    const track = document.getElementById("verificationLiveTrack");
-    const root = document.getElementById("verificationLiveRoot");
-    const proof = document.getElementById("verificationLiveProof");
-    const state = document.getElementById("verificationLiveState");
-
-    if (!track || !state) return;
-
-    for (let index = 0; index < demoBlocks.length; index += 1) {
-        track.appendChild(createLiveBlock(demoBlocks[index], index));
-        await wait(650);
-
-        const node = getLiveNode(index);
-        if (node) node.classList.add("is-verified");
-
-        if (index > 0) {
-            const arrow = pageElements.verificationChainStage.querySelector(
-                `.verification-live-arrow[data-from-index="${index - 1}"]`
-            );
-            if (arrow) arrow.style.opacity = "1";
-        }
+    if (elements.verifyButton) {
+        elements.verifyButton.disabled = true;
+        elements.verifyButton.classList.add("is-verifying");
     }
 
-    if (root) root.hidden = false;
-    if (proof) proof.hidden = false;
-
-    await wait(300);
-    state.textContent = "ANCHOR REACHED";
-
-    const consolePanel = document.getElementById("verificationTamperConsole");
-    if (consolePanel) consolePanel.classList.add("is-visible");
-
-    pageElements.verificationPanelState.textContent = "MATCH";
-
-    setResult(
-        "VERIFIED",
-        "INTEGRITY VERIFIED",
-        "The chain reached the anchored Merkle Root. Select any block to inspect how tampering propagates through subsequent links."
-    );
-
-    updateLiveChainVisual(-1);
-}
-
-async function runIntegrityVerification() {
-    if (!pageElements.verifyButton) return;
-
-    pageElements.verifyButton.disabled = true;
-    pageElements.verifyButton.classList.add("is-verifying");
-    pageElements.verificationPanelState.textContent = "VERIFYING";
-
-    if (pageElements.verificationChainStage) {
-        pageElements.verificationChainStage.classList.remove("is-visible");
-        pageElements.verificationChainStage.innerHTML = "";
+    if (elements.verificationPanelState) {
+        elements.verificationPanelState.textContent = "VERIFYING";
     }
 
     setResult(
         "VERIFYING",
-        "VERIFYING...",
-        "Recalculating the evidence hash, evaluating the Merkle proof and comparing the reconstructed root with the on-chain anchor."
+        `VERIFYING V${selectedVersion}...`,
+        "Recalculating evidence hashes, validating Merkle proofs and asking the smart contract to verify the historical root."
     );
 
-    investigationIntegrityState.verificationPath.forEach((_, index) => {
-        setPathStepState(index, "READY");
-    });
+    renderVerificationPath();
 
-    for (let index = 0; index < investigationIntegrityState.verificationPath.length; index += 1) {
-        setPathStepState(index, "VERIFYING");
-        await wait(550);
-
-        setPathStepState(
-            index,
-            index < 2
-                ? "READY"
-                : investigationIntegrityState.verification === "VERIFIED"
-                    ? "MATCH"
-                    : "MISMATCH"
-        );
+    if (elements.verificationChainStage) {
+        elements.verificationChainStage.classList.remove("is-visible");
+        elements.verificationChainStage.innerHTML = "";
     }
 
-    await wait(200);
+    try {
+        const result = await verifyVersion(state.incidentId, selectedVersion);
+        state.verification = result;
 
-    if (investigationIntegrityState.verification === "VERIFIED") {
-        setPathStepState(0, "READY");
-        setPathStepState(1, "READY");
-        setPathStepState(2, "MATCH");
-        setPathStepState(3, "MATCH");
-
-        setResult(
-            "VERIFIED",
-            "INTEGRITY VERIFIED",
-            "The reconstructed Merkle Root matches the root anchored on-chain. Beginning live blockchain traversal..."
+        const selectedRecord = state.integrity.rootVersions.find(
+            item => Number(item.version) === Number(selectedVersion)
         );
 
-        await runLiveBlockchainTraversal();
-    } else {
-        pageElements.verificationPanelState.textContent = "MISMATCH";
-        setPathStepState(2, "MISMATCH");
-        setPathStepState(3, "MISMATCH");
+        state.integrityVersionBlock =
+            selectedRecord?.transaction?.blockNumber ?? "—";
+
+        renderVerificationPath(result);
+        renderRealVerificationChain(result);
+
+        if (elements.verificationPanelState) {
+            elements.verificationPanelState.textContent =
+                result.verified ? "MATCH" : "MISMATCH";
+        }
+
+        if (result.verified) {
+            setResult(
+                "VERIFIED",
+                `V${selectedVersion} INTEGRITY VERIFIED`,
+                `Evidence, Merkle proofs and the historical Merkle Root all match the on-chain anchor for incident ${state.incidentId}.`
+            );
+        } else {
+            const failed = result.evidence
+                .filter(item => !item.verified)
+                .map(item => item.evidenceId);
+
+            setResult(
+                "TAMPERED",
+                "INTEGRITY MISMATCH DETECTED",
+                failed.length
+                    ? `Verification failed for ${failed.join(", ")}. Review the evidence-level results below.`
+                    : "The selected root version did not match the on-chain integrity record."
+            );
+        }
+
+        if (modalElements.modal?.classList.contains("is-open")) {
+            renderModalResult(result);
+        }
+    } catch (error) {
+        console.error("[Investigation Integrity]", error);
+
+        if (elements.verificationPanelState) {
+            elements.verificationPanelState.textContent = "ERROR";
+        }
 
         setResult(
-            "TAMPERED",
-            "INTEGRITY MISMATCH DETECTED",
-            "The reconstructed Merkle Root does not match the anchored root. The evidence requires further investigation."
+            "MISMATCH",
+            "VERIFICATION FAILED",
+            error.message || "The integrity API could not complete the verification."
         );
+
+        if (elements.verificationChainStage) {
+            elements.verificationChainStage.innerHTML = `
+                <div class="verification-tamper-explanation is-failure">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <span>${escapeHTML(error.message || "Integrity verification failed.")}</span>
+                </div>
+            `;
+            elements.verificationChainStage.classList.add("is-visible");
+        }
+    } finally {
+        if (elements.verifyButton) {
+            elements.verifyButton.disabled = false;
+            elements.verifyButton.classList.remove("is-verifying");
+        }
     }
-
-    pageElements.verifyButton.disabled = false;
-    pageElements.verifyButton.classList.remove("is-verifying");
 }
 
+function renderModalResult(result) {
+    if (!modalElements.liveState) return;
+
+    modalElements.liveState.innerHTML = result.verified
+        ? '<span class="status-dot"></span> VERIFIED'
+        : '<span class="status-dot"></span> MISMATCH';
+
+    if (modalElements.root) {
+        modalElements.root.hidden = false;
+        const rootStrong = modalElements.root.querySelector("strong");
+        if (rootStrong) rootStrong.textContent = result.merkleRoot || "—";
+
+        const rootStatus = modalElements.root.querySelector(".integrity-modal-root-status");
+        if (rootStatus) {
+            rootStatus.innerHTML = result.verified
+                ? '<i class="bi bi-check2-circle"></i> ANCHOR MATCH'
+                : '<i class="bi bi-exclamation-triangle"></i> ANCHOR MISMATCH';
+        }
+    }
+
+    if (modalElements.footerMessage) {
+        modalElements.footerMessage.innerHTML = result.verified
+            ? '<i class="bi bi-check-circle"></i> Real API verification complete. No simulated block tampering is used on this page.'
+            : '<i class="bi bi-shield-exclamation"></i> Real API verification found an integrity mismatch. Review the evidence-level result.';
+    }
+}
 
 const modalElements = {
     modal: document.getElementById("integrityInvestigationModal"),
@@ -579,48 +790,15 @@ const modalElements = {
     root: document.getElementById("integrityModalRootRow"),
     analysis: document.getElementById("integrityModalAnalysis"),
     liveState: document.getElementById("integrityModalLiveState"),
-    footerMessage: document.getElementById("integrityModalFooterMessage"),
-    analysisTitle: document.getElementById("integrityAnalysisTitle"),
-    analysisStatus: document.getElementById("integrityAnalysisStatus"),
-    analysisText: document.getElementById("integrityAnalysisText")
+    footerMessage: document.getElementById("integrityModalFooterMessage")
 };
 
 function openIntegrityModal() {
     if (!modalElements.modal) return;
+
     modalElements.modal.classList.add("is-open");
     modalElements.modal.setAttribute("aria-hidden", "false");
     document.body.classList.add("integrity-modal-open");
-    resetIntegrityModal();
-}
-
-function closeIntegrityModal() {
-    if (!modalElements.modal) return;
-    modalElements.modal.classList.remove("is-open");
-    modalElements.modal.setAttribute("aria-hidden", "true");
-    document.body.classList.remove("integrity-modal-open");
-}
-
-function resetIntegrityModal() {
-    if (!modalElements.chain) return;
-
-    modalElements.chain.innerHTML =
-        '<div class="integrity-modal-placeholder">' +
-        '<i class="bi bi-shield-check"></i>' +
-        '<strong>Ready for verification</strong>' +
-        '<span>Start the integrity check to traverse the blockchain.</span>' +
-        '</div>';
-
-    if (modalElements.root) modalElements.root.hidden = true;
-    if (modalElements.analysis) modalElements.analysis.hidden = true;
-
-    if (modalElements.liveState) {
-        modalElements.liveState.innerHTML = '<span class="status-dot"></span> READY';
-    }
-
-    if (modalElements.footerMessage) {
-        modalElements.footerMessage.innerHTML =
-            '<i class="bi bi-info-circle"></i> Verification will run live from Genesis to the anchored root.';
-    }
 
     if (modalElements.run) {
         modalElements.run.disabled = false;
@@ -628,242 +806,114 @@ function resetIntegrityModal() {
             '<i class="bi bi-shield-check"></i><span>Start Verification</span>';
     }
 
-    setResult(
-        "IDLE",
-        "READY TO VERIFY",
-        "Open the investigation window to run the blockchain integrity check."
-    );
-
-    investigationIntegrityState.verificationPath.forEach(function(_, index) {
-        setPathStepState(index, "READY");
-    });
-
-    if (pageElements.verificationPanelState) {
-        pageElements.verificationPanelState.textContent = "READY";
-    }
-}
-
-function createModalBlock(block, index) {
-    const wrapper = document.createElement("div");
-    wrapper.className = "verification-live-node-wrap";
-    wrapper.dataset.index = String(index);
-
-    if (index > 0) {
-        const arrow = document.createElement("i");
-        arrow.className = "bi bi-arrow-right verification-live-arrow";
-        arrow.dataset.fromIndex = String(index - 1);
-        wrapper.appendChild(arrow);
+    if (modalElements.chain) {
+        modalElements.chain.innerHTML = `
+            <div class="integrity-modal-placeholder">
+                <i class="bi bi-shield-check"></i>
+                <strong>Ready for real verification</strong>
+                <span>The next check will use the backend integrity API and smart contract.</span>
+            </div>
+        `;
     }
 
-    const node = document.createElement("button");
-    node.type = "button";
-    node.className = "verification-live-node";
-    node.dataset.blockIndex = String(index);
-    node.dataset.status = "VALID";
-    node.disabled = index === 0;
-
-    node.innerHTML =
-        '<div class="verification-live-node-top">' +
-            '<span>' + block.label + '</span>' +
-            '<i class="bi ' + (index === 0 ? "bi-circle-fill" : "bi-check-circle-fill") + '"></i>' +
-        '</div>' +
-        '<strong>#' + block.number + '</strong>' +
-        '<div class="verification-live-node-meta">' +
-            '<span>' + block.meta + '</span>' +
-            '<strong>' + block.hash + '</strong>' +
-        '</div>';
-
-    if (index > 0) {
-        node.addEventListener("click", function() {
-            selectModalTamperedBlock(index);
-        });
-    }
-
-    wrapper.appendChild(node);
-    return wrapper;
-}
-
-function updateModalChain(tamperedIndex) {
-    const nodes = modalElements.chain?.querySelectorAll(".verification-live-node");
-    const arrows = modalElements.chain?.querySelectorAll(".verification-live-arrow");
-
-    if (!nodes) return;
-
-    nodes.forEach(function(node, index) {
-        node.classList.remove("is-selected");
-        node.dataset.status = "VALID";
-
-        if (tamperedIndex > 0 && index === tamperedIndex) {
-            node.dataset.status = "TAMPERED";
-            node.classList.add("is-selected");
-            node.querySelector(".verification-live-node-top i").className =
-                "bi bi-exclamation-triangle-fill";
-        } else if (tamperedIndex > 0 && index > tamperedIndex) {
-            node.dataset.status = "INVALID";
-            node.querySelector(".verification-live-node-top i").className =
-                "bi bi-x-circle-fill";
-        } else {
-            node.querySelector(".verification-live-node-top i").className =
-                index === 0 ? "bi bi-circle-fill" : "bi bi-check-circle-fill";
-        }
-    });
-
-    arrows?.forEach(function(arrow, index) {
-        arrow.dataset.invalid =
-            tamperedIndex > 0 && index >= tamperedIndex ? "true" : "false";
-    });
-
-    modalElements.analysis?.querySelectorAll(".integrity-tamper-control").forEach(function(button) {
-        button.classList.toggle(
-            "active",
-            Number(button.dataset.tamperIndex) === tamperedIndex
-        );
-    });
-
-    if (!modalElements.analysisTitle || !modalElements.analysisStatus || !modalElements.analysisText) return;
-
-    if (tamperedIndex < 1) {
-        modalElements.analysisTitle.textContent = "Chain verified";
-        modalElements.analysisStatus.textContent = "NO TAMPER SELECTED";
-        modalElements.analysisText.textContent =
-            "The chain is valid. Select a block to inspect how a changed hash propagates through subsequent links.";
-        return;
-    }
-
-    const blockNumber = demoBlocks[tamperedIndex].number.replace(/^0+/, "");
-    modalElements.analysisTitle.textContent = "Block " + blockNumber + " tampered";
-    modalElements.analysisStatus.textContent = "BLOCK " + blockNumber + " TAMPERED";
-    modalElements.analysisText.textContent =
-        "Block " + blockNumber + " changed: its hash no longer matches the chain, so every subsequent block's previous-hash link is invalid.";
-}
-
-function selectModalTamperedBlock(index) {
-    updateModalChain(index);
-
-    if (index < 1) {
-        if (modalElements.liveState) {
-            modalElements.liveState.innerHTML =
-                '<span class="status-dot"></span> ANCHOR VALID';
-        }
-
-        setResult(
-            "VERIFIED",
-            "INTEGRITY VERIFIED",
-            "The blockchain is valid. No tamper event is selected."
-        );
-        return;
-    }
-
-    const blockNumber = demoBlocks[index].number.replace(/^0+/, "");
+    if (modalElements.root) modalElements.root.hidden = true;
 
     if (modalElements.liveState) {
         modalElements.liveState.innerHTML =
-            '<span class="status-dot"></span> TAMPER DETECTED';
+            '<span class="status-dot"></span> READY';
     }
+}
 
-    setResult(
-        "TAMPERED",
-        "BLOCK " + blockNumber + " TAMPERED",
-        "Block " + blockNumber + " was modified. Its hash no longer matches the chain, invalidating every subsequent link."
-    );
+function closeIntegrityModal() {
+    if (!modalElements.modal) return;
+
+    modalElements.modal.classList.remove("is-open");
+    modalElements.modal.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("integrity-modal-open");
+}
+
+function closeDetailModal(id) {
+    const modal = document.getElementById(id);
+    if (!modal) return;
+
+    modal.classList.remove("is-open");
+    modal.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("integrity-modal-open");
 }
 
 async function runModalVerification() {
-    if (!modalElements.run || !modalElements.chain) return;
+    if (!modalElements.run) return;
 
     modalElements.run.disabled = true;
     modalElements.run.innerHTML =
         '<i class="bi bi-arrow-repeat"></i><span>Verifying...</span>';
 
-    modalElements.chain.innerHTML =
-        '<div class="verification-live-track" id="integrityModalLiveTrack"></div>';
-
-    const track = document.getElementById("integrityModalLiveTrack");
-
-    if (modalElements.liveState) {
-        modalElements.liveState.innerHTML =
-            '<span class="status-dot"></span> TRAVERSING';
+    if (modalElements.chain) {
+        modalElements.chain.innerHTML =
+            '<div class="integrity-modal-placeholder"><i class="bi bi-arrow-repeat"></i><strong>Running live verification...</strong><span>Checking evidence hashes, Merkle proofs and the historical on-chain root.</span></div>';
     }
 
-    setResult(
-        "VERIFYING",
-        "VERIFYING...",
-        "Running the evidence hash, Merkle proof and on-chain root comparison."
-    );
+    await runRealVerification(state.latestVersion?.version);
 
-    for (let index = 0; index < investigationIntegrityState.verificationPath.length; index += 1) {
-        setPathStepState(index, "VERIFYING");
-        await wait(430);
-        setPathStepState(index, index < 2 ? "READY" : "MATCH");
+    if (modalElements.run) {
+        modalElements.run.disabled = false;
+        modalElements.run.innerHTML =
+            '<i class="bi bi-arrow-clockwise"></i><span>Run Again</span>';
     }
-
-    for (let index = 0; index < demoBlocks.length; index += 1) {
-        track.appendChild(createModalBlock(demoBlocks[index], index));
-        await wait(650);
-
-        const node = track.querySelector(
-            '.verification-live-node[data-block-index="' + index + '"]'
-        );
-
-        if (node) node.classList.add("is-verified");
-
-        if (index > 0) {
-            const arrow = track.querySelector(
-                '.verification-live-arrow[data-from-index="' + (index - 1) + '"]'
-            );
-            if (arrow) arrow.style.opacity = "1";
-        }
-    }
-
-    if (modalElements.root) modalElements.root.hidden = false;
-    if (modalElements.analysis) modalElements.analysis.hidden = false;
-
-    if (modalElements.liveState) {
-        modalElements.liveState.innerHTML =
-            '<span class="status-dot"></span> ANCHOR REACHED';
-    }
-
-    if (modalElements.footerMessage) {
-        modalElements.footerMessage.innerHTML =
-            '<i class="bi bi-check-circle"></i> Chain traversal complete. Select a block to investigate tampering.';
-    }
-
-    modalElements.run.disabled = false;
-    modalElements.run.innerHTML =
-        '<i class="bi bi-arrow-clockwise"></i><span>Run Again</span>';
-
-    setResult(
-        "VERIFIED",
-        "INTEGRITY VERIFIED",
-        "The reconstructed Merkle Root matches the on-chain anchor. Select a block below to investigate tampering."
-    );
-
-    updateModalChain(-1);
 }
 
-function initializeVerification() {
-    if (!pageElements.verifyButton || !modalElements.modal) return;
+function initializeDetailModals() {
+    const rootModal = document.getElementById("rootHistoryModal");
+    const custodyModal = document.getElementById("custodyModal");
 
-    pageElements.verifyButton.addEventListener("click", openIntegrityModal);
-    modalElements.close?.addEventListener("click", closeIntegrityModal);
-    modalElements.run?.addEventListener("click", runModalVerification);
+    const openModal = modal => {
+        if (!modal) return;
+        modal.classList.add("is-open");
+        modal.setAttribute("aria-hidden", "false");
+        document.body.classList.add("integrity-modal-open");
+    };
 
-    modalElements.modal
-        .querySelectorAll("[data-close-integrity-modal]")
-        .forEach(function(element) {
-            element.addEventListener("click", closeIntegrityModal);
-        });
+    const closeModal = modal => {
+        if (!modal) return;
+        modal.classList.remove("is-open");
+        modal.setAttribute("aria-hidden", "true");
+        document.body.classList.remove("integrity-modal-open");
+    };
 
-    modalElements.analysis
-        ?.querySelectorAll(".integrity-tamper-control")
-        .forEach(function(button) {
-            button.addEventListener("click", function() {
-                selectModalTamperedBlock(Number(button.dataset.tamperIndex));
-            });
-        });
+    document.getElementById("viewRootHistoryButton")?.addEventListener(
+        "click",
+        () => openModal(rootModal)
+    );
 
-    document.addEventListener("keydown", function(event) {
-        if (event.key === "Escape" && modalElements.modal.classList.contains("is-open")) {
+    document.getElementById("viewCustodyButton")?.addEventListener(
+        "click",
+        () => openModal(custodyModal)
+    );
+
+    rootModal?.querySelectorAll(
+        "[data-close-root-history], [data-close-detail-modal]"
+    ).forEach(button => {
+        button.addEventListener("click", () => closeModal(rootModal));
+    });
+
+    custodyModal?.querySelectorAll(
+        "[data-close-custody], [data-close-detail-modal]"
+    ).forEach(button => {
+        button.addEventListener("click", () => closeModal(custodyModal));
+    });
+
+    document.addEventListener("keydown", event => {
+        if (event.key !== "Escape") return;
+
+        if (rootModal?.classList.contains("is-open")) {
+            closeModal(rootModal);
+        }
+
+        if (custodyModal?.classList.contains("is-open")) {
+            closeModal(custodyModal);
+        }
+
+        if (modalElements.modal?.classList.contains("is-open")) {
             closeIntegrityModal();
         }
     });
@@ -875,7 +925,7 @@ async function copyIntegrityHash(button) {
 
     try {
         await navigator.clipboard.writeText(hash);
-    } catch (error) {
+    } catch {
         const helper = document.createElement("textarea");
         helper.value = hash;
         helper.setAttribute("readonly", "");
@@ -897,7 +947,7 @@ async function copyIntegrityHash(button) {
     }, 1400);
 }
 
-function initializeIntegrityCopyButtons() {
+function initializeCopyButtons() {
     document.addEventListener("click", event => {
         const button = event.target.closest("[data-copy-hash]");
         if (!button) return;
@@ -908,49 +958,87 @@ function initializeIntegrityCopyButtons() {
     });
 }
 
-function initializeDetailModals() {
-    const rootModal = document.getElementById("rootHistoryModal");
-    const custodyModal = document.getElementById("custodyModal");
+async function loadPage() {
+    setPageStatus("LOADING");
 
-    const openModal = modal => {
-        if (!modal) return;
-        modal.classList.add("is-open");
-        modal.setAttribute("aria-hidden", "false");
-        document.body.classList.add("integrity-modal-open");
-    };
+    try {
+        state.incidentId = await resolveIncidentId();
 
-    const closeModal = modal => {
-        if (!modal) return;
-        modal.classList.remove("is-open");
-        modal.setAttribute("aria-hidden", "true");
-        document.body.classList.remove("integrity-modal-open");
-    };
+        const [incident, integrity, custody, blockchain] = await Promise.all([
+            fetchIncident(state.incidentId),
+            fetchIntegrity(state.incidentId),
+            fetchCustody(state.incidentId),
+            fetchBlockchainStatus()
+        ]);
 
-    document.getElementById("viewRootHistoryButton")?.addEventListener("click", () => openModal(rootModal));
-    document.getElementById("viewCustodyButton")?.addEventListener("click", () => openModal(custodyModal));
+        state.incident = incident;
+        state.integrity = integrity;
+        state.custody = Array.isArray(custody) ? custody : [];
+        state.blockchain = blockchain;
+        state.latestVersion = getLatestVersion();
 
-    rootModal?.querySelectorAll("[data-close-root-history], [data-close-detail-modal]").forEach(button => {
-        button.addEventListener("click", () => closeModal(rootModal));
-    });
+        renderRootSummary();
+        renderCustodySummary();
+        renderRootHistoryModal();
+        renderCustodyModal();
+        renderVerificationPath();
 
-    custodyModal?.querySelectorAll("[data-close-custody], [data-close-detail-modal]").forEach(button => {
-        button.addEventListener("click", () => closeModal(custodyModal));
-    });
+        if (state.latestVersion) {
+            setPageStatus(
+                state.latestVersion.blockchainStatus === "ANCHORED"
+                    ? "INTEGRITY ACTIVE"
+                    : "INTEGRITY PENDING"
+            );
 
-    document.addEventListener("keydown", event => {
-        if (event.key !== "Escape") return;
-        if (rootModal?.classList.contains("is-open")) closeModal(rootModal);
-        if (custodyModal?.classList.contains("is-open")) closeModal(custodyModal);
-    });
+            setResult(
+                "IDLE",
+                "READY TO VERIFY",
+                `Current root V${state.latestVersion.version} is available. Run the real integrity check to validate the evidence against its anchored root.`
+            );
+        } else {
+            setPageStatus("NO ANCHORED ROOT", "warning");
+
+            setResult(
+                "IDLE",
+                "NO ROOT AVAILABLE",
+                "This incident has no saved Merkle Root version. Generate integrity from the Blockchain Integrity page first."
+            );
+
+            if (elements.verifyButton) {
+                elements.verifyButton.disabled = true;
+            }
+        }
+    } catch (error) {
+        console.error("[Investigation Integrity] Load Error:", error);
+
+        setPageStatus("API UNAVAILABLE", "error");
+
+        setResult(
+            "MISMATCH",
+            "INTEGRITY DATA UNAVAILABLE",
+            error.message || "Unable to load investigation integrity data."
+        );
+
+        if (elements.verificationPanelState) {
+            elements.verificationPanelState.textContent = "ERROR";
+        }
+    }
 }
 
 function initializePage() {
-    renderVerificationPath();
-    renderRootHistory();
-    renderCustodyTimeline();
-    initializeVerification();
+    elements.verifyButton?.addEventListener("click", openIntegrityModal);
+    modalElements.close?.addEventListener("click", closeIntegrityModal);
+    modalElements.run?.addEventListener("click", runModalVerification);
+
+    modalElements.modal
+        ?.querySelectorAll("[data-close-integrity-modal]")
+        .forEach(element => {
+            element.addEventListener("click", closeIntegrityModal);
+        });
+
     initializeDetailModals();
-    initializeIntegrityCopyButtons();
+    initializeCopyButtons();
+    loadPage();
 }
 
 document.addEventListener("DOMContentLoaded", initializePage);
