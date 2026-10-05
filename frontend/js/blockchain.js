@@ -913,7 +913,7 @@ async function loadBlockchainData() {
                 ? "ONLINE"
                 : "OFFLINE";
 
-        refreshBlockchainPage();
+        await refreshBlockchainPage();
 
         console.log(
             "[CyberTwin] Blockchain Integrity API data loaded.",
