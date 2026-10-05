@@ -544,8 +544,8 @@ async function renderMerkleTree() {
 
     const leafY = 45;
     const levelGap = 95;
-    const nodeWidth = 120;
-    const nodeHeight = 50;
+    const nodeWidth = 140;
+    const nodeHeight = 58;
 
     const positions = [];
 
@@ -655,23 +655,23 @@ async function renderMerkleTree() {
             <g class="merkle-root-node">
                 <rect
                     class="merkle-node root"
-                    x="${root.x - 85}"
+                    x="${root.x - 100}"
                     y="${root.y}"
-                    width="170"
-                    height="65"
+                    width="200"
+                    height="76"
                     rx="10"
                 ></rect>
-                <text class="merkle-node-label" x="${root.x}" y="${root.y + 23}">
+                <text class="merkle-node-label" x="${root.x}" y="${root.y + 27}">
                     MERKLE ROOT
                 </text>
-                <text class="merkle-root-text" x="${root.x}" y="${root.y + 49}">
+                <text class="merkle-root-text" x="${root.x}" y="${root.y + 57}">
                     ${escapeHTML(shortHash("0x" + levels[levels.length - 1][0], 8, 6))}
                 </text>
             </g>
             <circle
                 class="merkle-root-pulse"
                 cx="${root.x}"
-                cy="${root.y + 32}"
+                cy="${root.y + 38}"
                 r="18"
             ></circle>
         `;
