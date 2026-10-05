@@ -665,7 +665,7 @@ async function renderMerkleTree() {
                     MERKLE ROOT
                 </text>
                 <text class="merkle-root-text" x="${root.x}" y="${root.y + 49}">
-                    ${escapeHTML(shortHash(`0x${levels[levels.length - 1][0]}`, 8, 6))}
+                    ${escapeHTML(shortHash("0x" + levels[levels.length - 1][0], 8, 6))}
                 </text>
             </g>
             <circle
