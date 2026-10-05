@@ -567,6 +567,7 @@ async function renderMerkleTree() {
 
     let markup = "";
 
+    // Draw the connections first so they remain behind the nodes.
     for (let level = 0; level < positions.length - 1; level++) {
         const current = positions[level];
         const parent = positions[level + 1];
@@ -586,6 +587,24 @@ async function renderMerkleTree() {
                 ></line>
             `;
         }
+    }
+
+    // Animated hash particles travel from evidence leaves toward their parents.
+    const leafParticles = positions[0] || [];
+    leafParticles.forEach((node, index) => {
+        const parentNode = positions[1]?.[Math.floor(index / 2)];
+        if (!parentNode) return;
+
+        markup += `
+            <circle
+                class="merkle-particle particle-${index + 1}"
+                r="4"
+                cx="${node.x}"
+                cy="${node.y + nodeHeight}"
+                data-parent-x="${parentNode.x}"
+                data-parent-y="${parentNode.y}"
+            ></circle>
+        `;
     }
 
     const leafLabels = evidence.map(item => item.id);
@@ -641,6 +660,12 @@ async function renderMerkleTree() {
                     ${escapeHTML(shortHash(`0x${levels[levels.length - 1][0]}`, 8, 6))}
                 </text>
             </g>
+            <circle
+                class="merkle-root-pulse"
+                cx="${root.x}"
+                cy="${root.y + 32}"
+                r="18"
+            ></circle>
         `;
     }
 
