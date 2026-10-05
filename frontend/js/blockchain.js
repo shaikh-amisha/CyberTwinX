@@ -532,6 +532,16 @@ async function renderMerkleTree() {
 
     const levels = await buildMerkleLevelsBrowser(evidence);
     const svgWidth = 760;
+    const svgHeight = Math.max(
+        430,
+        45 + (levels.length - 1) * 95 + 100
+    );
+
+    elements.merkleSvg.setAttribute(
+        "viewBox",
+        `0 0 ${svgWidth} ${svgHeight}`
+    );
+
     const leafY = 45;
     const levelGap = 95;
     const nodeWidth = 120;
