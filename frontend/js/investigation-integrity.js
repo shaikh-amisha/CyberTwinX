@@ -631,9 +631,37 @@ function renderRealVerificationChain(result) {
         `;
     }
 
+    const evidenceResults = document.createElement("div");
+    evidenceResults.className = "verification-evidence-results";
+
+    result.evidence.forEach(item => {
+        const row = document.createElement("div");
+        row.className = "verification-tamper-explanation";
+        row.dataset.status = item.verified ? "VALID" : "MISMATCH";
+
+        const reasons = [];
+
+        if (!item.hashMatches) reasons.push("snapshot hash mismatch");
+        if (!item.merkleProofValid) reasons.push("Merkle proof mismatch");
+        if (!item.sourceDataMatches) reasons.push("source evidence changed after anchoring");
+
+        row.innerHTML = `
+            <i class="bi ${item.verified ? "bi-check-circle" : "bi-exclamation-triangle"}"></i>
+            <span>
+                <strong>${escapeHTML(item.evidenceId)}</strong>
+                · ${item.verified
+                    ? "HASH + PROOF + SOURCE DATA VALID"
+                    : escapeHTML(reasons.join(" · ") || "verification failed")}
+            </span>
+        `;
+
+        evidenceResults.appendChild(row);
+    });
+
     elements.verificationChainStage.innerHTML = "";
     elements.verificationChainStage.appendChild(track);
     elements.verificationChainStage.appendChild(explanation);
+    elements.verificationChainStage.appendChild(evidenceResults);
 
     const final = document.createElement("div");
     final.className = `verification-chain-final${result.verified ? "" : " tampered"}`;
