@@ -613,7 +613,7 @@ async function renderMerkleTree() {
                 ></animateMotion>
             </circle>
         `;
-    }
+    });
 
     const leafLabels = evidence.map(item => item.id);
 
