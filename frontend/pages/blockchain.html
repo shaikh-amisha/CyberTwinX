@@ -198,7 +198,7 @@
                             <span class="hash-stream-dot"></span>
                             <span>SHA-256 HASH STREAM</span>
                             <span class="hash-stream-line"></span>
-                            <span>4 LEAVES</span>
+                            <span id="evidenceLeafCount">0 LEAVES</span>
                         </div>
                     </article>
 
@@ -217,87 +217,8 @@
                                 class="merkle-svg"
                                 viewBox="0 0 760 430"
                                 role="img"
-                                aria-label="Animated Merkle Tree visualization"
-                            >
-
-                                <!-- EVIDENCE → PARENT CONNECTIONS -->
-
-                                <line class="merkle-line" x1="120" y1="105" x2="270" y2="195"></line>
-                                <line class="merkle-line" x1="270" y1="105" x2="270" y2="195"></line>
-                                <line class="merkle-line" x1="490" y1="105" x2="490" y2="195"></line>
-                                <line class="merkle-line" x1="640" y1="105" x2="490" y2="195"></line>
-
-                                <!-- PARENT → ROOT CONNECTIONS -->
-
-                                <line class="merkle-line" x1="270" y1="245" x2="380" y2="330"></line>
-                                <line class="merkle-line" x1="490" y1="245" x2="380" y2="330"></line>
-
-                                <!-- MOVING HASH PARTICLES -->
-
-                                <circle class="merkle-particle particle-1" r="4" cx="120" cy="105"></circle>
-                                <circle class="merkle-particle particle-2" r="4" cx="270" cy="105"></circle>
-                                <circle class="merkle-particle particle-3" r="4" cx="490" cy="105"></circle>
-                                <circle class="merkle-particle particle-4" r="4" cx="640" cy="105"></circle>
-
-                                <!-- EVIDENCE 001 -->
-
-                                <g class="merkle-evidence-node">
-                                    <rect class="merkle-node leaf" x="55" y="55" width="130" height="50" rx="8"></rect>
-                                    <text class="merkle-node-label" x="120" y="75">EVID-001</text>
-                                    <text class="merkle-node-text" x="120" y="95">9f6c...4a6c</text>
-                                </g>
-
-                                <!-- EVIDENCE 002 -->
-
-                                <g class="merkle-evidence-node">
-                                    <rect class="merkle-node leaf" x="205" y="55" width="130" height="50" rx="8"></rect>
-                                    <text class="merkle-node-label" x="270" y="75">EVID-002</text>
-                                    <text class="merkle-node-text" x="270" y="95">a72b...18f2</text>
-                                </g>
-
-                                <!-- EVIDENCE 003 -->
-
-                                <g class="merkle-evidence-node">
-                                    <rect class="merkle-node leaf" x="425" y="55" width="130" height="50" rx="8"></rect>
-                                    <text class="merkle-node-label" x="490" y="75">EVID-003</text>
-                                    <text class="merkle-node-text" x="490" y="95">c31d...72e8</text>
-                                </g>
-
-                                <!-- EVIDENCE 004 -->
-
-                                <g class="merkle-evidence-node">
-                                    <rect class="merkle-node leaf" x="575" y="55" width="130" height="50" rx="8"></rect>
-                                    <text class="merkle-node-label" x="640" y="75">EVID-004</text>
-                                    <text class="merkle-node-text" x="640" y="95">f84a...9b11</text>
-                                </g>
-
-                                <!-- PARENT H12 -->
-
-                                <g class="merkle-parent-node">
-                                    <rect class="merkle-node" x="205" y="195" width="130" height="50" rx="8"></rect>
-                                    <text class="merkle-node-label" x="270" y="215">PARENT H12</text>
-                                    <text class="merkle-node-text" x="270" y="235">a91e...2c4d</text>
-                                </g>
-
-                                <!-- PARENT H34 -->
-
-                                <g class="merkle-parent-node">
-                                    <rect class="merkle-node" x="425" y="195" width="130" height="50" rx="8"></rect>
-                                    <text class="merkle-node-label" x="490" y="215">PARENT H34</text>
-                                    <text class="merkle-node-text" x="490" y="235">b73f...91aa</text>
-                                </g>
-
-                                <!-- MERKLE ROOT -->
-
-                                <g class="merkle-root-node">
-                                    <rect class="merkle-node root" x="295" y="330" width="170" height="65" rx="10"></rect>
-                                    <text class="merkle-node-label" x="380" y="353">MERKLE ROOT</text>
-                                    <text class="merkle-root-text" x="380" y="379" id="merkleRootSvg">—</text>
-                                </g>
-
-                                <circle class="merkle-root-pulse" cx="380" cy="362" r="18"></circle>
-
-                            </svg>
+                                aria-label="Dynamic Merkle Tree visualization"
+                            ></svg>
 
                         </div>
                     </article>
@@ -395,6 +316,106 @@
                             </div>
 
                         </div>
+                    </div>
+                </article>
+            </section>
+
+
+            <!-- 04 VERIFICATION -->
+            <section class="dashboard-section">
+                <div class="section-heading">
+                    <span class="section-number">04</span>
+                    <div>
+                        <h3>Integrity Verification</h3>
+                        <p>Validate the stored evidence hashes, Merkle proofs and historical on-chain root.</p>
+                    </div>
+                </div>
+
+                <div class="verification-grid">
+                    <article class="dashboard-card">
+                        <div class="card-header">
+                            <div>
+                                <span class="card-label">VERIFICATION FLOW</span>
+                                <span class="evidence-hashes-subtitle">Checks performed by the Integrity API</span>
+                            </div>
+                        </div>
+
+                        <div class="verification-flow">
+                            <div class="verification-step">
+                                <div class="verification-step-number">01</div>
+                                <div>
+                                    <strong>Evidence Hashes</strong>
+                                    <span>Stored evidence snapshots are re-hashed and compared.</span>
+                                </div>
+                                <span class="match" id="verificationEvidenceStatus">READY</span>
+                            </div>
+
+                            <div class="verification-step">
+                                <div class="verification-step-number">02</div>
+                                <div>
+                                    <strong>Merkle Proofs</strong>
+                                    <span>Each evidence hash is validated against the selected root.</span>
+                                </div>
+                                <span class="match" id="verificationProofStatus">READY</span>
+                            </div>
+
+                            <div class="verification-step">
+                                <div class="verification-step-number">03</div>
+                                <div>
+                                    <strong>On-Chain Root</strong>
+                                    <span>The historical root is checked against the blockchain anchor.</span>
+                                </div>
+                                <span class="match" id="verificationChainStatus">READY</span>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="dashboard-card verification-summary">
+                        <div class="verification-result-box">
+                            <span class="result-label">VERIFICATION RESULT</span>
+                            <h3 id="verificationResult">READY TO VERIFY</h3>
+                            <p id="verificationMessage">Run verification to validate the current integrity version.</p>
+
+                            <div class="verification-root-pair">
+                                <div>
+                                    <span>Current Merkle Root</span>
+                                    <strong class="mono" id="reconstructedRoot">—</strong>
+                                </div>
+                                <div>
+                                    <span>Verified On-Chain Root</span>
+                                    <strong class="mono" id="verificationOnChainRoot">—</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button class="verify-integrity-button" id="verifyIntegrityButton" type="button">
+                            <i class="bi bi-shield-check"></i>
+                            Verify Integrity
+                        </button>
+                    </article>
+                </div>
+            </section>
+
+            <!-- 05 ROOT HISTORY -->
+            <section class="dashboard-section">
+                <div class="section-heading">
+                    <span class="section-number">05</span>
+                    <div>
+                        <h3>Merkle Root History</h3>
+                        <p>Historical cryptographic snapshots preserved for this incident.</p>
+                    </div>
+                </div>
+
+                <article class="dashboard-card">
+                    <div class="root-history-table">
+                        <div class="root-history-head">
+                            <span>VERSION</span>
+                            <span>EVIDENCE</span>
+                            <span>MERKLE ROOT</span>
+                            <span>REGISTERED</span>
+                            <span>STATUS</span>
+                        </div>
+                        <div id="rootHistory"></div>
                     </div>
                 </article>
             </section>
