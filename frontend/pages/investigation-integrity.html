@@ -179,7 +179,38 @@
                 </article>
             </section>
 
-            <!-- 02 CHAIN OF CUSTODY -->
+            <!-- 02 MERKLE ROOT HISTORY -->
+            <section class="dashboard-section">
+                <div class="section-heading">
+                    <span class="section-number">02</span>
+                    <div>
+                        <h3>Merkle Root History</h3>
+                        <p>Review previous integrity states of the evidence set and inspect their blockchain anchors.</p>
+                    </div>
+                </div>
+
+                <article class="dashboard-card root-history-summary-card">
+                    <div class="root-history-summary-main">
+                        <div class="root-history-summary-copy">
+                            <span class="card-label">CURRENT ROOT STATE</span>
+                            <strong class="root-history-current-root" id="rootHistoryCurrentRoot">No root anchored</strong>
+                            <span class="root-history-summary-sub" id="rootHistorySummarySub">Loading Merkle Root history...</span>
+                        </div>
+
+                        <div class="root-history-version-strip" id="rootHistoryVersionStrip"></div>
+                    </div>
+
+                    <div class="root-history-summary-footer">
+                        <span><i class="bi bi-clock-history"></i> <span id="rootHistoryVersionCount">Loading root versions...</span></span>
+                        <button class="integrity-detail-button" id="viewRootHistoryButton" type="button">
+                            <span>View Root History</span>
+                            <i class="bi bi-arrow-up-right"></i>
+                        </button>
+                    </div>
+                </article>
+            </section>
+
+            <!-- 03 CHAIN OF CUSTODY -->
             <section class="dashboard-section">
                 <div class="section-heading">
                     <span class="section-number">03</span>
