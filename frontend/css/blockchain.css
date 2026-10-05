@@ -1556,3 +1556,83 @@
         min-width: 720px;
     }
 }
+
+
+/* =========================================================
+   MERKLE TREE — LARGER NODES + SUBTLE ZOOM EFFECT
+   ========================================================= */
+
+.merkle-svg {
+    overflow: visible;
+}
+
+.merkle-evidence-node,
+.merkle-parent-node,
+.merkle-root-node {
+    transform-box: fill-box;
+    transform-origin: center;
+    transition:
+        transform 0.28s ease,
+        filter 0.28s ease;
+}
+
+.merkle-evidence-node .merkle-node,
+.merkle-parent-node .merkle-node {
+    transition:
+        fill 0.28s ease,
+        stroke 0.28s ease,
+        stroke-width 0.28s ease;
+}
+
+.merkle-evidence-node:hover,
+.merkle-parent-node:hover {
+    transform: scale(1.09);
+    filter: drop-shadow(0 0 10px rgba(34, 211, 238, 0.24));
+}
+
+.merkle-evidence-node:hover .merkle-node,
+.merkle-parent-node:hover .merkle-node {
+    stroke-width: 2;
+}
+
+.merkle-root-node {
+    transform-origin: center;
+}
+
+.merkle-root-node:hover {
+    transform: scale(1.10);
+    filter: drop-shadow(0 0 16px rgba(34, 211, 238, 0.38));
+}
+
+.merkle-node-text {
+    font-size: 10px;
+}
+
+.merkle-node-label {
+    font-size: 9px;
+    letter-spacing: 0.9px;
+}
+
+.merkle-root-text {
+    font-size: 11px;
+}
+
+/* A very subtle idle breathing effect keeps the root visually prominent. */
+.merkle-root-node {
+    animation: merkleRootZoom 3.2s ease-in-out infinite;
+}
+
+@keyframes merkleRootZoom {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.035);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .merkle-root-node {
+        animation: none;
+    }
+}
