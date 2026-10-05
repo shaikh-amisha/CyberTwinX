@@ -996,6 +996,39 @@ function renderModalChecks(result) {
     `).join("");
 }
 
+function renderModalStageSummary(result) {
+    const chain = modalElements.chain;
+    if (!chain) return;
+
+    const evidenceValid =
+        result.evidence.length > 0 &&
+        result.evidence.every(item => item.hashMatches && item.sourceDataMatches);
+
+    const proofValid =
+        result.evidence.length > 0 &&
+        result.evidence.every(item => item.merkleProofValid);
+
+    const stages = [
+        ["EVIDENCE HASH", evidenceValid, `${result.evidenceCount} RECORDS`],
+        ["MERKLE PROOF", proofValid, "LEAF + PROOF"],
+        ["RECONSTRUCTED ROOT", Boolean(result.historicalRootValid), `V${result.version}`],
+        ["ON-CHAIN ROOT", Boolean(result.historicalRootValid && result.blockchainStatus === "ANCHORED"), "ANCHOR"]
+    ];
+
+    chain.innerHTML = `
+        <div class="integrity-modal-stage-summary">
+            ${stages.map((stage, index) => `
+                ${index > 0 ? '<i class="bi bi-arrow-right"></i>' : ""}
+                <div class="integrity-modal-stage" data-status="${stage[1] ? "VALID" : "MISMATCH"}">
+                    <span>${escapeHTML(stage[0])}</span>
+                    <strong>${escapeHTML(stage[2])}</strong>
+                    <small><i class="bi ${stage[1] ? "bi-check-circle-fill" : "bi-x-circle-fill"}"></i> ${stage[1] ? "MATCH" : "MISMATCH"}</small>
+                </div>
+            `).join("")}
+        </div>
+    `;
+}
+
 async function renderModalDetailedVerification(result) {
     const detailGrid = document.getElementById("integrityModalDetailGrid");
 
@@ -1003,6 +1036,7 @@ async function renderModalDetailedVerification(result) {
 
     detailGrid.hidden = false;
 
+    renderModalStageSummary(result);
     renderModalEvidence(result);
     renderModalChecks(result);
     await renderModalMerkleTree(result);
