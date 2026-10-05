@@ -2871,3 +2871,41 @@ body.integrity-modal-open {
         margin-top: 2px;
     }
 }
+
+
+/* =========================================================
+   REAL VERIFICATION RESULT LIST
+   ========================================================= */
+
+.verification-evidence-results {
+    display: grid;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.verification-evidence-results .verification-tamper-explanation {
+    margin-top: 0;
+    border-radius: 9px;
+}
+
+.verification-evidence-results .verification-tamper-explanation[data-status="VALID"] {
+    border-color: rgba(83,245,155,.18);
+    background: rgba(83,245,155,.035);
+}
+
+.verification-evidence-results .verification-tamper-explanation[data-status="MISMATCH"] {
+    border-color: rgba(255,108,108,.25);
+    background: rgba(255,108,108,.045);
+}
+
+.verification-evidence-results .verification-tamper-explanation[data-status="VALID"] i {
+    color: var(--integrity-success);
+}
+
+.verification-evidence-results .verification-tamper-explanation[data-status="MISMATCH"] i {
+    color: var(--integrity-danger, #ff6b6b);
+}
+
+.verification-evidence-results .verification-tamper-explanation strong {
+    color: #f8fafc;
+}
