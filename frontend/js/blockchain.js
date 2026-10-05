@@ -58,6 +58,7 @@ const elements = {
     merkleRootChip: document.getElementById("merkleRootChip"),
     merkleRootSvg: document.getElementById("merkleRootSvg"),
     merkleSvg: document.querySelector(".merkle-svg"),
+    evidenceLeafCount: document.getElementById("evidenceLeafCount"),
 
     anchorNetwork: document.getElementById("anchorNetwork"),
     anchorNetworkOutput: document.getElementById("anchorNetworkOutput"),
@@ -650,6 +651,11 @@ async function renderMerkleRoot() {
         root ? short : "—"
     );
 
+    setText(
+        elements.evidenceLeafCount,
+        `${blockchainState.evidence.length} ${blockchainState.evidence.length === 1 ? "LEAF" : "LEAVES"}`
+    );
+
     await renderMerkleTree();
 }
 
@@ -750,7 +756,28 @@ function renderVerification() {
 
     setText(
         elements.verificationOnChainRoot,
-        root
+        "NOT VERIFIED"
+    );
+
+    setText(
+        elements.verificationEvidenceStatus,
+        blockchainState.integrity.status === "ANCHORED"
+            ? "READY"
+            : "WAITING"
+    );
+
+    setText(
+        elements.verificationProofStatus,
+        blockchainState.integrity.status === "ANCHORED"
+            ? "READY"
+            : "WAITING"
+    );
+
+    setText(
+        elements.verificationChainStatus,
+        blockchainState.integrity.status === "ANCHORED"
+            ? "READY"
+            : "WAITING"
     );
 
     if (
@@ -955,19 +982,38 @@ async function verifyIntegrity() {
                 : "One or more evidence records, Merkle proofs or the anchored root failed verification."
         );
 
+        const evidenceResults = Array.isArray(result.evidence)
+            ? result.evidence
+            : [];
+
+        const allHashesValid =
+            evidenceResults.length > 0 &&
+            evidenceResults.every(item => item.hashMatches);
+
+        const allProofsValid =
+            evidenceResults.length > 0 &&
+            evidenceResults.every(item => item.merkleProofValid);
+
         setText(
             elements.verificationEvidenceStatus,
-            result.evidenceValid ? "VALID" : "MISMATCH"
+            allHashesValid ? "VALID" : "MISMATCH"
         );
 
         setText(
             elements.verificationProofStatus,
-            result.evidenceValid ? "VALID" : "MISMATCH"
+            allProofsValid ? "VALID" : "MISMATCH"
         );
 
         setText(
             elements.verificationChainStatus,
             result.historicalRootValid ? "MATCH" : "MISMATCH"
+        );
+
+        setText(
+            elements.verificationOnChainRoot,
+            result.historicalRootValid
+                ? shortHash(result.merkleRoot, 10, 8)
+                : "MISMATCH"
         );
     } catch (error) {
         console.error(
