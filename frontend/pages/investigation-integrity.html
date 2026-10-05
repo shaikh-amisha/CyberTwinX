@@ -278,7 +278,7 @@
                 <div>
                     <span class="integrity-modal-eyebrow">CYBERTWIN / FORENSIC VERIFICATION</span>
                     <h3 id="integrityModalTitle">Integrity Investigation</h3>
-                    <p>Traverse the anchored chain and inspect the selected evidence for tampering.</p>
+                    <p>Inspect evidence hashes, reconstruct the Merkle tree and compare the historical root with the on-chain anchor.</p>
                 </div>
                 <button class="integrity-modal-close" id="closeIntegrityModal" type="button" aria-label="Close investigation">
                     <i class="bi bi-x-lg"></i>
@@ -293,10 +293,11 @@
                 <div class="integrity-modal-chain" id="integrityModalChain" aria-live="polite">
                     <div class="integrity-modal-placeholder">
                         <i class="bi bi-shield-check"></i>
-                        <strong>Ready for real verification</strong>
-                        <span>The check will use the backend integrity API and smart contract.</span>
+                        <strong>Ready for detailed verification</strong>
+                        <span>The check will validate evidence hashes, Merkle proofs, the reconstructed root and the on-chain anchor.</span>
                     </div>
                 </div>
+
                 <div class="integrity-modal-root-row" id="integrityModalRootRow" hidden>
                     <div>
                         <span>MERKLE ROOT ANCHORED ON-CHAIN</span>
@@ -304,6 +305,7 @@
                     </div>
                     <span class="integrity-modal-root-status"><i class="bi bi-check2-circle"></i> ANCHOR MATCH</span>
                 </div>
+
                 <div class="integrity-modal-analysis" id="integrityModalAnalysis" hidden>
                     <div class="integrity-analysis-header">
                         <div>
@@ -313,6 +315,40 @@
                         <span id="integrityAnalysisStatus">READY</span>
                     </div>
                     <p id="integrityAnalysisText">The result below is based on the stored evidence snapshot, Merkle proof and smart-contract historical root verification. No block tampering is simulated.</p>
+                </div>
+
+                <div class="integrity-modal-detail-grid" id="integrityModalDetailGrid" hidden>
+                    <section class="integrity-modal-detail-section">
+                        <div class="integrity-modal-section-heading">
+                            <div>
+                                <span class="integrity-modal-eyebrow">01 / EVIDENCE INTEGRITY</span>
+                                <strong>Evidence Hash Verification</strong>
+                            </div>
+                            <span id="integrityModalEvidenceState">—</span>
+                        </div>
+                        <div class="integrity-modal-evidence-list" id="integrityModalEvidenceList"></div>
+                    </section>
+
+                    <section class="integrity-modal-detail-section merkle-detail-section">
+                        <div class="integrity-modal-section-heading">
+                            <div>
+                                <span class="integrity-modal-eyebrow">02 / MERKLE STRUCTURE</span>
+                                <strong>Evidence Leaves → Merkle Root</strong>
+                            </div>
+                            <span id="integrityModalMerkleState">—</span>
+                        </div>
+                        <div class="integrity-modal-merkle" id="integrityModalMerkle"></div>
+                    </section>
+
+                    <section class="integrity-modal-detail-section">
+                        <div class="integrity-modal-section-heading">
+                            <div>
+                                <span class="integrity-modal-eyebrow">03 / VERIFICATION CHAIN</span>
+                                <strong>Cryptographic Verification Path</strong>
+                            </div>
+                        </div>
+                        <div class="integrity-modal-checks" id="integrityModalChecks"></div>
+                    </section>
                 </div>
             </div>
             <footer class="integrity-modal-footer">
