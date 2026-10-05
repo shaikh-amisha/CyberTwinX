@@ -1397,3 +1397,162 @@
         animation: none;
     }
 }
+
+
+/* =========================================================
+   MERKLE TREE — ENHANCED VISUALIZATION
+   Restored animated flow, larger typography and hover states.
+   ========================================================= */
+
+.merkle-svg-wrap {
+    min-height: 430px;
+}
+
+.merkle-svg {
+    min-width: 720px;
+    height: 430px;
+    overflow: visible;
+}
+
+.merkle-node {
+    fill: #0a1118;
+    stroke: #3a4d5d;
+    stroke-width: 1.4;
+    transition:
+        fill 0.25s ease,
+        stroke 0.25s ease,
+        filter 0.25s ease,
+        transform 0.25s ease;
+}
+
+.merkle-node.leaf {
+    stroke: rgba(34, 211, 238, 0.48);
+}
+
+.merkle-node.root {
+    fill: rgba(34, 211, 238, 0.075);
+    stroke: rgba(34, 211, 238, 0.78);
+    stroke-width: 1.8;
+}
+
+.merkle-node-label {
+    fill: #aab9c4;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+.merkle-node-text {
+    fill: #d5e1e8;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.merkle-root-text {
+    fill: #22d3ee;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.merkle-line {
+    stroke: #3c4e5d;
+    stroke-width: 1.5;
+    stroke-dasharray: 5 5;
+    opacity: 0.85;
+}
+
+.merkle-evidence-node .merkle-node.leaf {
+    fill: rgba(34, 211, 238, 0.035);
+}
+
+.merkle-parent-node .merkle-node {
+    fill: rgba(15, 23, 31, 0.96);
+}
+
+.merkle-evidence-node:hover .merkle-node,
+.merkle-parent-node:hover .merkle-node {
+    fill: rgba(34, 211, 238, 0.08);
+    stroke: rgba(34, 211, 238, 0.75);
+    filter: drop-shadow(0 0 7px rgba(34, 211, 238, 0.18));
+}
+
+.merkle-root-node {
+    filter: drop-shadow(0 0 7px rgba(34, 211, 238, 0.13));
+}
+
+.merkle-particle {
+    fill: #22d3ee;
+    opacity: 0;
+    filter: drop-shadow(0 0 5px rgba(34, 211, 238, 0.8));
+    pointer-events: none;
+    animation: merkleFlow 2.8s ease-in-out infinite;
+}
+
+.merkle-particle:nth-of-type(2) {
+    animation-delay: 0.35s;
+}
+
+.merkle-particle:nth-of-type(3) {
+    animation-delay: 0.7s;
+}
+
+.merkle-particle:nth-of-type(4) {
+    animation-delay: 1.05s;
+}
+
+.merkle-root-pulse {
+    fill: none;
+    stroke: rgba(34, 211, 238, 0.5);
+    stroke-width: 1;
+    opacity: 0;
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: merkleRootPulse 2.6s ease-out infinite;
+    pointer-events: none;
+}
+
+@keyframes merkleFlow {
+    0% {
+        opacity: 0;
+        transform: translate(0, 0);
+    }
+    12% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 1;
+        transform: translate(0, 45px);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(0, 90px);
+    }
+}
+
+@keyframes merkleRootPulse {
+    0% {
+        opacity: 0;
+        transform: scale(0.7);
+    }
+    30% {
+        opacity: 0.55;
+    }
+    100% {
+        opacity: 0;
+        transform: scale(1.7);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .merkle-particle,
+    .merkle-root-pulse {
+        animation: none;
+        opacity: 0;
+    }
+}
+
+@media (max-width: 700px) {
+    .merkle-svg {
+        min-width: 720px;
+    }
+}
