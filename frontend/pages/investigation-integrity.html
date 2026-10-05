@@ -290,66 +290,52 @@
                 <span class="integrity-modal-live" id="integrityModalLiveState"><span class="status-dot"></span> READY</span>
             </div>
             <div class="integrity-modal-body">
-                <div class="integrity-modal-chain" id="integrityModalChain" aria-live="polite">
-                    <div class="integrity-modal-placeholder">
-                        <i class="bi bi-shield-check"></i>
-                        <strong>Ready for detailed verification</strong>
-                        <span>The check will validate evidence hashes, Merkle proofs, the reconstructed root and the on-chain anchor.</span>
-                    </div>
-                </div>
-
-                <div class="integrity-modal-root-row" id="integrityModalRootRow" hidden>
+                <div class="forensic-modal-intro">
                     <div>
-                        <span>MERKLE ROOT ANCHORED ON-CHAIN</span>
-                        <strong id="integrityModalRootValue">—</strong>
+                        <span class="integrity-modal-eyebrow">LIVE CRYPTOGRAPHIC VERIFICATION</span>
+                        <h4>Evidence Hash → Merkle Root → On-Chain Anchor</h4>
+                        <p>Every stage below is generated from the selected root version and the real integrity verification API.</p>
                     </div>
-                    <span class="integrity-modal-root-status"><i class="bi bi-check2-circle"></i> ANCHOR MATCH</span>
+                    <span class="forensic-modal-version" id="forensicModalVersion">V—</span>
                 </div>
 
-                <div class="integrity-modal-analysis" id="integrityModalAnalysis" hidden>
-                    <div class="integrity-analysis-header">
+                <section class="forensic-modal-section evidence-section">
+                    <div class="forensic-section-heading">
                         <div>
-                            <span class="integrity-modal-eyebrow">VERIFICATION RESULT</span>
-                            <strong id="integrityAnalysisTitle">Awaiting API result</strong>
+                            <span class="integrity-modal-eyebrow">01 / EVIDENCE HASH</span>
+                            <strong>Evidence Integrity</strong>
                         </div>
-                        <span id="integrityAnalysisStatus">READY</span>
+                        <span id="integrityModalEvidenceState">READY</span>
                     </div>
-                    <p id="integrityAnalysisText">The result below is based on the stored evidence snapshot, Merkle proof and smart-contract historical root verification. No block tampering is simulated.</p>
-                </div>
+                    <div class="forensic-evidence-list" id="integrityModalEvidenceList"></div>
+                </section>
 
-                <div class="integrity-modal-detail-grid" id="integrityModalDetailGrid" hidden>
-                    <section class="integrity-modal-detail-section">
-                        <div class="integrity-modal-section-heading">
-                            <div>
-                                <span class="integrity-modal-eyebrow">01 / EVIDENCE INTEGRITY</span>
-                                <strong>Evidence Hash Verification</strong>
-                            </div>
-                            <span id="integrityModalEvidenceState">—</span>
+                <section class="forensic-modal-section merkle-section">
+                    <div class="forensic-section-heading">
+                        <div>
+                            <span class="integrity-modal-eyebrow">02 / MERKLE TREE</span>
+                            <strong>Evidence Leaves → Parent Hashes → Merkle Root</strong>
                         </div>
-                        <div class="integrity-modal-evidence-list" id="integrityModalEvidenceList"></div>
-                    </section>
+                        <span id="integrityModalMerkleState">READY</span>
+                    </div>
+                    <div class="forensic-merkle-flow" id="integrityModalMerkle"></div>
+                </section>
 
-                    <section class="integrity-modal-detail-section merkle-detail-section">
-                        <div class="integrity-modal-section-heading">
-                            <div>
-                                <span class="integrity-modal-eyebrow">02 / MERKLE STRUCTURE</span>
-                                <strong>Evidence Leaves → Merkle Root</strong>
-                            </div>
-                            <span id="integrityModalMerkleState">—</span>
+                <section class="forensic-modal-section verification-section">
+                    <div class="forensic-section-heading">
+                        <div>
+                            <span class="integrity-modal-eyebrow">03 / FINAL VERIFICATION</span>
+                            <strong>Cryptographic Verification Result</strong>
                         </div>
-                        <div class="integrity-modal-merkle" id="integrityModalMerkle"></div>
-                    </section>
-
-                    <section class="integrity-modal-detail-section">
-                        <div class="integrity-modal-section-heading">
-                            <div>
-                                <span class="integrity-modal-eyebrow">03 / VERIFICATION CHAIN</span>
-                                <strong>Cryptographic Verification Path</strong>
-                            </div>
-                        </div>
-                        <div class="integrity-modal-checks" id="integrityModalChecks"></div>
-                    </section>
-                </div>
+                        <span id="integrityModalFinalState">READY</span>
+                    </div>
+                    <div class="forensic-verification-checks" id="integrityModalChecks"></div>
+                    <div class="forensic-final-anchor" id="integrityModalFinalAnchor">
+                        <span>ON-CHAIN ROOT</span>
+                        <strong id="integrityModalRootValue">—</strong>
+                        <b id="integrityModalAnchorState">WAITING</b>
+                    </div>
+                </section>
             </div>
             <footer class="integrity-modal-footer">
                 <span id="integrityModalFooterMessage"><i class="bi bi-info-circle"></i> Verification will use the real backend integrity API and smart contract.</span>
