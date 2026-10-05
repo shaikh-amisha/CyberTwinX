@@ -762,6 +762,52 @@ function renderModalResult(result) {
         ? '<span class="status-dot"></span> VERIFIED'
         : '<span class="status-dot"></span> MISMATCH';
 
+    const analysisTitle = document.getElementById("integrityAnalysisTitle");
+    const analysisStatus = document.getElementById("integrityAnalysisStatus");
+    const analysisText = document.getElementById("integrityAnalysisText");
+
+    if (analysisTitle) {
+        analysisTitle.textContent = result.verified
+            ? "Integrity verified"
+            : "Integrity mismatch detected";
+    }
+
+    if (analysisStatus) {
+        analysisStatus.textContent = result.verified
+            ? "VERIFIED"
+            : "INVESTIGATION REQUIRED";
+    }
+
+    if (analysisText) {
+        const failedEvidence = result.evidence
+            .filter(item => !item.verified)
+            .map(item => item.evidenceId);
+
+        analysisText.textContent = result.verified
+            ? "All stored evidence snapshots match their hashes and Merkle proofs, the current source data matches the anchored snapshot, and the smart contract confirms the historical root."
+            : failedEvidence.length
+                ? `Verification failed for ${failedEvidence.join(", ")}. Review the evidence-level API result and Chain of Custody history for the affected records.`
+                : "The selected root version did not pass the complete historical on-chain verification.";
+    }
+
+    if (modalElements.analysis) {
+        modalElements.analysis.hidden = false;
+    }
+
+    const modalEvidence = document.getElementById("integrityModalEvidence");
+    const modalRootVersion = document.getElementById("integrityModalRootVersion");
+
+    if (modalEvidence) {
+        modalEvidence.textContent =
+            result.evidence.length > 1
+                ? `${result.evidence.length} RECORDS`
+                : result.evidence[0]?.evidenceId || "—";
+    }
+
+    if (modalRootVersion) {
+        modalRootVersion.textContent = `v${result.version}`;
+    }
+
     if (modalElements.root) {
         modalElements.root.hidden = false;
         const rootStrong = modalElements.root.querySelector("strong");
@@ -976,6 +1022,19 @@ async function loadPage() {
         state.custody = Array.isArray(custody) ? custody : [];
         state.blockchain = blockchain;
         state.latestVersion = getLatestVersion();
+
+        const firstEvidence =
+            state.latestVersion?.evidenceRecords?.[0]?.evidenceId || "—";
+
+        setText(
+            document.getElementById("integrityModalEvidence"),
+            firstEvidence
+        );
+
+        setText(
+            document.getElementById("integrityModalRootVersion"),
+            state.latestVersion ? `v${state.latestVersion.version}` : "—"
+        );
 
         renderRootSummary();
         renderCustodySummary();
