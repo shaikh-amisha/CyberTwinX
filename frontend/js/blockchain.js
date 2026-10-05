@@ -595,15 +595,23 @@ async function renderMerkleTree() {
         const parentNode = positions[1]?.[Math.floor(index / 2)];
         if (!parentNode) return;
 
+        const dx = parentNode.x - node.x;
+        const dy = parentNode.y - (node.y + nodeHeight);
+
         markup += `
             <circle
                 class="merkle-particle particle-${index + 1}"
                 r="4"
                 cx="${node.x}"
                 cy="${node.y + nodeHeight}"
-                data-parent-x="${parentNode.x}"
-                data-parent-y="${parentNode.y}"
-            ></circle>
+            >
+                <animateMotion
+                    dur="2.8s"
+                    begin="${index * 0.35}s"
+                    repeatCount="indefinite"
+                    path="M 0 0 L ${dx} ${dy}"
+                ></animateMotion>
+            </circle>
         `;
     }
 
