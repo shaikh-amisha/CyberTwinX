@@ -198,6 +198,7 @@ async function verifyIntegrityVersion(req, res) {
 
             return {
                 evidenceId: record.evidenceId,
+                evidenceHash: record.evidenceHash,
                 hashMatches,
                 merkleProofValid: proofValid,
                 sourceDataMatches,
