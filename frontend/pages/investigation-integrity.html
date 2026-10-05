@@ -195,19 +195,13 @@
                     <div class="root-history-summary-main">
                         <div class="root-history-summary-copy">
                             <span class="card-label">CURRENT ROOT STATE</span>
-                            <strong class="root-history-current-root">8f91a2c7...8a6c</strong>
-                            <span class="root-history-summary-sub">Merkle Root v3 · 4 evidence items · currently anchored on-chain</span>
+                            <strong class="root-history-current-root" id="rootHistoryCurrentRoot">—</strong>
+                            <span class="root-history-summary-sub" id="rootHistorySummarySub">Loading current root state...</span>
                         </div>
-                        <div class="root-history-version-strip" aria-label="Merkle Root versions">
-                            <div class="root-history-version-node"><span>V1</span><small>SUPERSEDED</small></div>
-                            <i class="bi bi-arrow-right"></i>
-                            <div class="root-history-version-node"><span>V2</span><small>SUPERSEDED</small></div>
-                            <i class="bi bi-arrow-right"></i>
-                            <div class="root-history-version-node current"><span>V3</span><small>CURRENT</small></div>
-                        </div>
+                        <div class="root-history-version-strip" id="rootHistoryVersionStrip" aria-label="Merkle Root versions"></div>
                     </div>
                     <div class="root-history-summary-footer">
-                        <span><i class="bi bi-clock-history"></i> 3 registered root versions</span>
+                        <span><i class="bi bi-clock-history"></i> <span id="rootHistoryVersionCount">0 registered root versions</span></span>
                         <button class="integrity-detail-button" id="viewRootHistoryButton" type="button"><span>View Root History</span><i class="bi bi-arrow-up-right"></i></button>
                     </div>
                 </article>
@@ -228,15 +222,15 @@
                         <div class="custody-summary-icon"><i class="bi bi-diagram-3"></i></div>
                         <div class="custody-summary-copy">
                             <span class="card-label">FORENSIC CUSTODY TIMELINE</span>
-                            <strong>5 recorded custody events</strong>
-                            <span>CREATED → HASHED → REGISTERED → ACCESSED → VERIFIED</span>
+                            <strong id="custodyEventCount">0 recorded custody events</strong>
+                            <span id="custodySummaryEvents">Loading custody timeline...</span>
                         </div>
                         <div class="custody-latest">
-                            <span>LAST EVENT</span><strong>VERIFIED</strong><small>Integrity Engine · 14:22:16</small>
+                            <span>LAST EVENT</span><strong id="custodyLatestType">—</strong><small id="custodyLatestTime">—</small>
                         </div>
                     </div>
                     <div class="custody-summary-footer">
-                        <span><i class="bi bi-shield-check"></i> Evidence EVID-001 · custody history preserved</span>
+                        <span><i class="bi bi-shield-check"></i> <span id="custodyEvidence">Loading custody history...</span></span>
                         <button class="integrity-detail-button" id="viewCustodyButton" type="button"><span>View Custody History</span><i class="bi bi-arrow-up-right"></i></button>
                     </div>
                 </article>
@@ -272,7 +266,7 @@
                 <button class="integrity-detail-close" type="button" data-close-custody aria-label="Close custody history"><i class="bi bi-x-lg"></i></button>
             </header>
             <div class="integrity-detail-body"><div class="custody-modal-timeline" id="custodyModalTimeline"></div></div>
-            <footer class="integrity-detail-footer"><span><i class="bi bi-fingerprint"></i> Evidence EVID-001 · all custody events retained.</span><button class="integrity-detail-button secondary" type="button" data-close-custody>Close</button></footer>
+            <footer class="integrity-detail-footer"><span><i class="bi bi-fingerprint"></i> All returned Chain of Custody events are retained.</span><button class="integrity-detail-button secondary" type="button" data-close-custody>Close</button></footer>
         </section>
     </div>
 
@@ -291,44 +285,38 @@
                 </button>
             </header>
             <div class="integrity-modal-statusbar">
-                <span><i class="bi bi-fingerprint"></i> EVIDENCE <strong>EVID-001</strong></span>
-                <span><i class="bi bi-link-45deg"></i> ROOT <strong>v3</strong></span>
+                <span><i class="bi bi-fingerprint"></i> EVIDENCE <strong id="integrityModalEvidence">—</strong></span>
+                <span><i class="bi bi-link-45deg"></i> ROOT <strong id="integrityModalRootVersion">—</strong></span>
                 <span class="integrity-modal-live" id="integrityModalLiveState"><span class="status-dot"></span> READY</span>
             </div>
             <div class="integrity-modal-body">
                 <div class="integrity-modal-chain" id="integrityModalChain" aria-live="polite">
                     <div class="integrity-modal-placeholder">
                         <i class="bi bi-shield-check"></i>
-                        <strong>Ready for verification</strong>
-                        <span>Start the integrity check to traverse the blockchain.</span>
+                        <strong>Ready for real verification</strong>
+                        <span>The check will use the backend integrity API and smart contract.</span>
                     </div>
                 </div>
                 <div class="integrity-modal-root-row" id="integrityModalRootRow" hidden>
                     <div>
                         <span>MERKLE ROOT ANCHORED ON-CHAIN</span>
-                        <strong>8f91a2c7e4b61d09c5aa739f18d5de32...8a6c</strong>
+                        <strong id="integrityModalRootValue">—</strong>
                     </div>
                     <span class="integrity-modal-root-status"><i class="bi bi-check2-circle"></i> ANCHOR MATCH</span>
                 </div>
                 <div class="integrity-modal-analysis" id="integrityModalAnalysis" hidden>
                     <div class="integrity-analysis-header">
                         <div>
-                            <span class="integrity-modal-eyebrow">TAMPER ANALYSIS</span>
-                            <strong id="integrityAnalysisTitle">Chain verified</strong>
+                            <span class="integrity-modal-eyebrow">VERIFICATION RESULT</span>
+                            <strong id="integrityAnalysisTitle">Awaiting API result</strong>
                         </div>
-                        <span id="integrityAnalysisStatus">NO TAMPER SELECTED</span>
+                        <span id="integrityAnalysisStatus">READY</span>
                     </div>
-                    <div class="integrity-tamper-controls" role="group" aria-label="Select a block to inspect">
-                        <button class="integrity-tamper-control active" type="button" data-tamper-index="-1">CHAIN OK</button>
-                        <button class="integrity-tamper-control" type="button" data-tamper-index="1">BLOCK 1</button>
-                        <button class="integrity-tamper-control" type="button" data-tamper-index="2">BLOCK 2</button>
-                        <button class="integrity-tamper-control" type="button" data-tamper-index="3">BLOCK 3</button>
-                    </div>
-                    <p id="integrityAnalysisText">Select a block to simulate a tamper event and observe how the invalid hash propagates through the chain.</p>
+                    <p id="integrityAnalysisText">The result below is based on the stored evidence snapshot, Merkle proof and smart-contract historical root verification. No block tampering is simulated.</p>
                 </div>
             </div>
             <footer class="integrity-modal-footer">
-                <span id="integrityModalFooterMessage"><i class="bi bi-info-circle"></i> Verification will run live from Genesis to the anchored root.</span>
+                <span id="integrityModalFooterMessage"><i class="bi bi-info-circle"></i> Verification will use the real backend integrity API and smart contract.</span>
                 <button class="integrity-modal-run" id="runModalVerification" type="button">
                     <i class="bi bi-shield-check"></i><span>Start Verification</span>
                 </button>
