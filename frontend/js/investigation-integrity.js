@@ -1151,6 +1151,9 @@ function openIntegrityModal() {
 
     if (modalElements.root) modalElements.root.hidden = true;
 
+    const detailGrid = document.getElementById("integrityModalDetailGrid");
+    if (detailGrid) detailGrid.hidden = true;
+
     if (modalElements.liveState) {
         modalElements.liveState.innerHTML =
             '<span class="status-dot"></span> READY';
@@ -1183,8 +1186,11 @@ async function runModalVerification() {
 
     if (modalElements.chain) {
         modalElements.chain.innerHTML =
-            '<div class="integrity-modal-placeholder"><i class="bi bi-arrow-repeat"></i><strong>Running live verification...</strong><span>Checking evidence hashes, Merkle proofs and the historical on-chain root.</span></div>';
+            '<div class="integrity-modal-placeholder"><i class="bi bi-arrow-repeat"></i><strong>Running detailed verification...</strong><span>Checking evidence hashes, Merkle proofs, the reconstructed root and the historical on-chain anchor.</span></div>';
     }
+
+    const detailGrid = document.getElementById("integrityModalDetailGrid");
+    if (detailGrid) detailGrid.hidden = true;
 
     await runRealVerification(state.latestVersion?.version);
 
