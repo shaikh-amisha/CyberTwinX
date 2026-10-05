@@ -3980,3 +3980,174 @@ body.integrity-modal-open {
         grid-template-columns: 1fr;
     }
 }
+
+
+/* =========================================================
+   FORENSIC MODAL — READABILITY + STRONG BLOCK HOVERS
+   ========================================================= */
+
+.forensic-modal-intro h4 {
+    font-size: 1rem;
+}
+
+.forensic-modal-intro p {
+    font-size: .68rem;
+}
+
+.forensic-modal-version {
+    font-size: .62rem;
+}
+
+.forensic-section-heading strong {
+    font-size: .8rem;
+}
+
+.forensic-section-heading > span:last-child {
+    font-size: .58rem;
+}
+
+.forensic-evidence-item {
+    min-height: 68px;
+    padding: 11px 13px;
+}
+
+.forensic-evidence-index,
+.forensic-evidence-hash span {
+    font-size: .48rem;
+}
+
+.forensic-evidence-id strong {
+    font-size: .72rem;
+}
+
+.forensic-evidence-hash code {
+    font-size: .62rem;
+}
+
+.forensic-evidence-status i {
+    font-size: .9rem;
+}
+
+.forensic-evidence-status strong {
+    font-size: .58rem;
+}
+
+.forensic-evidence-status small {
+    font-size: .46rem;
+}
+
+.forensic-merkle-nodes {
+    min-height: 78px;
+}
+
+.forensic-merkle-node {
+    min-height: 72px;
+    padding: 11px 12px;
+}
+
+.forensic-node-label {
+    font-size: .5rem;
+}
+
+.forensic-merkle-node strong {
+    font-size: .68rem;
+}
+
+.forensic-merkle-node[data-type="root"] strong {
+    font-size: .78rem;
+}
+
+.forensic-merkle-node small {
+    font-size: .46rem;
+}
+
+.forensic-merkle-level-label {
+    font-size: .48rem;
+}
+
+.forensic-merkle-connector {
+    min-height: 44px;
+}
+
+.forensic-merkle-connector span {
+    font-size: .46rem;
+}
+
+.forensic-merkle-legend span {
+    font-size: .5rem;
+}
+
+.forensic-check-item {
+    min-height: 78px;
+    padding: 11px 12px;
+}
+
+.forensic-check-item > i {
+    font-size: .82rem;
+}
+
+.forensic-check-item strong {
+    font-size: .62rem;
+}
+
+.forensic-check-item span {
+    font-size: .48rem;
+}
+
+.forensic-check-item b {
+    font-size: .5rem;
+}
+
+.forensic-final-anchor {
+    min-height: 58px;
+}
+
+.forensic-final-anchor > span {
+    font-size: .48rem;
+}
+
+.forensic-final-anchor > strong {
+    font-size: .62rem;
+}
+
+.forensic-final-anchor > b {
+    font-size: .52rem;
+}
+
+/* Make every interactive forensic block visibly respond to hover. */
+.forensic-evidence-item,
+.forensic-merkle-node,
+.forensic-check-item,
+.forensic-final-anchor {
+    cursor: default;
+    will-change: transform, box-shadow;
+}
+
+.forensic-evidence-item:hover,
+.forensic-merkle-node:hover,
+.forensic-check-item:hover,
+.forensic-final-anchor:hover {
+    filter: brightness(1.12);
+}
+
+.forensic-evidence-item[data-status="VALID"]:hover {
+    box-shadow:
+        0 10px 28px rgba(0,0,0,.28),
+        0 0 28px rgba(83,245,155,.14);
+}
+
+.forensic-merkle-node[data-type="parent"]:hover {
+    transform: translateY(-5px) scale(1.015);
+}
+
+.forensic-merkle-node[data-type="root"]:hover {
+    transform: translateY(-5px) scale(1.02);
+}
+
+.forensic-check-item:hover {
+    transform: translateY(-4px) scale(1.01);
+}
+
+.forensic-final-anchor:hover {
+    transform: translateY(-3px) scale(1.005);
+}
