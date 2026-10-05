@@ -514,8 +514,8 @@ function createSvgNode(x, y, width, height, label, value, className) {
     return `
         <g class="merkle-${className}-node">
             <rect class="merkle-node ${className}" x="${x}" y="${y}" width="${width}" height="${height}" rx="8"></rect>
-            <text class="merkle-node-label" x="${x + width / 2}" y="${y + 20}">${escapeHTML(label)}</text>
-            <text class="merkle-node-text" x="${x + width / 2}" y="${y + 40}">${escapeHTML(shortHash(value, 6, 4))}</text>
+            <text class="merkle-node-label" x="${x + width / 2}" y="${y + 24}">${escapeHTML(label)}</text>
+            <text class="merkle-node-text" x="${x + width / 2}" y="${y + 48}">${escapeHTML(shortHash(value, 6, 4))}</text>
         </g>
     `;
 }
@@ -544,8 +544,8 @@ async function renderMerkleTree() {
 
     const leafY = 45;
     const levelGap = 95;
-    const nodeWidth = 140;
-    const nodeHeight = 58;
+    const nodeWidth = 165;
+    const nodeHeight = 68;
 
     const positions = [];
 
@@ -655,23 +655,23 @@ async function renderMerkleTree() {
             <g class="merkle-root-node">
                 <rect
                     class="merkle-node root"
-                    x="${root.x - 100}"
+                    x="${root.x - 110}"
                     y="${root.y}"
-                    width="200"
-                    height="76"
+                    width="220"
+                    height="88"
                     rx="10"
                 ></rect>
-                <text class="merkle-node-label" x="${root.x}" y="${root.y + 27}">
+                <text class="merkle-node-label" x="${root.x}" y="${root.y + 32}">
                     MERKLE ROOT
                 </text>
-                <text class="merkle-root-text" x="${root.x}" y="${root.y + 57}">
+                <text class="merkle-root-text" x="${root.x}" y="${root.y + 66}">
                     ${escapeHTML(shortHash("0x" + levels[levels.length - 1][0], 8, 6))}
                 </text>
             </g>
             <circle
                 class="merkle-root-pulse"
                 cx="${root.x}"
-                cy="${root.y + 38}"
+                cy="${root.y + 44}"
                 r="18"
             ></circle>
         `;
