@@ -517,11 +517,12 @@
 
         .dashboard-chart-grid {
             display: grid;
-            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            grid-template-columns: repeat(3, minmax(0, 1fr));
             gap: 16px;
         }
 
-        .findings-chart-card,
+         .findings-chart-card,
+        .attack-activity-card,
         .risk-distribution-card {
             padding: 20px 22px;
         }
@@ -589,6 +590,54 @@
             color: #f0f6fa;
             font-size: 11px;
             font-weight: 800;
+        }
+
+        .attack-activity-chart {
+            min-height: 210px;
+            position: relative;
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            padding: 18px 6px 8px;
+            border-bottom: 1px solid rgba(148,163,184,.14);
+        }
+
+        .attack-activity-point {
+            flex: 1 1 0;
+            height: 170px;
+            min-width: 0;
+            position: relative;
+            display: flex;
+            align-items: flex-end;
+        }
+
+        .attack-activity-bar {
+            width: 100%;
+            height: var(--activity-height, 0%);
+            min-height: 2px;
+            border-radius: 5px 5px 0 0;
+            background: rgba(0,229,255,.78);
+        }
+
+        .attack-activity-count {
+            position: absolute;
+            bottom: calc(var(--activity-height, 0%) + 6px);
+            left: 50%;
+            transform: translateX(-50%);
+            color: #eef7fb;
+            font-size: 10px;
+            font-weight: 800;
+        }
+
+        .attack-activity-date {
+            position: absolute;
+            bottom: -21px;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            color: #718596;
+            font-size: 8px;
+            font-weight: 700;
         }
 
         .findings-empty {
@@ -1291,6 +1340,18 @@
                         </div>
                         <div class="findings-lollipop-chart" id="findingsBarChart">
                             <span class="findings-empty">No findings recorded.</span>
+                        </div>
+                    </article>
+
+                    <article class="dashboard-card attack-activity-card">
+                        <div class="findings-chart-header">
+                            <div>
+                                <span class="card-label">ATTACK ACTIVITY</span>
+                                <h3>Activity over time</h3>
+                            </div>
+                        </div>
+                        <div class="attack-activity-chart" id="attackActivityChart">
+                            <span class="findings-empty">No attack activity recorded.</span>
                         </div>
                     </article>
 
