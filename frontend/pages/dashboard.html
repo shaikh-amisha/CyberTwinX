@@ -539,7 +539,7 @@
             gap: 15px;
         }
 
-        .finding-lollipop-row {
+        .finding-bar-row {
             display: grid;
             grid-template-columns: minmax(145px, 1fr) minmax(110px, 1.5fr) 28px;
             align-items: center;
@@ -549,14 +549,14 @@
             color: #c6d3de;
         }
 
-        .finding-lollipop-track {
+        .finding-bar-track {
             position: relative;
             height: 2px;
             border-radius: 999px;
             background: rgba(148,163,184,.16);
         }
 
-        .finding-lollipop-track::before {
+        .finding-bar-track::before {
             content: "";
             position: absolute;
             inset: 0 auto 0 0;
@@ -565,7 +565,7 @@
             border-radius: 999px;
         }
 
-        .finding-lollipop-dot {
+        .finding-bar-fill {
             position: absolute;
             top: 50%;
             left: var(--finding-progress, 0%);
@@ -580,7 +580,7 @@
                 0 0 12px rgba(0,229,255,.55);
         }
 
-        .finding-lollipop-value {
+        .finding-bar-value {
             text-align: right;
             color: #f0f6fa;
             font-size: 11px;
