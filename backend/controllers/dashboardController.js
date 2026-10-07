@@ -155,22 +155,43 @@ const getDashboardOverview = async (req, res) => {
          */
         const activityRows = await IncidentTwin.aggregate([
             {
+                $project: {
+                    activityDates: {
+                        $concatArrays: [
+                            {
+                                $map: {
+                                    input: { $ifNull: ["$timeline", []] },
+                                    as: "item",
+                                    in: "$$item.time"
+                                }
+                            },
+                            {
+                                $map: {
+                                    input: { $ifNull: ["$lifecycle", []] },
+                                    as: "item",
+                                    in: "$$item.time"
+                                }
+                            },
+                            {
+                                $map: {
+                                    input: { $ifNull: ["$evidence", []] },
+                                    as: "item",
+                                    in: "$$item.timestamp"
+                                }
+                            },
+                            ["$createdAt"],
+                            ["$updatedAt"]
+                        ]
+                    }
+                }
+            },
+            { $unwind: "$activityDates" },
+            {
                 $match: {
-                    $or: [
-                        {
-                            createdAt: {
-                                $gte: activityStart,
-                                $lte: activityEnd
-                            }
-                        },
-                        {
-                            createdAt: { $exists: false },
-                            updatedAt: {
-                                $gte: activityStart,
-                                $lte: activityEnd
-                            }
-                        }
-                    ]
+                    activityDates: {
+                        $gte: activityStart,
+                        $lte: activityEnd
+                    }
                 }
             },
             {
@@ -178,9 +199,7 @@ const getDashboardOverview = async (req, res) => {
                     activityDate: {
                         $dateToString: {
                             format: "%Y-%m-%d",
-                            date: {
-                                $ifNull: ["$createdAt", "$updatedAt"]
-                            }
+                            date: "$activityDates"
                         }
                     }
                 }
