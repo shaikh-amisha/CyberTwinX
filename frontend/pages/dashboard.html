@@ -589,49 +589,54 @@
         .attack-activity-chart {
             min-height: 210px;
             position: relative;
-            display: flex;
-            align-items: flex-end;
-            gap: 8px;
-            padding: 18px 6px 8px;
+            padding: 14px 6px 8px;
             border-bottom: 1px solid rgba(148,163,184,.14);
+            overflow: hidden;
         }
 
-        .attack-activity-point {
-            flex: 1 1 0;
-            height: 170px;
-            min-width: 0;
-            position: relative;
-            display: flex;
-            align-items: flex-end;
-        }
-
-        .attack-activity-bar {
+        .attack-trend-svg {
             width: 100%;
-            height: var(--activity-height, 0%);
-            min-height: 2px;
-            border-radius: 5px 5px 0 0;
-            background: rgba(0,229,255,.78);
+            height: 180px;
+            display: block;
+            overflow: visible;
         }
 
-        .attack-activity-count {
-            position: absolute;
-            bottom: calc(var(--activity-height, 0%) + 6px);
-            left: 50%;
-            transform: translateX(-50%);
-            color: #eef7fb;
+        .attack-trend-grid {
+            stroke: rgba(148,163,184,.12);
+            stroke-width: 1;
+        }
+
+        .attack-trend-area {
+            fill: rgba(0,229,255,.08);
+        }
+
+        .attack-trend-line {
+            fill: none;
+            stroke: #00e5ff;
+            stroke-width: 2.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            filter: drop-shadow(0 0 5px rgba(0,229,255,.28));
+        }
+
+        .attack-trend-point {
+            fill: #081019;
+            stroke: #00e5ff;
+            stroke-width: 2;
+        }
+
+        .attack-trend-value {
+            fill: #eef7fb;
             font-size: 10px;
             font-weight: 800;
+            text-anchor: middle;
         }
 
-        .attack-activity-date {
-            position: absolute;
-            bottom: -21px;
-            left: 50%;
-            transform: translateX(-50%);
-            white-space: nowrap;
-            color: #718596;
+        .attack-trend-date {
+            fill: #718596;
             font-size: 8px;
             font-weight: 700;
+            text-anchor: middle;
         }
 
         .findings-empty {
@@ -1340,8 +1345,8 @@
                     <article class="dashboard-card attack-activity-card">
                         <div class="findings-chart-header">
                             <div>
-                                <span class="card-label">ATTACK ACTIVITY</span>
-                                <h3>Activity over time</h3>
+                                <span class="card-label">TREND</span>
+                                <h3>Security Activity Trend</h3>
                             </div>
                         </div>
                         <div class="attack-activity-chart" id="attackActivityChart">
