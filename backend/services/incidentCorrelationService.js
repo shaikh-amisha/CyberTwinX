@@ -907,10 +907,25 @@ async function correlateIncident({
     // FIND EXISTING ACTIVE INCIDENT
     // =====================================================
 
+    /*
+     * Keep materially different detections as separate Incident
+     * Twins. For example, an authentication/brute-force event
+     * must not be absorbed into an existing privilege-escalation
+     * incident on the same endpoint.
+     *
+     * Findings within the same incident type continue to be
+     * correlated and updated normally.
+     */
+    const detectedIncidentType =
+        getIncidentType(findings);
+
     let incident =
         await IncidentTwin.findOne({
 
             endpointId,
+
+            incidentType:
+                detectedIncidentType,
 
             currentState: {
                 $nin: [
