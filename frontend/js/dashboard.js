@@ -919,12 +919,12 @@ function updateFindingsChart() {
         const count = Number(item.count || 0);
         const progress = Math.max(8, (count / maxCount) * 100);
 
-        return '<div class="finding-lollipop-row">' +
+        return '<div class="finding-bar-row">'
             '<span>' + name + '</span>' +
-            '<div class="finding-lollipop-track" style="--finding-progress:' + progress + '%">' +
-                '<i class="finding-lollipop-dot"></i>' +
+            '<div class="finding-bar-track" style="--finding-progress:' + progress + '%">' +
+                '<i class="finding-bar-fill"></i>' +
             '</div>' +
-            '<strong class="finding-lollipop-value">' + count + '</strong>' +
+            '<strong class="finding-bar-value">' + count + '</strong>' +
         '</div>';
     }).join("");
 }
