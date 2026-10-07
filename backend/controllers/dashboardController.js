@@ -137,6 +137,49 @@ const getDashboardOverview = async (req, res) => {
         const incidentCount =
             await IncidentTwin.countDocuments();
 
+        /*
+         * Attack activity over the last 7 days. This is derived from
+         * Incident Twin records so the dashboard chart reflects real
+         * investigation activity rather than hardcoded values.
+         */
+        const activityStart = new Date();
+        activityStart.setHours(0, 0, 0, 0);
+        activityStart.setDate(activityStart.getDate() - 6);
+
+        const activityRows = await IncidentTwin.aggregate([
+            {
+                $match: {
+                    createdAt: { $gte: activityStart }
+                }
+            },
+            {
+                $group: {
+                    _id: {
+                        $dateToString: {
+                            format: "%Y-%m-%d",
+                            date: "$createdAt"
+                        }
+                    },
+                    count: { $sum: 1 }
+                }
+            }
+        ]);
+
+        const activityMap = new Map(
+            activityRows.map(row => [row._id, Number(row.count || 0)])
+        );
+
+        const attackActivity = Array.from({ length: 7 }, (_, index) => {
+            const date = new Date(activityStart);
+            date.setDate(activityStart.getDate() + index);
+            const key = date.toISOString().slice(0, 10);
+
+            return {
+                date: key,
+                count: activityMap.get(key) || 0
+            };
+        });
+
 
         /*
          * =====================================================
@@ -623,7 +666,9 @@ const getDashboardOverview = async (req, res) => {
 
             findingDistribution,
 
-            riskDistribution
+            riskDistribution,
+
+            attackActivity
 
         });
 
