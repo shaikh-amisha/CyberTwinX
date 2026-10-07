@@ -521,63 +521,7 @@
             gap: 16px;
         }
 
-         .findings-chart-card,
-        .attack-activity-card,
-        .finding-risk-card,
-        .risk-distribution-card {
-            padding: 20px 22px;
-        }
-
-        .finding-risk-chart {
-            min-height: 210px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            gap: 13px;
-            padding: 18px 4px 8px;
-        }
-
-        .finding-risk-row {
-            display: grid;
-            grid-template-columns: minmax(90px, 1.15fr) minmax(80px, 2fr) 42px;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .finding-risk-name {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            color: #aebdca;
-            font-size: 9px;
-            font-weight: 800;
-            text-transform: capitalize;
-        }
-
-        .finding-risk-track {
-            height: 8px;
-            overflow: hidden;
-            border-radius: 999px;
-            background: rgba(148,163,184,.10);
-        }
-
-        .finding-risk-fill {
-            display: block;
-            width: var(--risk-progress, 0%);
-            height: 100%;
-            border-radius: inherit;
-            background: #00e5ff;
-            box-shadow: 0 0 10px rgba(0,229,255,.18);
-        }
-
-        .finding-risk-value {
-            color: #f0f6fa;
-            font-size: 10px;
-            font-weight: 800;
-            text-align: right;
-        }
-
-        .findings-chart-header h3 {
+         .findings-chart-header h3 {
             margin-top: 4px;
             font-size: 15px;
             color: #eef7fb;
@@ -1402,18 +1346,6 @@
                         </div>
                         <div class="attack-activity-chart" id="attackActivityChart">
                             <span class="findings-empty">No attack activity recorded.</span>
-                        </div>
-                    </article>
-
-                    <article class="dashboard-card finding-risk-card">
-                        <div class="findings-chart-header">
-                            <div>
-                                <span class="card-label">RISK CONTRIBUTION</span>
-                                <h3>Risk by Finding</h3>
-                            </div>
-                        </div>
-                        <div class="finding-risk-chart" id="findingRiskChart">
-                            <span class="findings-empty">No risk contribution recorded.</span>
                         </div>
                     </article>
 
