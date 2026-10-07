@@ -59,6 +59,7 @@ const dashboardState = {
     },
 
     findingDistribution: [],
+    attackActivity: [],
     riskDistribution: { LOW: 0, MEDIUM: 0, HIGH: 0, CRITICAL: 0 }
 
 };
@@ -247,6 +248,9 @@ const dashboardElements = {
     findingsBarChart:
         document.getElementById("findingsBarChart"),
 
+    attackActivityChart:
+        document.getElementById("attackActivityChart"),
+
     riskDistributionDonut:
         document.getElementById("riskDistributionDonut"),
 
@@ -318,6 +322,10 @@ async function fetchDashboardData() {
 
         dashboardState.findingDistribution = Array.isArray(data.findingDistribution)
             ? data.findingDistribution
+            : [];
+
+        dashboardState.attackActivity = Array.isArray(data.attackActivity)
+            ? data.attackActivity
             : [];
 
         dashboardState.riskDistribution = data.riskDistribution || {
@@ -847,6 +855,36 @@ function initializeVisibilityHandler() {
 
 
 
+function updateAttackActivityChart() {
+    const chart = dashboardElements.attackActivityChart;
+    if (!chart) return;
+
+    const items = Array.isArray(dashboardState.attackActivity)
+        ? dashboardState.attackActivity
+        : [];
+
+    if (!items.length) {
+        chart.innerHTML = '<span class="findings-empty">No attack activity recorded.</span>';
+        return;
+    }
+
+    const maxCount = Math.max(...items.map(item => Number(item?.count || 0)), 1);
+
+    chart.innerHTML = items.map(item => {
+        const count = Number(item?.count || 0);
+        const height = count > 0 ? Math.max(6, (count / maxCount) * 100) : 2;
+        const date = new Date(item.date + "T00:00:00");
+        const label = date.toLocaleDateString([], { day: "2-digit", month: "short" });
+
+        return '<div class="attack-activity-point" style="--activity-height:' + height + '%">' +
+            '<strong class="attack-activity-count">' + count + '</strong>' +
+            '<div class="attack-activity-bar"></div>' +
+            '<span class="attack-activity-date">' + label + '</span>' +
+        '</div>';
+    }).join("");
+}
+
+
 function updateRiskDistributionChart() {
     const distribution = dashboardState.riskDistribution || {};
     const levels = ["LOW", "MEDIUM", "HIGH", "CRITICAL"];
@@ -948,6 +986,7 @@ function refreshDashboard() {
     updateDigitalSecurityTwin();
 
     updateFindingsChart();
+    updateAttackActivityChart();
     updateRiskDistributionChart();
 
     updateSystemStatus();
