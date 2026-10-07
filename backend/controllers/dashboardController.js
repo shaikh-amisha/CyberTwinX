@@ -142,43 +142,80 @@ const getDashboardOverview = async (req, res) => {
          * Incident Twin records so the dashboard chart reflects real
          * investigation activity rather than hardcoded values.
          */
-        const activityStart = new Date();
+        const activityEnd = new Date();
+        activityEnd.setHours(23, 59, 59, 999);
+
+        const activityStart = new Date(activityEnd);
         activityStart.setHours(0, 0, 0, 0);
         activityStart.setDate(activityStart.getDate() - 6);
 
+        /*
+         * Build the trend from real Incident Twin timestamps.
+         * Mongoose timestamps provide createdAt and updatedAt.
+         */
         const activityRows = await IncidentTwin.aggregate([
             {
                 $match: {
-                    createdAt: { $gte: activityStart }
+                    $or: [
+                        {
+                            createdAt: {
+                                $gte: activityStart,
+                                $lte: activityEnd
+                            }
+                        },
+                        {
+                            createdAt: { $exists: false },
+                            updatedAt: {
+                                $gte: activityStart,
+                                $lte: activityEnd
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                $project: {
+                    activityDate: {
+                        $dateToString: {
+                            format: "%Y-%m-%d",
+                            date: {
+                                $ifNull: ["$createdAt", "$updatedAt"]
+                            }
+                        }
+                    }
                 }
             },
             {
                 $group: {
-                    _id: {
-                        $dateToString: {
-                            format: "%Y-%m-%d",
-                            date: "$createdAt"
-                        }
-                    },
+                    _id: "$activityDate",
                     count: { $sum: 1 }
                 }
             }
         ]);
 
         const activityMap = new Map(
-            activityRows.map(row => [row._id, Number(row.count || 0)])
+            activityRows.map(row => [
+                row._id,
+                Number(row.count || 0)
+            ])
         );
 
-        const attackActivity = Array.from({ length: 7 }, (_, index) => {
-            const date = new Date(activityStart);
-            date.setDate(activityStart.getDate() + index);
-            const key = date.toISOString().slice(0, 10);
+        const attackActivity = Array.from(
+            { length: 7 },
+            (_, index) => {
+                const date = new Date(activityStart);
+                date.setDate(
+                    activityStart.getDate() + index
+                );
 
-            return {
-                date: key,
-                count: activityMap.get(key) || 0
-            };
-        });
+                const key = date.toISOString().slice(0, 10);
+
+                return {
+                    date: key,
+                    count: activityMap.get(key) || 0
+                };
+            }
+        );
 
 
         /*
