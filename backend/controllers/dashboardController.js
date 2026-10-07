@@ -275,7 +275,7 @@ const getDashboardOverview = async (req, res) => {
          */
 
         const findingDistribution = [];
-        const findingCounts = new Map();
+        const findingMap = new Map();
         const riskDistribution = {
             LOW: 0,
             MEDIUM: 0,
@@ -291,15 +291,49 @@ const getDashboardOverview = async (req, res) => {
             const type = typeof finding === "string"
                 ? finding
                 : finding?.type || finding?.name || "OTHER";
+
             const key = String(type || "OTHER").trim() || "OTHER";
-            findingCounts.set(key, (findingCounts.get(key) || 0) + 1);
+            const count = Math.max(
+                1,
+                Number(
+                    typeof finding === "object" && finding?.count
+                        ? finding.count
+                        : 1
+                )
+            );
+
+            const risk = Math.max(
+                0,
+                Number(
+                    typeof finding === "object" && finding?.score
+                        ? finding.score
+                        : 0
+                )
+            ) * count;
+
+            const existing = findingMap.get(key) || {
+                type: key,
+                count: 0,
+                risk: 0
+            };
+
+            existing.count += count;
+            existing.risk += risk;
+
+            findingMap.set(key, existing);
         });
 
-        findingCounts.forEach((count, type) => {
-            findingDistribution.push({ type, count });
+        findingMap.forEach(item => {
+            findingDistribution.push(item);
         });
 
-        findingDistribution.sort((a, b) => b.count - a.count);
+        findingDistribution.sort((a, b) => {
+            if (b.risk !== a.risk) {
+                return b.risk - a.risk;
+            }
+
+            return b.count - a.count;
+        });
 
         /*
          * Risk distribution reflects the severity of the
