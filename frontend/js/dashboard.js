@@ -919,7 +919,7 @@ function updateFindingsChart() {
         const count = Number(item.count || 0);
         const progress = Math.max(8, (count / maxCount) * 100);
 
-        return '<div class="finding-bar-row">'
+        return '<div class="finding-bar-row">' +
             '<span>' + name + '</span>' +
             '<div class="finding-bar-track" style="--finding-progress:' + progress + '%">' +
                 '<i class="finding-bar-fill"></i>' +
