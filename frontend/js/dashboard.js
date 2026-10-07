@@ -251,6 +251,9 @@ const dashboardElements = {
     attackActivityChart:
         document.getElementById("attackActivityChart"),
 
+    findingRiskChart:
+        document.getElementById("findingRiskChart"),
+
     riskDistributionDonut:
         document.getElementById("riskDistributionDonut"),
 
@@ -885,6 +888,50 @@ function updateAttackActivityChart() {
 }
 
 
+function updateFindingRiskChart() {
+    const chart = dashboardElements.findingRiskChart;
+
+    if (!chart) {
+        return;
+    }
+
+    const items = Array.isArray(dashboardState.findingDistribution)
+        ? dashboardState.findingDistribution
+            .filter(item => Number(item?.risk || 0) > 0)
+            .sort((a, b) => Number(b.risk || 0) - Number(a.risk || 0))
+            .slice(0, 6)
+        : [];
+
+    if (!items.length) {
+        chart.innerHTML =
+            '<span class="findings-empty">No risk contribution recorded.</span>';
+        return;
+    }
+
+    const maxRisk = Math.max(
+        ...items.map(item => Number(item.risk || 0)),
+        1
+    );
+
+    chart.innerHTML = items.map(item => {
+        const name = String(item.type || "OTHER").replace(/_/g, " ");
+        const risk = Number(item.risk || 0);
+        const progress = Math.max(
+            6,
+            (risk / maxRisk) * 100
+        );
+
+        return '<div class="finding-risk-row">' +
+            '<span class="finding-risk-name">' + escapeHTML(name) + '</span>' +
+            '<div class="finding-risk-track">' +
+                '<i class="finding-risk-fill" style="--risk-progress:' + progress + '%"></i>' +
+            '</div>' +
+            '<strong class="finding-risk-value">+' + risk + '</strong>' +
+        '</div>';
+    }).join("");
+}
+
+
 function updateRiskDistributionChart() {
     const distribution = dashboardState.riskDistribution || {};
     const levels = ["LOW", "MEDIUM", "HIGH", "CRITICAL"];
@@ -987,6 +1034,7 @@ function refreshDashboard() {
 
     updateFindingsChart();
     updateAttackActivityChart();
+    updateFindingRiskChart();
     updateRiskDistributionChart();
 
     updateSystemStatus();
