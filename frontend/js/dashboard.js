@@ -864,24 +864,76 @@ function updateAttackActivityChart() {
         : [];
 
     if (!items.length) {
-        chart.innerHTML = '<span class="findings-empty">No attack activity recorded.</span>';
+        chart.innerHTML = '<span class="findings-empty">No security activity recorded.</span>';
         return;
     }
 
-    const maxCount = Math.max(...items.map(item => Number(item?.count || 0)), 1);
+    const width = 700;
+    const height = 180;
+    const paddingX = 22;
+    const paddingTop = 18;
+    const paddingBottom = 28;
+    const plotHeight = height - paddingTop - paddingBottom;
+    const plotWidth = width - (paddingX * 2);
 
-    chart.innerHTML = items.map(item => {
+    const counts = items.map(item => Number(item?.count || 0));
+    const maxCount = Math.max(...counts, 1);
+
+    const points = items.map((item, index) => {
         const count = Number(item?.count || 0);
-        const height = count > 0 ? Math.max(6, (count / maxCount) * 100) : 2;
-        const date = new Date(item.date + "T00:00:00");
-        const label = date.toLocaleDateString([], { day: "2-digit", month: "short" });
+        const x = items.length === 1
+            ? width / 2
+            : paddingX + (index / (items.length - 1)) * plotWidth;
+        const y = paddingTop + plotHeight - ((count / maxCount) * plotHeight);
 
-        return '<div class="attack-activity-point" style="--activity-height:' + height + '%">' +
-            '<strong class="attack-activity-count">' + count + '</strong>' +
-            '<div class="attack-activity-bar"></div>' +
-            '<span class="attack-activity-date">' + label + '</span>' +
-        '</div>';
+        const date = new Date(item.date + "T00:00:00");
+        const label = date.toLocaleDateString([], {
+            day: "2-digit",
+            month: "short"
+        });
+
+        return {
+            x,
+            y,
+            count,
+            label
+        };
+    });
+
+    const pointString = points
+        .map(point => `${point.x},${point.y}`)
+        .join(" ");
+
+    const areaString =
+        `${paddingX},${paddingTop + plotHeight} ${pointString} ${width - paddingX},${paddingTop + plotHeight}`;
+
+    const gridLines = [0, 0.5, 1].map(ratio => {
+        const y = paddingTop + (plotHeight * ratio);
+        return `<line class="attack-trend-grid" x1="${paddingX}" y1="${y}" x2="${width - paddingX}" y2="${y}"></line>`;
     }).join("");
+
+    const svgPoints = points.map(point =>
+        `<g>
+            <circle class="attack-trend-point" cx="${point.x}" cy="${point.y}" r="3.5"></circle>
+            <text class="attack-trend-value" x="${point.x}" y="${Math.max(11, point.y - 9)}">${point.count}</text>
+            <text class="attack-trend-date" x="${point.x}" y="${height - 7}">${escapeHTML(point.label)}</text>
+        </g>`
+    ).join("");
+
+    chart.innerHTML = `
+        <svg
+            class="attack-trend-svg"
+            viewBox="0 0 ${width} ${height}"
+            preserveAspectRatio="none"
+            role="img"
+            aria-label="Security activity trend"
+        >
+            ${gridLines}
+            <polygon class="attack-trend-area" points="${areaString}"></polygon>
+            <polyline class="attack-trend-line" points="${pointString}"></polyline>
+            ${svgPoints}
+        </svg>
+    `;
 }
 
 
