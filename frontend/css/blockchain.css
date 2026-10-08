@@ -1483,21 +1483,8 @@
 .merkle-particle {
     fill: #22d3ee;
     opacity: 0;
-    filter: drop-shadow(0 0 5px rgba(34, 211, 238, 0.8));
+    filter: drop-shadow(0 0 5px rgba(34, 211, 238, 0.9));
     pointer-events: none;
-    animation: merkleFlow 2.8s ease-in-out infinite;
-}
-
-.merkle-particle:nth-of-type(2) {
-    animation-delay: 0.35s;
-}
-
-.merkle-particle:nth-of-type(3) {
-    animation-delay: 0.7s;
-}
-
-.merkle-particle:nth-of-type(4) {
-    animation-delay: 1.05s;
 }
 
 .merkle-root-pulse {
