@@ -661,7 +661,7 @@
                     </div>
                 </div>
 
-                <div class="two-column-grid">
+                <div class="incident-three-column-grid">
 
                     <article class="dashboard-card">
                         <span class="card-label">CURRENT STATE</span>
@@ -680,18 +680,24 @@
                     </article>
 
                     <article class="dashboard-card incident-graph-card">
-                        <span class="card-label">INCIDENT ACTIVITY GRAPH</span>
+                        <span class="card-label">EVIDENCE SEVERITY</span>
+                        <h4>Evidence Severity Distribution</h4>
+                        <p>Severity distribution of evidence linked to the selected incident.</p>
+                        <div class="incident-graph-container">
+                            <canvas id="incidentEvidenceSeverityGraph"></canvas>
+                        </div>
+                    </article>
 
+                    <article class="dashboard-card incident-graph-card">
+                        <span class="card-label">INCIDENT ACTIVITY</span>
                         <h4>Incident Activity Over Time</h4>
-
-                        <p>
-                            Event activity derived from the selected incident timeline.
-                        </p>
-
+                        <p>Event activity derived from the selected incident timeline.</p>
                         <div class="incident-graph-container">
                             <canvas id="incidentActivityGraph"></canvas>
                         </div>
                     </article>
+
+                </div>                   </article>
 
                 </div>
             </section>
