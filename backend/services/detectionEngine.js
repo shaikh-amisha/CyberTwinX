@@ -726,7 +726,7 @@ function detectNetworkScanningV2(network) {
 
     const targetCount = Math.max(ips.size, ports.size);
 
-    if (targetCount < 10 && connectionCount < 50) return null;
+    if (targetCount < 3 && connectionCount < 5) return null;
 
     return finding(
         "NETWORK_SCANNING",
