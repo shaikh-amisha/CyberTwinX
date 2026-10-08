@@ -171,6 +171,28 @@ const incidentTwinSchema = new mongoose.Schema(
             required: true
         },
 
+        /*
+         * Identifies the exact set of detections that belong to the
+         * current incident episode. Common evidence may exist in
+         * multiple incidents, but it is never merged across them.
+         */
+        detectionSignature: {
+            type: String,
+            default: "",
+            index: true
+        },
+
+        /*
+         * Last telemetry timestamp associated with this incident.
+         * Used to prevent an old incident from absorbing a later
+         * occurrence of the same detection.
+         */
+        lastSeenAt: {
+            type: Date,
+            default: Date.now,
+            index: true
+        },
+
         severity: {
             type: String,
             enum: [
