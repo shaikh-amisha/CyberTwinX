@@ -100,6 +100,46 @@
     gap: 14px;
 
 }
+
+/* =========================================================
+   INCIDENT TWIN — INCIDENT ACTIVITY GRAPH
+   ========================================================= */
+
+.incident-graph-card {
+    min-width: 0;
+}
+
+.incident-graph-card h4 {
+    margin-top: 8px;
+    color: #f1f7fb;
+    font-size: 15px;
+}
+
+.incident-graph-card > p {
+    margin-top: 6px;
+    color: #c2cfdb;
+    font-size: 11px;
+}
+
+.incident-graph-container {
+    position: relative;
+    width: 100%;
+    height: 250px;
+    margin-top: 18px;
+    padding: 8px 4px 2px;
+}
+
+#incidentActivityGraph {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+@media (max-width: 700px) {
+    .incident-graph-container {
+        height: 220px;
+    }
+}
+
 </style>
 
 </head>
@@ -613,7 +653,6 @@
 
             <section class="dashboard-section">
 
-
                 <div class="section-heading">
 
                     <span class="section-number">
@@ -627,17 +666,14 @@
                         </h3>
 
                         <p>
-                            Current lifecycle state and
-                            confidence of the incident model.
+                            Current state and confidence of the incident model.
                         </p>
 
                     </div>
 
                 </div>
 
-
                 <div class="two-column-grid">
-
 
                     <!-- CURRENT STATE -->
 
@@ -678,43 +714,26 @@
                     </article>
 
 
-                    <!-- LIFECYCLE -->
 
-                    <article class="dashboard-card">
+
+                    <!-- INCIDENT ACTIVITY GRAPH -->
+
+                    <article class="dashboard-card incident-graph-card">
 
                         <span class="card-label">
-                            INCIDENT LIFECYCLE
+                            INCIDENT ACTIVITY
                         </span>
 
+                        <h4>
+                            Incident Activity Graph
+                        </h4>
 
-                        <div
-                            id="incidentLifecycle"
-                            class="timeline"
-                        >
+                        <p>
+                            Event activity derived from the selected incident timeline.
+                        </p>
 
-                            <div class="timeline-item">
-
-                                <span class="timeline-time">
-                                    —
-                                </span>
-
-                                <div class="timeline-marker"></div>
-
-                                <div>
-
-                                    <strong>
-                                        Waiting for incident data
-                                    </strong>
-
-                                    <p>
-                                        Incident lifecycle will
-                                        be populated dynamically.
-                                    </p>
-
-                                </div>
-
-                            </div>
-
+                        <div class="incident-graph-container">
+                            <canvas id="incidentActivityGraph"></canvas>
                         </div>
 
                     </article>
@@ -950,6 +969,8 @@
 <!-- =====================================================
      INCIDENT TWIN JAVASCRIPT
 ====================================================== -->
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script src="../js/incident-twin.js"></script>
 
