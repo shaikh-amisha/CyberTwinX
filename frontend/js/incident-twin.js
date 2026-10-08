@@ -46,6 +46,9 @@ const elements = {
     topbarRisk:
         document.getElementById("topbarRisk"),
 
+    topbarSystemStatus:
+        document.getElementById("topbarSystemStatus"),
+
 
     /* Overview */
 
@@ -2277,14 +2280,13 @@ function showEmptyState() {
    ========================================================= */
 
 function showErrorState(
+    message
+) {
 
     if (incidentActivityChart) {
         incidentActivityChart.destroy();
         incidentActivityChart = null;
     }
-
-    message
-) {
 
     console.error(
         "[CyberTwinX] API Error:",
