@@ -1,5 +1,6 @@
 const EndpointTwin = require("../models/EndpointTwin");
 const SecurityStateHistory = require("../models/securityStateHistory");
+const { aggregateActiveIncidentRisk } = require("../services/incidentRiskService");
 
 // Get the current Endpoint Twin
 const getEndpointTwin = async (req, res) => {
@@ -38,6 +39,14 @@ const getEndpointTwin = async (req, res) => {
 
         }
 
+
+        /*
+         * Recalculate current risk from active Incident Twins.
+         * This prevents a stale EndpointTwin document from hiding
+         * an active COMPROMISED state.
+         */
+        const activeIncidentRisk =
+            await aggregateActiveIncidentRisk(endpoint.endpointId);
 
         /*
          * Get the latest security-state history
@@ -139,6 +148,11 @@ const getEndpointTwin = async (req, res) => {
             data: {
 
                 ...endpoint,
+
+                securityState: activeIncidentRisk.state,
+                riskScore: activeIncidentRisk.score,
+                riskLevel: activeIncidentRisk.level,
+                riskBreakdown: activeIncidentRisk.breakdown,
 
                 stateTransition
 
