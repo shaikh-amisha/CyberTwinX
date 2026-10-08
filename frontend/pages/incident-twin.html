@@ -697,20 +697,13 @@
 
                 <div class="incident-three-column-grid">
 
-                    <article class="dashboard-card">
-                        <span class="card-label">CURRENT STATE</span>
-
-                        <div class="state-display" id="incidentState">—</div>
-
-                        <div class="card-value" id="incidentConfidence">
-                            0% CONFIDENCE
+                    <article class="dashboard-card incident-graph-card">
+                        <span class="card-label">EVIDENCE STATUS</span>
+                        <h4>Evidence Status Breakdown</h4>
+                        <p>Distribution of evidence by its investigation status.</p>
+                        <div class="incident-graph-container">
+                            <canvas id="incidentEvidenceStatusGraph"></canvas>
                         </div>
-
-                        <div class="risk-bar">
-                            <div id="incidentConfidenceBar" class="risk-bar-fill"></div>
-                        </div>
-
-                        <p>Confidence in the current incident classification.</p>
                     </article>
 
                     <article class="dashboard-card incident-graph-card">
