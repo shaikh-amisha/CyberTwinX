@@ -79,10 +79,6 @@ const elements = {
     incidentConfidenceBar:
         document.getElementById("incidentConfidenceBar"),
 
-    incidentLifecycle:
-        document.getElementById("incidentLifecycle"),
-
-
     /* Evidence */
 
     incidentEvidence:
@@ -94,6 +90,11 @@ const elements = {
     incidentTimeline:
         document.getElementById(
             "incidentTimeline"
+        ),
+
+    incidentActivityGraph:
+        document.getElementById(
+            "incidentActivityGraph"
         ),
 
 
@@ -1233,17 +1234,16 @@ function renderIncidentTwin(
     );
 
 
-    renderLifecycle(
-        incident.lifecycle
-    );
-
-
     renderEvidence(
         incident.evidence
     );
 
 
     renderTimeline(
+        incident.timeline
+    );
+
+    renderIncidentGraph(
         incident.timeline
     );
 
@@ -1441,106 +1441,181 @@ function updateState(
 
 
 /* =========================================================
-   13. RENDER LIFECYCLE
+   13. RENDER INCIDENT ACTIVITY GRAPH
    ========================================================= */
 
-function renderLifecycle(
-    lifecycle = []
+let incidentActivityChart = null;
+
+
+function renderIncidentGraph(
+    timeline = []
 ) {
 
-    if (
-        !elements.incidentLifecycle
-    ) {
+    const canvas =
+        elements.incidentActivityGraph;
 
+    if (!canvas || typeof Chart === "undefined") {
         return;
-
     }
 
+    const orderedTimeline =
+        Array.isArray(timeline)
+            ? [...timeline]
+                .filter(
+                    event =>
+                        event &&
+                        event.time &&
+                        !Number.isNaN(
+                            new Date(event.time).getTime()
+                        )
+                )
+                .sort(
+                    (a, b) =>
+                        new Date(a.time) -
+                        new Date(b.time)
+                )
+            : [];
 
-    if (!lifecycle.length) {
-
-        elements.incidentLifecycle.innerHTML = `
-
-            <div class="timeline-item">
-
-                <span class="timeline-time">
-                    —
-                </span>
-
-                <div class="timeline-marker"></div>
-
-                <div>
-
-                    <strong>
-                        No lifecycle data
-                    </strong>
-
-                    <p>
-                        No incident state transitions
-                        are currently available.
-                    </p>
-
-                </div>
-
-            </div>
-
-        `;
-
-        return;
-
+    if (incidentActivityChart) {
+        incidentActivityChart.destroy();
+        incidentActivityChart = null;
     }
 
+    const labels = [];
+    const values = [];
 
-    elements.incidentLifecycle.innerHTML =
-        lifecycle.map(
-            item => {
+    orderedTimeline.forEach(
+        (event, index) => {
 
-                const time =
-                    formatDate(
-                        item.time
-                    );
+            const date =
+                new Date(event.time);
 
+            labels.push(
+                date.toLocaleString(
+                    "en-IN",
+                    {
+                        day: "2-digit",
+                        month: "short",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hour12: false
+                    }
+                )
+            );
 
-                return `
+            values.push(index + 1);
 
-                    <div class="timeline-item">
+        }
+    );
 
-                        <span class="timeline-time">
-                            ${escapeHTML(time)}
-                        </span>
+    if (!labels.length) {
 
-                        <div class="timeline-marker"></div>
+        const context =
+            canvas.getContext("2d");
 
-                        <div>
+        context.clearRect(
+            0,
+            0,
+            canvas.width,
+            canvas.height
+        );
 
-                            <strong>
-                                ${escapeHTML(
-                                    item.state
-                                )}
-                            </strong>
+        return;
+    }
 
-                            <p>
-                                ${escapeHTML(
-                                    item.description ||
-                                    ""
-                                )}
-                            </p>
+    incidentActivityChart =
+        new Chart(
+            canvas.getContext("2d"),
+            {
+                type: "line",
 
-                        </div>
+                data: {
+                    labels,
 
-                    </div>
+                    datasets: [
+                        {
+                            label: "Incident Events",
+                            data: values,
+                            fill: true,
+                            tension: 0.35,
+                            pointRadius: 3,
+                            pointHoverRadius: 5,
+                            borderWidth: 2
+                        }
+                    ]
+                },
 
-                `;
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
 
+                    interaction: {
+                        mode: "index",
+                        intersect: false
+                    },
+
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+
+                        tooltip: {
+                            callbacks: {
+                                label: context =>
+                                    `Events observed: ${context.parsed.y}`
+                            }
+                        }
+                    },
+
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false
+                            },
+
+                            ticks: {
+                                maxRotation: 0,
+                                autoSkip: true,
+                                color: "#9fb0bf",
+                                font: {
+                                    size: 9
+                                }
+                            }
+                        },
+
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0,
+                                color: "#9fb0bf",
+                                font: {
+                                    size: 9
+                                }
+                            },
+
+                            title: {
+                                display: true,
+                                text: "Events",
+                                color: "#cbd5df",
+                                font: {
+                                    size: 10,
+                                    weight: "700"
+                                }
+                            }
+                        }
+                    }
+                }
             }
-        ).join("");
+        );
 
 }
 
 
-/* =========================================================
+/* =================================================
    14. RENDER EVIDENCE
    ========================================================= */
+
+
 
 function getEvidenceSeverityClass(
     severity
@@ -2032,6 +2107,12 @@ function escapeHTML(
 
 function showEmptyState() {
 
+    if (incidentActivityChart) {
+        incidentActivityChart.destroy();
+        incidentActivityChart = null;
+    }
+
+
     setText(
         elements.topbarEndpoint,
         "—"
@@ -2196,6 +2277,12 @@ function showEmptyState() {
    ========================================================= */
 
 function showErrorState(
+
+    if (incidentActivityChart) {
+        incidentActivityChart.destroy();
+        incidentActivityChart = null;
+    }
+
     message
 ) {
 
