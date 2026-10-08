@@ -2,6 +2,7 @@ const Telemetry = require("../models/Telemetry");
 const EndpointTwin = require("../models/EndpointTwin");
 const IncidentTwin = require("../models/IncidentTwin");
 const { getSummary } = require("../services/evidenceInvestigationService");
+const { aggregateActiveIncidentRisk } = require("../services/incidentRiskService");
 
 
 const getDashboardOverview = async (req, res) => {
@@ -243,24 +244,37 @@ const getDashboardOverview = async (req, res) => {
          * =====================================================
          */
 
-        const endpointState =
-            endpointTwin?.securityState ||
-            activeIncident?.endpointState ||
-            "UNKNOWN";
+        /*
+         * Always derive the dashboard's current security posture
+         * from active Incident Twins. EndpointTwin is a persisted
+         * snapshot and may lag behind the active incident set.
+         */
+        const activeIncidentRisk =
+            endpointTwin?.endpointId
+                ? await aggregateActiveIncidentRisk(
+                    endpointTwin.endpointId
+                )
+                : {
+                    state: "UNKNOWN",
+                    score: 0,
+                    level: "LOW",
+                    breakdown: []
+                };
 
+        const endpointState =
+            activeIncidentRisk.state !== "UNKNOWN"
+                ? activeIncidentRisk.state
+                : (
+                    endpointTwin?.securityState ||
+                    activeIncident?.endpointState ||
+                    "UNKNOWN"
+                );
 
         const riskScore =
-            Number(
-                endpointTwin?.riskScore ??
-                activeIncident?.riskScore ??
-                0
-            );
-
+            activeIncidentRisk.score;
 
         const riskLevel =
-            endpointTwin?.riskLevel ||
-            activeIncident?.riskLevel ||
-            getRiskLevel(riskScore);
+            activeIncidentRisk.level;
 
 
         const confidence =
