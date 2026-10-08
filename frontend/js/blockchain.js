@@ -544,8 +544,8 @@ async function renderMerkleTree() {
 
     const leafY = 45;
     const levelGap = 95;
-    const nodeWidth = 165;
-    const nodeHeight = 68;
+    const nodeWidth = 120;
+    const nodeHeight = 50;
 
     const positions = [];
 
@@ -589,31 +589,54 @@ async function renderMerkleTree() {
         }
     }
 
-    // Animated hash particles travel from evidence leaves toward their parents.
-    const leafParticles = positions[0] || [];
-    leafParticles.forEach((node, index) => {
-        const parentNode = positions[1]?.[Math.floor(index / 2)];
-        if (!parentNode) return;
+    // Animated hash particles travel along every Merkle edge.
+    // Each particle follows the exact child-to-parent line, then continues
+    // through the parent-to-root edges on the next level.
+    let particleIndex = 0;
 
-        const dx = parentNode.x - node.x;
-        const dy = parentNode.y - (node.y + nodeHeight);
+    for (let level = 0; level < positions.length - 1; level++) {
+        const current = positions[level];
+        const parent = positions[level + 1];
 
-        markup += `
-            <circle
-                class="merkle-particle particle-${index + 1}"
-                r="4"
-                cx="${node.x}"
-                cy="${node.y + nodeHeight}"
-            >
-                <animateMotion
-                    dur="2.8s"
-                    begin="${index * 0.35}s"
-                    repeatCount="indefinite"
-                    path="M 0 0 L ${dx} ${dy}"
-                ></animateMotion>
-            </circle>
-        `;
-    });
+        for (let index = 0; index < current.length; index++) {
+            const parentNode = parent[Math.floor(index / 2)];
+            const child = current[index];
+
+            const startX = child.x;
+            const startY = child.y + nodeHeight;
+            const endX = parentNode.x;
+            const endY = parentNode.y;
+
+            const dx = endX - startX;
+            const dy = endY - startY;
+            const delay = particleIndex * 0.22;
+            particleIndex += 1;
+
+            markup += `
+                <circle
+                    class="merkle-particle particle-${particleIndex}"
+                    r="3.5"
+                    cx="${startX}"
+                    cy="${startY}"
+                >
+                    <animateMotion
+                        dur="1.8s"
+                        begin="${delay}s"
+                        repeatCount="indefinite"
+                        path="M 0 0 L ${dx} ${dy}"
+                    ></animateMotion>
+                    <animate
+                        attributeName="opacity"
+                        values="0;1;1;0"
+                        keyTimes="0;0.12;0.78;1"
+                        dur="1.8s"
+                        begin="${delay}s"
+                        repeatCount="indefinite"
+                    ></animate>
+                </circle>
+            `;
+        }
+    }
 
     const leafLabels = evidence.map(item => item.id);
 
@@ -655,23 +678,23 @@ async function renderMerkleTree() {
             <g class="merkle-root-node">
                 <rect
                     class="merkle-node root"
-                    x="${root.x - 110}"
+                    x="${root.x - 85}"
                     y="${root.y}"
-                    width="220"
-                    height="88"
+                    width="170"
+                    height="64"
                     rx="10"
                 ></rect>
-                <text class="merkle-node-label" x="${root.x}" y="${root.y + 32}">
+                <text class="merkle-node-label" x="${root.x}" y="${root.y + 26}">
                     MERKLE ROOT
                 </text>
-                <text class="merkle-root-text" x="${root.x}" y="${root.y + 66}">
+                <text class="merkle-root-text" x="${root.x}" y="${root.y + 49}">
                     ${escapeHTML(shortHash("0x" + levels[levels.length - 1][0], 8, 6))}
                 </text>
             </g>
             <circle
                 class="merkle-root-pulse"
                 cx="${root.x}"
-                cy="${root.y + 44}"
+                cy="${root.y + 32}"
                 r="18"
             ></circle>
         `;
