@@ -71,17 +71,6 @@ const elements = {
         document.getElementById("incidentRiskLabel"),
 
 
-    /* State */
-
-    incidentState:
-        document.getElementById("incidentState"),
-
-    incidentConfidence:
-        document.getElementById("incidentConfidence"),
-
-    incidentConfidenceBar:
-        document.getElementById("incidentConfidenceBar"),
-
     /* Evidence */
 
     incidentEvidence:
@@ -205,11 +194,7 @@ function markIncidentLiveUpdate() {
 
         elements.topbarRisk,
 
-        elements.incidentState,
-
-        elements.incidentRisk,
-
-        elements.incidentConfidence
+        elements.incidentRisk
 
     ];
 
@@ -1231,12 +1216,6 @@ function renderIncidentTwin(
         incident
     );
 
-
-    updateState(
-        incident
-    );
-
-
     renderEvidence(
         incident.evidence
     );
@@ -1398,53 +1377,7 @@ function calculateRiskLevel(
 
 
 /* =========================================================
-   12. UPDATE INCIDENT STATE
-   ========================================================= */
-
-function updateState(
-    incident
-) {
-
-    setText(
-        elements.incidentState,
-
-        incident.currentState
-    );
-
-
-    const confidence =
-        Number(
-            incident.confidence
-        ) || 0;
-
-
-    setText(
-        elements.incidentConfidence,
-
-        `${confidence}% CONFIDENCE`
-    );
-
-
-    if (
-        elements.incidentConfidenceBar
-    ) {
-
-        elements.incidentConfidenceBar.style.width =
-            `${Math.min(
-                Math.max(
-                    confidence,
-                    0
-                ),
-                100
-            )}%`;
-
-    }
-
-}
-
-
-/* =========================================================
-   13. RENDER INCIDENT ACTIVITY GRAPH
+   12. RENDER INCIDENT ACTIVITY GRAPH
    ========================================================= */
 
 let incidentActivityChart = null;
@@ -1615,7 +1548,7 @@ function renderIncidentGraph(
 
 
 /* =================================================
-   14. RENDER EVIDENCE
+   13. RENDER EVIDENCE
    ========================================================= */
 
 
@@ -1826,7 +1759,7 @@ function renderEvidence(
 
 
 /* =========================================================
-   15. RENDER TIMELINE
+   14. RENDER TIMELINE
    ========================================================= */
 
 function renderTimeline(
@@ -2016,7 +1949,7 @@ function renderTimeline(
 
 
 /* =========================================================
-   16. UPDATE LINKED ENDPOINT
+   15. UPDATE LINKED ENDPOINT
    ========================================================= */
 
 function updateLinkedEndpoint(
@@ -2045,7 +1978,7 @@ function updateLinkedEndpoint(
 
 
 /* =========================================================
-   17. FORMAT DATE
+   16. FORMAT DATE
    ========================================================= */
 
 function formatDate(
@@ -2082,7 +2015,7 @@ function formatDate(
 
 
 /* =========================================================
-   18. ESCAPE HTML
+   17. ESCAPE HTML
    ========================================================= */
 
 function escapeHTML(
@@ -2105,7 +2038,7 @@ function escapeHTML(
 
 
 /* =========================================================
-   19. EMPTY STATE
+   18. EMPTY STATE
    ========================================================= */
 
 function showEmptyState() {
@@ -2169,19 +2102,6 @@ function showEmptyState() {
         "Risk Level: —"
     );
 
-
-    setText(
-        elements.incidentState,
-        "—"
-    );
-
-
-    setText(
-        elements.incidentConfidence,
-        "0% CONFIDENCE"
-    );
-
-
     if (
         elements.incidentRiskBar
     ) {
@@ -2190,17 +2110,6 @@ function showEmptyState() {
             "0%";
 
     }
-
-
-    if (
-        elements.incidentConfidenceBar
-    ) {
-
-        elements.incidentConfidenceBar.style.width =
-            "0%";
-
-    }
-
 
     if (
         elements.selectedIncidentSummary
@@ -2276,7 +2185,7 @@ function showEmptyState() {
 
 
 /* =========================================================
-   20. ERROR STATE
+   19. ERROR STATE
    ========================================================= */
 
 function showErrorState(
@@ -2381,7 +2290,7 @@ function showErrorState(
 
 
 /* =========================================================
-   21. PAGE VISIBILITY
+   20. PAGE VISIBILITY
    ========================================================= */
 
 function initializeVisibilityHandler() {
@@ -2405,7 +2314,7 @@ function initializeVisibilityHandler() {
 
 
 /* =========================================================
-   22. INITIALIZE
+   21. INITIALIZE
    ========================================================= */
 
 async function initializeIncidentTwin() {
@@ -2435,7 +2344,7 @@ async function initializeIncidentTwin() {
 
 
 /* =========================================================
-   23. START
+   22. START
    ========================================================= */
 
 document.addEventListener(
