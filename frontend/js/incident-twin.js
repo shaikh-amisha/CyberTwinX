@@ -1588,11 +1588,6 @@ function renderEvidenceSeverityGraph(evidence = []) {
         incidentEvidenceSeverityChart = null;
     }
 
-    if (incidentEvidenceStatusChart) {
-        incidentEvidenceStatusChart.destroy();
-        incidentEvidenceStatusChart = null;
-    }
-
     const counts = { CRITICAL: 0, HIGH: 0, MEDIUM: 0, LOW: 0 };
 
     if (Array.isArray(evidence)) {
@@ -1651,7 +1646,6 @@ function renderEvidenceSeverityGraph(evidence = []) {
             }
         }
     });
-}
 }
 
 function renderEvidenceStatusGraph(evidence = []) {
