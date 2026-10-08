@@ -179,53 +179,7 @@ const receiveTelemetry = async (req, res) => {
 
 
         // =====================================================
-        // 7. DETECT STATE / RISK CHANGE
-        // =====================================================
-
-        const stateChanged =
-            !previousEndpoint ||
-            previousEndpoint.securityState !==
-                securityAnalysis.state;
-
-        const riskChanged =
-            !previousEndpoint ||
-            previousEndpoint.riskScore !==
-                securityAnalysis.score;
-
-
-        // =====================================================
-        // 8. SAVE SECURITY STATE HISTORY
-        // =====================================================
-
-        if (stateChanged || riskChanged) {
-
-            await SecurityStateHistory.create({
-
-                endpointId,
-
-                state:
-                    securityAnalysis.state,
-
-                riskScore:
-                    securityAnalysis.score,
-
-                riskLevel:
-                    securityAnalysis.riskLevel,
-
-                confidence:
-                    securityAnalysis.confidence,
-
-                findings:
-                    securityAnalysis.findings,
-
-                changedAt:
-                    new Date()
-            });
-        }
-
-
-        // =====================================================
-        // 9. INCIDENT CORRELATION
+        // 7. INCIDENT CORRELATION
         // =====================================================
 
         const incidentCorrelation =
@@ -286,6 +240,47 @@ const receiveTelemetry = async (req, res) => {
                     new Date()
             }
         );
+
+        // =====================================================
+        // 11. SAVE AGGREGATED SECURITY STATE HISTORY
+        // =====================================================
+
+        const stateChanged =
+            !previousEndpoint ||
+            previousEndpoint.securityState !==
+                activeIncidentRisk.state;
+
+        const riskChanged =
+            !previousEndpoint ||
+            previousEndpoint.riskScore !==
+                activeIncidentRisk.score;
+
+        if (stateChanged || riskChanged) {
+
+            await SecurityStateHistory.create({
+
+                endpointId,
+
+                state:
+                    activeIncidentRisk.state,
+
+                riskScore:
+                    activeIncidentRisk.score,
+
+                riskLevel:
+                    activeIncidentRisk.level,
+
+                confidence:
+                    securityAnalysis.confidence,
+
+                findings:
+                    securityAnalysis.findings,
+
+                changedAt:
+                    new Date()
+            });
+        }
+
 
         // =====================================================
         // 11. LIVE ATTACK ALERTS
