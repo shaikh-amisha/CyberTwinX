@@ -471,12 +471,42 @@ function processEvents(processes) {
 }
 
 function networkEvents(network) {
-    return arr(
+    const explicitEvents =
         network?.connections_list ||
         network?.connection_list ||
         network?.connections_detail ||
-        network?.events
-    );
+        network?.events;
+
+    if (Array.isArray(explicitEvents)) {
+        return explicitEvents;
+    }
+
+    // The CyberTwin Linux Agent sends live connections as:
+    // {
+    //   connections: [
+    //     {
+    //       status,
+    //       local_address: { ip, port },
+    //       remote_address: { ip, port },
+    //       pid
+    //     }
+    //   ]
+    // }
+    // Normalize that shape so network detections can consume the
+    // actual agent telemetry instead of expecting a different schema.
+    if (Array.isArray(network?.connections)) {
+        return network.connections.map(connection => ({
+            ...connection,
+            local_ip: connection?.local_address?.ip,
+            local_port: connection?.local_address?.port,
+            remote_ip: connection?.remote_address?.ip,
+            remote_port: connection?.remote_address?.port,
+            destination_ip: connection?.remote_address?.ip,
+            destination_port: connection?.remote_address?.port
+        }));
+    }
+
+    return [];
 }
 
 function finding(type, severity, count, description, extra = {}) {
