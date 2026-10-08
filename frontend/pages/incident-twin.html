@@ -109,10 +109,6 @@
     min-width: 0;
 }
 
-.incident-graph-card-full {
-    width: 100%;
-}
-
 .incident-graph-card h4 {
     margin-top: 8px;
     color: #f1f7fb;
@@ -652,51 +648,52 @@
 
 
             <!-- =================================================
-                 02 — INCIDENT ACTIVITY
+                 02 — INCIDENT STATE
             ================================================== -->
 
             <section class="dashboard-section">
 
                 <div class="section-heading">
-
-                    <span class="section-number">
-                        02
-                    </span>
-
+                    <span class="section-number">02</span>
                     <div>
-
-                        <h3>
-                            Incident Activity
-                        </h3>
-
-                        <p>
-                            Chronological event activity captured for the selected incident.
-                        </p>
-
+                        <h3>Incident State</h3>
+                        <p>Current state and confidence of the incident model.</p>
                     </div>
-
                 </div>
 
-                <article class="dashboard-card incident-graph-card incident-graph-card-full">
+                <div class="two-column-grid">
 
-                    <span class="card-label">
-                        INCIDENT ACTIVITY GRAPH
-                    </span>
+                    <article class="dashboard-card">
+                        <span class="card-label">CURRENT STATE</span>
 
-                    <h4>
-                        Incident Activity Over Time
-                    </h4>
+                        <div class="state-display" id="incidentState">—</div>
 
-                    <p>
-                        Event activity derived from the selected incident timeline.
-                    </p>
+                        <div class="card-value" id="incidentConfidence">
+                            0% CONFIDENCE
+                        </div>
 
-                    <div class="incident-graph-container">
-                        <canvas id="incidentActivityGraph"></canvas>
-                    </div>
+                        <div class="risk-bar">
+                            <div id="incidentConfidenceBar" class="risk-bar-fill"></div>
+                        </div>
 
-                </article>
+                        <p>Confidence in the current incident classification.</p>
+                    </article>
 
+                    <article class="dashboard-card incident-graph-card">
+                        <span class="card-label">INCIDENT ACTIVITY GRAPH</span>
+
+                        <h4>Incident Activity Over Time</h4>
+
+                        <p>
+                            Event activity derived from the selected incident timeline.
+                        </p>
+
+                        <div class="incident-graph-container">
+                            <canvas id="incidentActivityGraph"></canvas>
+                        </div>
+                    </article>
+
+                </div>
             </section>
 
 
