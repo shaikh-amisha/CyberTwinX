@@ -836,6 +836,37 @@ function mergeTimeline(
 
 
 // =========================================================
+// INCIDENT EPISODE CONTINUITY
+// =========================================================
+
+/*
+ * An Incident Twin represents one continuous detection episode.
+ * Different detection sets or separated occurrences are separate
+ * incidents. Common evidence is never merged across incidents.
+ */
+const INCIDENT_CONTINUITY_WINDOW_MS = 2 * 60 * 1000;
+
+function getDetectionSignature(findings) {
+    return [...new Set(
+        findings
+            .map(finding =>
+                String(finding?.type || "UNKNOWN").toUpperCase()
+            )
+            .filter(Boolean)
+    )].sort().join("|");
+}
+
+function getTelemetryTime(telemetry) {
+    const value = telemetry?.timestamp || null;
+    const parsed = value ? new Date(value) : new Date();
+
+    return Number.isNaN(parsed.getTime())
+        ? new Date()
+        : parsed;
+}
+
+
+// =========================================================
 // INCIDENT CORRELATION
 // =========================================================
 
@@ -908,35 +939,46 @@ async function correlateIncident({
     // =====================================================
 
     /*
-     * Keep materially different detections as separate Incident
-     * Twins. For example, an authentication/brute-force event
-     * must not be absorbed into an existing privilege-escalation
-     * incident on the same endpoint.
-     *
-     * Findings within the same incident type continue to be
-     * correlated and updated normally.
+     * incidentType alone is not enough to correlate incidents.
+     * A later occurrence of the same attack type must be able to
+     * create a new Incident Twin after the previous episode ends.
      */
     const detectedIncidentType =
         getIncidentType(findings);
+
+    const detectionSignature =
+        getDetectionSignature(findings);
+
+    const telemetryTime =
+        getTelemetryTime(telemetry);
+
+    const continuityCutoff =
+        new Date(
+            telemetryTime.getTime() -
+            INCIDENT_CONTINUITY_WINDOW_MS
+        );
 
     let incident =
         await IncidentTwin.findOne({
 
             endpointId,
 
-            incidentType:
-                detectedIncidentType,
+            detectionSignature,
 
             currentState: {
                 $nin: [
                     "RESOLVED",
                     "CONTAINED"
                 ]
+            },
+
+            lastSeenAt: {
+                $gte: continuityCutoff
             }
 
         }).sort({
 
-            updatedAt: -1
+            lastSeenAt: -1
 
         });
 
@@ -992,6 +1034,11 @@ async function correlateIncident({
                     getIncidentType(
                         findings
                     ),
+
+                detectionSignature,
+
+                lastSeenAt:
+                    telemetryTime,
 
                 severity,
 
@@ -1107,6 +1154,12 @@ async function correlateIncident({
 
     incident.riskLevel =
         securityAnalysis.riskLevel;
+
+    incident.detectionSignature =
+        detectionSignature;
+
+    incident.lastSeenAt =
+        telemetryTime;
 
 
     incident.endpointHostname =
