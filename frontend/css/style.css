@@ -11608,3 +11608,49 @@ body::before {
         margin-left: auto;
     }
 }
+
+
+/* =========================================================
+   ENDPOINT TWIN — MERGED RISK GAUGE LAYOUT
+   ========================================================= */
+
+.hero-card {
+    display: grid;
+    grid-template-columns: 190px minmax(0, 1fr) 270px;
+    align-items: stretch;
+    overflow: hidden;
+}
+
+.hero-gauge-block {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hero-state-tag {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.risk-gauge {
+    flex-shrink: 0;
+    position: relative;
+    z-index: 2;
+}
+
+.hero-card::before {
+    pointer-events: none;
+    z-index: 0;
+}
+
+.hero-gauge-block,
+.hero-detail-block,
+.hero-state-tag,
+.hero-identity-block {
+    position: relative;
+    z-index: 1;
+}
