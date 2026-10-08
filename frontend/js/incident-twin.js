@@ -101,6 +101,11 @@ const elements = {
             "incidentActivityGraph"
         ),
 
+    incidentEvidenceSeverityGraph:
+        document.getElementById(
+            "incidentEvidenceSeverityGraph"
+        ),
+
 
     /* Endpoint */
 
@@ -1232,6 +1237,10 @@ function renderIncidentTwin(
         incident.evidence
     );
 
+    renderEvidenceSeverityGraph(
+        incident.evidence
+    );
+
 
     renderTimeline(
         incident.timeline
@@ -1427,6 +1436,7 @@ function updateState(
    ========================================================= */
 
 let incidentActivityChart = null;
+let incidentEvidenceSeverityChart = null;
 
 
 function renderIncidentGraph(
@@ -1461,6 +1471,11 @@ function renderIncidentGraph(
     if (incidentActivityChart) {
         incidentActivityChart.destroy();
         incidentActivityChart = null;
+    }
+
+    if (incidentEvidenceSeverityChart) {
+        incidentEvidenceSeverityChart.destroy();
+        incidentEvidenceSeverityChart = null;
     }
 
     const labels = [];
@@ -1594,7 +1609,85 @@ function renderIncidentGraph(
 
 
 /* =================================================
-   13. RENDER EVIDENCE
+   13. RENDER EVIDENCE SEVERITY GRAPH
+   ========================================================= */
+
+function renderEvidenceSeverityGraph(evidence = []) {
+
+    const canvas = elements.incidentEvidenceSeverityGraph;
+
+    if (!canvas || typeof Chart === "undefined") {
+        return;
+    }
+
+    if (incidentEvidenceSeverityChart) {
+        incidentEvidenceSeverityChart.destroy();
+        incidentEvidenceSeverityChart = null;
+    }
+
+    const counts = { CRITICAL: 0, HIGH: 0, MEDIUM: 0, LOW: 0 };
+
+    if (Array.isArray(evidence)) {
+        evidence.forEach(item => {
+            const severity = String(item?.severity || "LOW").toUpperCase();
+            if (Object.prototype.hasOwnProperty.call(counts, severity)) {
+                counts[severity] += 1;
+            } else {
+                counts.LOW += 1;
+            }
+        });
+    }
+
+    const total = Object.values(counts).reduce((sum, value) => sum + value, 0);
+    const context = canvas.getContext("2d");
+
+    if (!total) {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        return;
+    }
+
+    incidentEvidenceSeverityChart = new Chart(context, {
+        type: "doughnut",
+        data: {
+            labels: ["Critical", "High", "Medium", "Low"],
+            datasets: [{
+                data: [counts.CRITICAL, counts.HIGH, counts.MEDIUM, counts.LOW],
+                backgroundColor: ["#ff3b3b", "#ef4444", "#f59e0b", "#22c55e"],
+                borderColor: "#101820",
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: "68%",
+            plugins: {
+                legend: {
+                    position: "bottom",
+                    labels: {
+                        color: "#cbd5df",
+                        boxWidth: 10,
+                        padding: 12,
+                        font: { size: 9, weight: "700" }
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: context => {
+                            const value = Number(context.parsed) || 0;
+                            const percentage = total ? Math.round((value / total) * 100) : 0;
+                            return context.label + ": " + value + " (" + percentage + "%)";
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+
+/* =================================================
+   14. RENDER EVIDENCE
    ========================================================= */
 
 
