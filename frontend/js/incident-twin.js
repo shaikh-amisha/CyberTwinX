@@ -1233,6 +1233,10 @@ function renderIncidentTwin(
         incident
     );
 
+    updateState(
+        incident
+    );
+
     renderEvidence(
         incident.evidence
     );
@@ -1471,11 +1475,6 @@ function renderIncidentGraph(
     if (incidentActivityChart) {
         incidentActivityChart.destroy();
         incidentActivityChart = null;
-    }
-
-    if (incidentEvidenceSeverityChart) {
-        incidentEvidenceSeverityChart.destroy();
-        incidentEvidenceSeverityChart = null;
     }
 
     const labels = [];
