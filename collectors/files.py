@@ -1,28 +1,28 @@
 import os
 from datetime import datetime, timezone
 
-
 MONITORED_DIRECTORY = "/tmp/cybertwin-monitor"
-
 _previous_files = {}
+_files_initialized = False
 
 
 def collect_file_state():
     """
-    Collect the current state of files in the monitored directory
-    and detect basic file activity between collection cycles.
-    """
+    Collect the current file state and detect activity between cycles.
 
-    global _previous_files
+    The first successful collection establishes a baseline and emits no
+    events, so files that existed before the agent started are not treated
+    as newly created activity.
+    """
+    global _previous_files, _files_initialized
 
     files = []
     events = []
-
     timestamp = datetime.now(timezone.utc).isoformat()
 
     if not os.path.exists(MONITORED_DIRECTORY):
         _previous_files = {}
-
+        _files_initialized = False
         return {
             "timestamp": timestamp,
             "directory": MONITORED_DIRECTORY,
@@ -43,17 +43,14 @@ def collect_file_state():
 
             stat = os.stat(path)
 
-            file_info = {
+            files.append({
                 "name": filename,
                 "path": path,
                 "size_bytes": stat.st_size,
                 "modified_time": datetime.fromtimestamp(
-                    stat.st_mtime,
-                    tz=timezone.utc
+                    stat.st_mtime, tz=timezone.utc
                 ).isoformat()
-            }
-
-            files.append(file_info)
+            })
 
             current_files[path] = {
                 "name": filename,
@@ -61,26 +58,27 @@ def collect_file_state():
                 "modified_time": stat.st_mtime
             }
 
-        # ---------------------------------------------------------
-        # Detect newly created or modified files
-        # ---------------------------------------------------------
+        if not _files_initialized:
+            _previous_files = current_files
+            _files_initialized = True
+            return {
+                "timestamp": timestamp,
+                "directory": MONITORED_DIRECTORY,
+                "file_count": len(files),
+                "files": files,
+                "events": []
+            }
 
         for path, current in current_files.items():
-
-            # New file
             if path not in _previous_files:
-
                 events.append({
                     "event": "CREATED",
                     "path": path,
                     "name": current["name"],
                     "timestamp": timestamp
                 })
-
             else:
                 previous = _previous_files[path]
-
-                # Modified file
                 if (
                     current["size_bytes"] != previous["size_bytes"]
                     or current["modified_time"] != previous["modified_time"]
@@ -92,14 +90,8 @@ def collect_file_state():
                         "timestamp": timestamp
                     })
 
-        # ---------------------------------------------------------
-        # Detect deleted files
-        # ---------------------------------------------------------
-
         for path, previous in _previous_files.items():
-
             if path not in current_files:
-
                 events.append({
                     "event": "DELETED",
                     "path": path,
@@ -107,7 +99,6 @@ def collect_file_state():
                     "timestamp": timestamp
                 })
 
-        # Save current snapshot for next cycle
         _previous_files = current_files
 
         return {
@@ -119,7 +110,6 @@ def collect_file_state():
         }
 
     except PermissionError:
-
         return {
             "timestamp": timestamp,
             "directory": MONITORED_DIRECTORY,
@@ -130,7 +120,6 @@ def collect_file_state():
         }
 
     except Exception as e:
-
         return {
             "timestamp": timestamp,
             "directory": MONITORED_DIRECTORY,
