@@ -140,6 +140,40 @@
     }
 }
 
+
+.incident-three-column-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    align-items: stretch;
+}
+
+.incident-three-column-grid > .dashboard-card {
+    min-width: 0;
+}
+
+.incident-three-column-grid .incident-graph-card {
+    display: flex;
+    flex-direction: column;
+}
+
+.incident-three-column-grid .incident-graph-container {
+    flex: 1;
+    min-height: 250px;
+}
+
+@media (max-width: 1050px) {
+    .incident-three-column-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 700px) {
+    .incident-three-column-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 </style>
 
 </head>
@@ -696,8 +730,6 @@
                             <canvas id="incidentActivityGraph"></canvas>
                         </div>
                     </article>
-
-                </div>                   </article>
 
                 </div>
             </section>
