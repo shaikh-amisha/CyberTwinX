@@ -71,6 +71,18 @@ const elements = {
         document.getElementById("incidentRiskLabel"),
 
 
+    /* State */
+
+    incidentState:
+        document.getElementById("incidentState"),
+
+    incidentConfidence:
+        document.getElementById("incidentConfidence"),
+
+    incidentConfidenceBar:
+        document.getElementById("incidentConfidenceBar"),
+
+
     /* Evidence */
 
     incidentEvidence:
@@ -1377,7 +1389,41 @@ function calculateRiskLevel(
 
 
 /* =========================================================
-   12. RENDER INCIDENT ACTIVITY GRAPH
+   12. UPDATE INCIDENT STATE
+   ========================================================= */
+
+function updateState(
+    incident
+) {
+
+    setText(
+        elements.incidentState,
+        incident.currentState
+    );
+
+    const confidence =
+        Number(
+            incident.confidence
+        ) || 0;
+
+    setText(
+        elements.incidentConfidence,
+        String(confidence) + "% CONFIDENCE"
+    );
+
+    if (elements.incidentConfidenceBar) {
+        elements.incidentConfidenceBar.style.width =
+            Math.min(
+                Math.max(confidence, 0),
+                100
+            ) + "%";
+    }
+
+}
+
+
+/* =========================================================
+   13. RENDER INCIDENT ACTIVITY GRAPH
    ========================================================= */
 
 let incidentActivityChart = null;
