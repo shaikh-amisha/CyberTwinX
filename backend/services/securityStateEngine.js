@@ -44,33 +44,23 @@ function normalizeDetectionTelemetry(telemetry = {}) {
     };
 
     /*
-     * The Linux agent provides current file state rather than
-     * explicit file-event records. Preserve the agent data and
-     * expose ransomware-relevant filenames as detection events.
+     * File detections must be based on observed file-change events,
+     * not on the current filename snapshot.
+     *
+     * A file that was renamed/encrypted during an earlier incident
+     * remains in the endpoint snapshot afterwards. Treating that
+     * stale filename as a new event causes every later incident to
+     * inherit the old ransomware finding.
+     *
+     * The collector's explicit events array is therefore the only
+     * source used for ransomware/file-change detection.
      */
-    const fileList = Array.isArray(normalized.files.files)
-        ? normalized.files.files
-        : [];
-
     const existingFileEvents = Array.isArray(normalized.files.events)
         ? normalized.files.events
         : [];
 
-    const ransomwareFileEvents = fileList
-        .filter(file =>
-            /\.locked$|\.encrypted$|ransom/i.test(
-                String(file?.name || file?.path || "")
-            )
-        )
-        .map(file => ({
-            action: "file_rename_or_encryption",
-            filename: file?.name || "",
-            path: file?.path || ""
-        }));
-
     normalized.files.events = [
-        ...existingFileEvents,
-        ...ransomwareFileEvents
+        ...existingFileEvents
     ];
 
     /*
