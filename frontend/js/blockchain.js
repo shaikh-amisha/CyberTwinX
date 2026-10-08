@@ -531,7 +531,7 @@ async function renderMerkleTree() {
     }
 
     const levels = await buildMerkleLevelsBrowser(evidence);
-    const svgWidth = 760;
+    const svgWidth = 1000;
     const svgHeight = Math.max(
         430,
         45 + (levels.length - 1) * 95 + 100
@@ -544,8 +544,8 @@ async function renderMerkleTree() {
 
     const leafY = 45;
     const levelGap = 95;
-    const nodeWidth = 150;
-    const nodeHeight = 62;
+    const nodeWidth = 170;
+    const nodeHeight = 68;
 
     const positions = [];
 
@@ -678,23 +678,23 @@ async function renderMerkleTree() {
             <g class="merkle-root-node">
                 <rect
                     class="merkle-node root"
-                    x="${root.x - 100}"
+                    x="${root.x - 115}"
                     y="${root.y}"
-                    width="200"
-                    height="76"
+                    width="230"
+                    height="82"
                     rx="10"
                 ></rect>
-                <text class="merkle-node-label" x="${root.x}" y="${root.y + 30}">
+                <text class="merkle-node-label" x="${root.x}" y="${root.y + 32}">
                     MERKLE ROOT
                 </text>
-                <text class="merkle-root-text" x="${root.x}" y="${root.y + 57}">
+                <text class="merkle-root-text" x="${root.x}" y="${root.y + 60}">
                     ${escapeHTML(shortHash("0x" + levels[levels.length - 1][0], 8, 6))}
                 </text>
             </g>
             <circle
                 class="merkle-root-pulse"
                 cx="${root.x}"
-                cy="${root.y + 38}"
+                cy="${root.y + 41}"
                 r="18"
             ></circle>
         `;
