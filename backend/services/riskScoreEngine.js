@@ -16,7 +16,8 @@
 const SEVERITY_WEIGHTS = {
     LOW: 5,
     MEDIUM: 15,
-    HIGH: 30
+    HIGH: 30,
+    CRITICAL: 40
 };
 
 
