@@ -243,7 +243,52 @@ const receiveTelemetry = async (req, res) => {
 
 
         // =====================================================
-        // 10. LIVE ATTACK ALERTS
+        // 10. REBUILD ENDPOINT RISK FROM ACTIVE INCIDENTS
+        // =====================================================
+
+        /*
+         * Endpoint Twin risk represents the attacks that are still
+         * active on the endpoint, not only the findings present in
+         * the latest telemetry packet.
+         *
+         * This is important because authentication/file events are
+         * intentionally deduplicated by the agent. Once an attack
+         * stops producing new events, its finding disappears from
+         * the next telemetry packet, but the corresponding Incident
+         * Twin remains active.
+         *
+         * Therefore the Endpoint Twin must aggregate active
+         * Incident Twins before deciding its current state.
+         */
+        const {
+            aggregateActiveIncidentRisk
+        } = require("../services/incidentRiskService");
+
+        const activeIncidentRisk =
+            await aggregateActiveIncidentRisk(endpointId);
+
+        await EndpointTwin.findOneAndUpdate(
+            { endpointId },
+            {
+                securityState:
+                    activeIncidentRisk.state,
+
+                riskScore:
+                    activeIncidentRisk.score,
+
+                riskLevel:
+                    activeIncidentRisk.level,
+
+                riskBreakdown:
+                    activeIncidentRisk.breakdown,
+
+                lastUpdated:
+                    new Date()
+            }
+        );
+
+        // =====================================================
+        // 11. LIVE ATTACK ALERTS
         // =====================================================
 
         const liveAlerts =
@@ -264,8 +309,7 @@ const receiveTelemetry = async (req, res) => {
 
 
         // =====================================================
-        // 11. RESPONSE
-        // =====================================================
+        // 12. RESPONSE
 
         res.status(201).json({
 
@@ -293,22 +337,22 @@ const receiveTelemetry = async (req, res) => {
                     endpointTwin.status,
 
                 securityState:
-                    endpointTwin.securityState,
+                    activeIncidentRisk.state,
 
                 riskScore:
-                    endpointTwin.riskScore,
+                    activeIncidentRisk.score,
 
                 riskLevel:
-                    endpointTwin.riskLevel,
+                    activeIncidentRisk.level,
 
                 evidenceConfidence:
-                    endpointTwin.evidenceConfidence,
+                    securityAnalysis.confidence,
 
                 riskBreakdown:
-                    endpointTwin.riskBreakdown,
+                    activeIncidentRisk.breakdown,
 
                 lastUpdated:
-                    endpointTwin.lastUpdated
+                    new Date()
             },
 
 
