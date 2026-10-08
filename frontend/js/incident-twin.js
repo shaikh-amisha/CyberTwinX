@@ -71,18 +71,6 @@ const elements = {
         document.getElementById("incidentRiskLabel"),
 
 
-    /* State */
-
-    incidentState:
-        document.getElementById("incidentState"),
-
-    incidentConfidence:
-        document.getElementById("incidentConfidence"),
-
-    incidentConfidenceBar:
-        document.getElementById("incidentConfidenceBar"),
-
-
     /* Evidence */
 
     incidentEvidence:
@@ -104,6 +92,11 @@ const elements = {
     incidentEvidenceSeverityGraph:
         document.getElementById(
             "incidentEvidenceSeverityGraph"
+        ),
+
+    incidentEvidenceStatusGraph:
+        document.getElementById(
+            "incidentEvidenceStatusGraph"
         ),
 
 
@@ -1233,15 +1226,15 @@ function renderIncidentTwin(
         incident
     );
 
-    updateState(
-        incident
-    );
-
     renderEvidence(
         incident.evidence
     );
 
     renderEvidenceSeverityGraph(
+        incident.evidence
+    );
+
+    renderEvidenceStatusGraph(
         incident.evidence
     );
 
@@ -1405,42 +1398,13 @@ function calculateRiskLevel(
    12. UPDATE INCIDENT STATE
    ========================================================= */
 
-function updateState(
-    incident
-) {
-
-    setText(
-        elements.incidentState,
-        incident.currentState
-    );
-
-    const confidence =
-        Number(
-            incident.confidence
-        ) || 0;
-
-    setText(
-        elements.incidentConfidence,
-        String(confidence) + "% CONFIDENCE"
-    );
-
-    if (elements.incidentConfidenceBar) {
-        elements.incidentConfidenceBar.style.width =
-            Math.min(
-                Math.max(confidence, 0),
-                100
-            ) + "%";
-    }
-
-}
-
-
 /* =========================================================
    13. RENDER INCIDENT ACTIVITY GRAPH
    ========================================================= */
 
 let incidentActivityChart = null;
 let incidentEvidenceSeverityChart = null;
+let incidentEvidenceStatusChart = null;
 
 
 function renderIncidentGraph(
@@ -1624,6 +1588,11 @@ function renderEvidenceSeverityGraph(evidence = []) {
         incidentEvidenceSeverityChart = null;
     }
 
+    if (incidentEvidenceStatusChart) {
+        incidentEvidenceStatusChart.destroy();
+        incidentEvidenceStatusChart = null;
+    }
+
     const counts = { CRITICAL: 0, HIGH: 0, MEDIUM: 0, LOW: 0 };
 
     if (Array.isArray(evidence)) {
@@ -1683,6 +1652,116 @@ function renderEvidenceSeverityGraph(evidence = []) {
         }
     });
 }
+}
+
+function renderEvidenceStatusGraph(evidence = []) {
+
+    const canvas = elements.incidentEvidenceStatusGraph;
+
+    if (!canvas || typeof Chart === "undefined") {
+        return;
+    }
+
+    if (incidentEvidenceStatusChart) {
+        incidentEvidenceStatusChart.destroy();
+        incidentEvidenceStatusChart = null;
+    }
+
+    const counts = {};
+    const labels = [];
+
+    if (Array.isArray(evidence)) {
+        evidence.forEach(item => {
+            const status = String(item?.status || "UNKNOWN")
+                .trim()
+                .toUpperCase();
+
+            if (!counts[status]) {
+                counts[status] = 0;
+                labels.push(status);
+            }
+
+            counts[status] += 1;
+        });
+    }
+
+    const values = labels.map(label => counts[label]);
+    const total = values.reduce((sum, value) => sum + value, 0);
+    const context = canvas.getContext("2d");
+
+    if (!total) {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        return;
+    }
+
+    incidentEvidenceStatusChart = new Chart(context, {
+        type: "bar",
+
+        data: {
+            labels,
+            datasets: [{
+                label: "Evidence",
+                data: values,
+                borderWidth: 1
+            }]
+        },
+
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+
+            plugins: {
+                legend: {
+                    display: false
+                },
+
+                tooltip: {
+                    callbacks: {
+                        label: context =>
+                            "Evidence: " + context.parsed.y
+                    }
+                }
+            },
+
+            scales: {
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        color: "#9fb0bf",
+                        font: {
+                            size: 9,
+                            weight: "700"
+                        }
+                    }
+                },
+
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0,
+                        color: "#9fb0bf",
+                        font: {
+                            size: 9
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: "Evidence Count",
+                        color: "#cbd5df",
+                        font: {
+                            size: 10,
+                            weight: "700"
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+
 
 
 /* =================================================
