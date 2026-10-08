@@ -1666,24 +1666,23 @@ function renderEvidenceStatusGraph(evidence = []) {
 
     if (Array.isArray(evidence)) {
         evidence.forEach(item => {
-            const status = String(item?.status || "UNKNOWN")
+            const category = String(item?.category || "OTHER")
                 .trim()
                 .toUpperCase();
 
-            if (!counts[status]) {
-                counts[status] = 0;
-                labels.push(status);
+            if (!counts[category]) {
+                counts[category] = 0;
+                labels.push(category);
             }
 
-            counts[status] += 1;
+            counts[category] += 1;
         });
     }
 
     const values = labels.map(label => counts[label]);
-    const total = values.reduce((sum, value) => sum + value, 0);
     const context = canvas.getContext("2d");
 
-    if (!total) {
+    if (!labels.length) {
         context.clearRect(0, 0, canvas.width, canvas.height);
         return;
     }
@@ -1701,6 +1700,7 @@ function renderEvidenceStatusGraph(evidence = []) {
         },
 
         options: {
+            indexAxis: "y",
             responsive: true,
             maintainAspectRatio: false,
 
@@ -1712,26 +1712,13 @@ function renderEvidenceStatusGraph(evidence = []) {
                 tooltip: {
                     callbacks: {
                         label: context =>
-                            "Evidence: " + context.parsed.y
+                            "Evidence: " + context.parsed.x
                     }
                 }
             },
 
             scales: {
                 x: {
-                    grid: {
-                        display: false
-                    },
-                    ticks: {
-                        color: "#9fb0bf",
-                        font: {
-                            size: 9,
-                            weight: "700"
-                        }
-                    }
-                },
-
-                y: {
                     beginAtZero: true,
                     ticks: {
                         precision: 0,
@@ -1745,7 +1732,20 @@ function renderEvidenceStatusGraph(evidence = []) {
                         text: "Evidence Count",
                         color: "#cbd5df",
                         font: {
-                            size: 10,
+                            size: 9,
+                            weight: "700"
+                        }
+                    }
+                },
+
+                y: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        color: "#cbd5df",
+                        font: {
+                            size: 9,
                             weight: "700"
                         }
                     }
@@ -1754,8 +1754,6 @@ function renderEvidenceStatusGraph(evidence = []) {
         }
     });
 }
-
-
 
 
 /* =================================================
