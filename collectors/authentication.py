@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 AUTH_LOG = "/var/log/auth.log"
 
 _seen_auth_events = set()
+_AUTH_INITIALIZED = False
 _MAX_SEEN_AUTH_EVENTS = 5000
 
 
@@ -155,12 +156,21 @@ def deduplicate_auth_events(events):
 
 
 def collect_authentication_events(lines=50):
+    global _AUTH_INITIALIZED
+
     auth_events = collect_auth_log_events(lines)
     ssh_events = collect_ssh_journal_events(lines)
+    combined_events = auth_events + ssh_events
 
-    unique_events = deduplicate_auth_events(
-        auth_events + ssh_events
-    )
+    # First collection establishes an authentication baseline. Existing
+    # historical failures must not become a new attack just because the
+    # agent was restarted.
+    if not _AUTH_INITIALIZED:
+        baseline_events = deduplicate_auth_events(combined_events)
+        _AUTH_INITIALIZED = True
+        unique_events = []
+    else:
+        unique_events = deduplicate_auth_events(combined_events)
 
     return {
         "timestamp": datetime.now(timezone.utc).isoformat(),
