@@ -1593,10 +1593,23 @@ async function getWhatIfContext({
             : [];
 
 
-    const observedAttacks =
-        getObservedAttacks(
-            actualProgression
-        );
+    // Build the selectable attack timeline from all real incident signals.
+    // Legacy attackProgression can be sparse (or contain only an endpoint label),
+    // so include actual Endpoint Twin findings and linked incident evidence too.
+    const findingStages = actualFindings
+        .map(finding => finding?.type)
+        .filter(Boolean);
+    const evidenceStages = (Array.isArray(incident.evidence) ? incident.evidence : [])
+        .flatMap(item => [item?.type, item?.category])
+        .filter(Boolean);
+    const observedAttacks = [...new Set([
+        ...getObservedAttacks(actualProgression),
+        ...findingStages,
+        ...evidenceStages
+    ].filter(value => {
+        const normalized = normalizeType(value);
+        return normalized !== "ENDPOINT" && !normalized.startsWith("ENDPOINT_");
+    }))];
 
 
     /*
