@@ -15,7 +15,15 @@ const E = {
 
 const n = (v, d = 0) => Number.isFinite(Number(v)) ? Number(v) : d;
 const key = v => String(v || "").trim().toUpperCase().replace(/[-\s]+/g, "_").replace(/[^A-Z0-9_]/g, "");
-const canon = v => ({ ACCOUNT_MODIFICATION: "USER_ACCOUNT_MODIFICATION", USER_ACCOUNT: "USER_ACCOUNT_MODIFICATION", PRIVILEGED: "PRIVILEGED_ACTIVITY", PRIVILEGE: "PRIVILEGE_ESCALATION" }[key(v)] || key(v));
+const canon = v => ({
+    ACCOUNT_MODIFICATION: "USER_ACCOUNT_MODIFICATION",
+    ACCOUNT_MODIFICATION_DETECTED: "USER_ACCOUNT_MODIFICATION",
+    USER_ACCOUNT: "USER_ACCOUNT_MODIFICATION",
+    USER_ACCOUNT_MANIPULATION: "USER_ACCOUNT_MODIFICATION",
+    USER_ACCOUNT_MODIFICATION_DETECTED: "USER_ACCOUNT_MODIFICATION",
+    PRIVILEGED: "PRIVILEGED_ACTIVITY",
+    PRIVILEGE: "PRIVILEGE_ESCALATION"
+}[key(v)] || key(v));
 const pretty = v => String(v || "").replace(/^Endpoint:\s*/i, "").replace(/[_-]+/g, " ").replace(/\s+/g, " ").trim().replace(/\b\w/g, c => c.toUpperCase());
 const esc = v => String(v ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
 const show = x => { x?.classList.remove("hidden", "hidden-until-stage"); };
