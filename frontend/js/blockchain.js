@@ -162,6 +162,10 @@ async function fetchIntegrity(id) {
     );
 }
 
+async function fetchLatestIntegrity() {
+    return fetchJSON(`${INTEGRITY_API_BASE_URL}/latest`);
+}
+
 async function verifyIntegrityVersion(id, version) {
     return fetchJSON(
         `${INTEGRITY_API_BASE_URL}/${encodeURIComponent(id)}/verify/${version}`
@@ -954,13 +958,38 @@ async function loadBlockchainData() {
 
         applyBlockchainStatus(blockchainStatus);
 
-        const incident =
-            await fetchIncident(selectedIncidentId);
+        let integrity;
+        let incident = null;
+        let resolvedIncidentId = selectedIncidentId;
 
-        applyIncidentData(incident);
+        try {
+            integrity = await fetchIntegrity(selectedIncidentId);
+        } catch (selectedError) {
+            // The newest Incident Twin may not have a corresponding integrity
+            // record. Fall back to the latest saved Blockchain Integrity record.
+            integrity = await fetchLatestIntegrity();
+            resolvedIncidentId = integrity.incidentId || selectedIncidentId;
+        }
 
-        const integrity =
-            await fetchIntegrity(selectedIncidentId);
+        blockchainState.incident = resolvedIncidentId;
+
+        try {
+            incident = await fetchIncident(resolvedIncidentId);
+        } catch (incidentError) {
+            console.warn(
+                "[CyberTwin] Incident details unavailable for integrity record:",
+                resolvedIncidentId,
+                incidentError.message
+            );
+        }
+
+        if (incident) {
+            applyIncidentData(incident);
+        } else {
+            blockchainState.endpoint = "—";
+            blockchainState.securityState = "UNKNOWN";
+            blockchainState.riskScore = 0;
+        }
 
         applyIntegrityData(integrity);
 
