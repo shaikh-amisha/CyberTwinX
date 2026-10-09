@@ -535,173 +535,84 @@ async function renderMerkleTree() {
     }
 
     const levels = await buildMerkleLevelsBrowser(evidence);
-    const svgWidth = 1000;
-    const svgHeight = Math.max(
-        500,
-        45 + (levels.length - 1) * 135 + 120
-    );
-
-    elements.merkleSvg.setAttribute(
-        "viewBox",
-        `0 0 ${svgWidth} ${svgHeight}`
-    );
-
-    const leafY = 45;
-    const levelGap = 135;
+    // Display the same computed Merkle levels from root (top) to leaves (bottom).
+    const displayLevels = [...levels].reverse();
+    const svgWidth = Math.max(1000, evidence.length * 190);
     const nodeWidth = 170;
     const nodeHeight = 68;
+    const topPadding = 34;
+    const levelGap = 128;
+    const svgHeight = Math.max(390, topPadding + (displayLevels.length - 1) * levelGap + 100);
 
-    const positions = [];
+    elements.merkleSvg.setAttribute("viewBox", `0 0 ${svgWidth} ${svgHeight}`);
+    elements.merkleSvg.setAttribute("preserveAspectRatio", "xMidYMid meet");
 
-    for (let level = 0; level < levels.length; level++) {
-        const hashes = levels[level];
-        const y = leafY + level * levelGap;
+    const positions = displayLevels.map((hashes, level) => {
+        const y = topPadding + level * levelGap;
         const spacing = svgWidth / (hashes.length + 1);
-        const levelPositions = [];
-
-        for (let index = 0; index < hashes.length; index++) {
-            levelPositions.push({
-                x: spacing * (index + 1),
-                y
-            });
-        }
-
-        positions.push(levelPositions);
-    }
+        return hashes.map((hash, index) => ({ x: spacing * (index + 1), y }));
+    });
 
     let markup = "";
 
-    // Draw the connections first so they remain behind the nodes.
-    for (let level = 0; level < positions.length - 1; level++) {
-        const current = positions[level];
-        const parent = positions[level + 1];
-
-        for (let index = 0; index < current.length; index++) {
-            const parentIndex = Math.floor(index / 2);
-            const child = current[index];
-            const parentNode = parent[parentIndex];
-
+    // Draw edges from each parent down to its two children.
+    for (let displayLevel = 0; displayLevel < positions.length - 1; displayLevel++) {
+        const parents = positions[displayLevel];
+        const children = positions[displayLevel + 1];
+        for (let index = 0; index < children.length; index++) {
+            const parent = parents[Math.floor(index / 2)];
+            const child = children[index];
+            if (!parent) continue;
             markup += `
-                <line
-                    class="merkle-line"
-                    x1="${child.x}"
-                    y1="${child.y + nodeHeight}"
-                    x2="${parentNode.x}"
-                    y2="${parentNode.y}"
-                ></line>
-            `;
-        }
-    }
-
-    // Animated hash particles travel along every Merkle edge.
-    // Each particle follows the exact child-to-parent line, then continues
-    // through the parent-to-root edges on the next level.
-    let particleIndex = 0;
-
-    for (let level = 0; level < positions.length - 1; level++) {
-        const current = positions[level];
-        const parent = positions[level + 1];
-
-        for (let index = 0; index < current.length; index++) {
-            const parentNode = parent[Math.floor(index / 2)];
-            const child = current[index];
-
-            const startX = child.x;
-            const startY = child.y + nodeHeight;
-            const endX = parentNode.x;
-            const endY = parentNode.y;
-
-            const dx = endX - startX;
-            const dy = endY - startY;
-            const delay = particleIndex * 0.22;
-            particleIndex += 1;
-
-            markup += `
-                <circle
-                    class="merkle-particle particle-${particleIndex}"
-                    r="3.5"
-                    cx="${startX}"
-                    cy="${startY}"
-                >
-                    <animateMotion
-                        dur="1.8s"
-                        begin="${delay}s"
-                        repeatCount="indefinite"
-                        path="M 0 0 L ${dx} ${dy}"
-                    ></animateMotion>
-                    <animate
-                        attributeName="opacity"
-                        values="0;1;1;0"
-                        keyTimes="0;0.12;0.78;1"
-                        dur="1.8s"
-                        begin="${delay}s"
-                        repeatCount="indefinite"
-                    ></animate>
+                <line class="merkle-line"
+                    x1="${parent.x}" y1="${parent.y + (displayLevel === 0 ? 82 : nodeHeight)}"
+                    x2="${child.x}" y2="${child.y}"></line>
+                <circle class="merkle-particle" r="3.5" cx="${parent.x}" cy="${parent.y + nodeHeight}">
+                    <animateMotion dur="2s" begin="${index * 0.16}s" repeatCount="indefinite"
+                        path="M 0 0 L ${child.x - parent.x} ${child.y - (parent.y + nodeHeight)}"></animateMotion>
+                    <animate attributeName="opacity" values="0;1;1;0" dur="2s"
+                        begin="${index * 0.16}s" repeatCount="indefinite"></animate>
                 </circle>
             `;
         }
     }
 
-    const leafLabels = evidence.map(item => item.id);
-
-    for (let index = 0; index < positions[0].length; index++) {
-        const node = positions[0][index];
-        markup += createSvgNode(
-            node.x - nodeWidth / 2,
-            node.y,
-            nodeWidth,
-            nodeHeight,
-            leafLabels[index] || `EVID-${index + 1}`,
-            levels[0][index],
-            "evidence"
-        );
+    const rootHash = levels[levels.length - 1][0];
+    const root = positions[0][0];
+    if (root) {
+        markup += `
+            <g class="merkle-root-node">
+                <rect class="merkle-node root" x="${root.x - 125}" y="${root.y}" width="250" height="82" rx="10"></rect>
+                <text class="merkle-node-label" x="${root.x}" y="${root.y + 27}">ROOT · SHA-256</text>
+                <text class="merkle-root-text" x="${root.x}" y="${root.y + 51}">${escapeHTML(shortHash("0x" + rootHash, 8, 6))}</text>
+                <text class="merkle-node-label" x="${root.x}" y="${root.y + 68}">MERKLE ROOT</text>
+            </g>
+            <circle class="merkle-root-pulse" cx="${root.x}" cy="${root.y + 41}" r="18"></circle>
+        `;
     }
 
-    for (let level = 1; level < positions.length - 1; level++) {
-        for (let index = 0; index < positions[level].length; index++) {
-            const node = positions[level][index];
-
+    // Render intermediate parent hashes.
+    for (let displayLevel = 1; displayLevel < displayLevels.length - 1; displayLevel++) {
+        for (let index = 0; index < displayLevels[displayLevel].length; index++) {
+            const node = positions[displayLevel][index];
+            const originalLevel = levels.length - 1 - displayLevel;
             markup += createSvgNode(
-                node.x - nodeWidth / 2,
-                node.y,
-                nodeWidth,
-                nodeHeight,
-                `PARENT H${level}`,
-                levels[level][index],
-                "parent"
+                node.x - nodeWidth / 2, node.y, nodeWidth, nodeHeight,
+                `PARENT H${originalLevel}`, displayLevels[displayLevel][index], "parent"
             );
         }
     }
 
-    const rootLevel = positions[positions.length - 1];
-
-    if (rootLevel.length) {
-        const root = rootLevel[0];
-
-        markup += `
-            <g class="merkle-root-node">
-                <rect
-                    class="merkle-node root"
-                    x="${root.x - 115}"
-                    y="${root.y}"
-                    width="230"
-                    height="82"
-                    rx="10"
-                ></rect>
-                <text class="merkle-node-label" x="${root.x}" y="${root.y + 32}">
-                    MERKLE ROOT
-                </text>
-                <text class="merkle-root-text" x="${root.x}" y="${root.y + 60}">
-                    ${escapeHTML(shortHash("0x" + levels[levels.length - 1][0], 8, 6))}
-                </text>
-            </g>
-            <circle
-                class="merkle-root-pulse"
-                cx="${root.x}"
-                cy="${root.y + 41}"
-                r="18"
-            ></circle>
-        `;
+    // Evidence leaves are always the bottom level.
+    const leafLevel = displayLevels.length - 1;
+    for (let index = 0; index < displayLevels[leafLevel].length; index++) {
+        const node = positions[leafLevel][index];
+        markup += createSvgNode(
+            node.x - nodeWidth / 2, node.y, nodeWidth, nodeHeight,
+            evidence[index]?.id || `EVID-${index + 1}`,
+            displayLevels[leafLevel][index],
+            "evidence"
+        );
     }
 
     elements.merkleSvg.innerHTML = markup;
