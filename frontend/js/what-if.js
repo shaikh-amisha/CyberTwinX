@@ -143,16 +143,15 @@ function renderTop() {
 }
 
 function stages() {
-    // Use the full set of observed incident stages, not only the often-sparse
-    // attackProgression array. Endpoint names are metadata, never attack stages.
+    // Only use the selected incident's progression and incident-linked evidence.
+    // Endpoint Twin findings are global and can belong to unrelated incidents.
     const progression = S.context?.incident?.attackProgression || S.context?.actual?.attackProgression || [];
-    const findings = (S.context?.actual?.findings || []).map(item => item?.type);
     const evidence = (Array.isArray(S.context?.evidence) ? S.context.evidence : [])
         .flatMap(item => [item?.type, item?.category]);
     const ignored = new Set(["", "UNKNOWN", "OTHER", "ENDPOINT"]);
     const result = [];
     const seen = new Set();
-    [...progression, ...findings, ...evidence].forEach(value => {
+    [...progression, ...evidence].forEach(value => {
         const normalized = key(value);
         if (!normalized || ignored.has(normalized) || normalized.startsWith("ENDPOINT_")) return;
         if (seen.has(canon(normalized))) return;
