@@ -3,6 +3,8 @@ const EndpointTwin = require("../models/EndpointTwin");
 const IncidentTwin = require("../models/IncidentTwin");
 const { getSummary } = require("../services/evidenceInvestigationService");
 const { aggregateActiveIncidentRisk } = require("../services/incidentRiskService");
+const BlockchainIntegrity = require("../models/BlockchainIntegrity");
+const { getBlockchainConnection } = require("../services/blockchainService");
 
 
 const getDashboardOverview = async (req, res) => {
@@ -644,6 +646,47 @@ const getDashboardOverview = async (req, res) => {
          * =====================================================
          */
 
+        // Report blockchain integrity only when the latest saved root is anchored
+        // and the deployed contract confirms that historical root on-chain.
+        let blockchainHealth = "UNKNOWN";
+
+        try {
+            const integrityRecord = activeIncident?.incidentId
+                ? await BlockchainIntegrity.findOne({
+                    incidentId: activeIncident.incidentId
+                }).lean()
+                : await BlockchainIntegrity.findOne()
+                    .sort({ updatedAt: -1 })
+                    .lean();
+
+            const rootVersions = integrityRecord?.rootVersions || [];
+            const latestRoot = [...rootVersions].sort(
+                (a, b) => Number(b.version) - Number(a.version)
+            )[0];
+
+            if (latestRoot) {
+                if (latestRoot.blockchainStatus === "FAILED") {
+                    blockchainHealth = "FAILED";
+                } else if (latestRoot.blockchainStatus === "PENDING") {
+                    blockchainHealth = "PENDING";
+                } else if (latestRoot.blockchainStatus === "ANCHORED") {
+                    const { contract } = getBlockchainConnection();
+                    const historicalRootValid = await contract.verifyHistoricalRoot(
+                        integrityRecord.incidentId,
+                        latestRoot.version,
+                        latestRoot.merkleRoot
+                    );
+
+                    blockchainHealth = historicalRootValid
+                        ? "ANCHORED"
+                        : "UNVERIFIED";
+                }
+            }
+        } catch (integrityError) {
+            console.error("Dashboard blockchain integrity check unavailable:", integrityError.message);
+            blockchainHealth = "UNKNOWN";
+        }
+
         return res.json({
 
             success: true,
@@ -731,8 +774,7 @@ const getDashboardOverview = async (req, res) => {
 
             investigationHealthScore,
 
-            blockchainHealth:
-                "VERIFIED",
+            blockchainHealth,
 
             findingDistribution,
 
