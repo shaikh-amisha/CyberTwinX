@@ -143,8 +143,9 @@ function renderTop() {
 }
 
 function stages() {
-    // The stage tabs represent the ordered attack path for this incident only.
-    // Evidence and endpoint-wide findings belong in the Evidence panel, not here.
+    // Prefer this incident's ordered attack progression. Older incidents may
+    // have no progression, so fall back only to their recorded incident type.
+    // Do not append endpoint-wide findings or turn every evidence item into a stage.
     const progression = S.context?.incident?.attackProgression || S.context?.actual?.attackProgression || [];
     const ignored = new Set(["", "UNKNOWN", "OTHER", "ENDPOINT"]);
     const result = [];
@@ -154,8 +155,17 @@ function stages() {
         if (!normalized || ignored.has(normalized) || normalized.startsWith("ENDPOINT_")) return;
         if (seen.has(canon(normalized))) return;
         seen.add(canon(normalized));
-        result.push(String(value).replace(/^Endpoint:\s*/i, "").trim());
+        result.push(String(value).replace(/^Endpoint:\\s*/i, "").trim());
     });
+
+    if (!result.length) {
+        const incidentType = String(S.context?.incident?.incidentType || "").trim();
+        const normalized = key(incidentType);
+        if (normalized && !ignored.has(normalized) && !normalized.startsWith("ENDPOINT_")) {
+            result.push(incidentType);
+        }
+    }
+
     return result;
 }
 function finding(stage) { return (S.context?.actual?.findings || []).find(f => canon(f.type) === canon(stage)); }
