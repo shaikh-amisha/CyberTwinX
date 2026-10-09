@@ -528,22 +528,20 @@ async function renderMerkleTree() {
     if (!elements.merkleSvg) return;
 
     const evidence = blockchainState.evidence;
+
     if (!evidence.length) {
         elements.merkleSvg.innerHTML = "";
         return;
     }
 
     const levels = await buildMerkleLevelsBrowser(evidence);
-    // Display the root at the top and evidence leaves at the bottom.
+    // Display the same computed Merkle levels from root (top) to leaves (bottom).
     const displayLevels = [...levels].reverse();
+    const svgWidth = Math.max(1000, evidence.length * 190);
     const nodeWidth = 170;
     const nodeHeight = 68;
-    const rootHeight = 82;
     const topPadding = 34;
     const levelGap = 128;
-    const sideLabelWidth = 180;
-    const treeWidth = Math.max(1000, evidence.length * 190);
-    const svgWidth = treeWidth + sideLabelWidth;
     const svgHeight = Math.max(390, topPadding + (displayLevels.length - 1) * levelGap + 100);
 
     elements.merkleSvg.setAttribute("viewBox", `0 0 ${svgWidth} ${svgHeight}`);
@@ -551,103 +549,71 @@ async function renderMerkleTree() {
 
     const positions = displayLevels.map((hashes, level) => {
         const y = topPadding + level * levelGap;
-        const spacing = treeWidth / (hashes.length + 1);
+        const spacing = svgWidth / (hashes.length + 1);
         return hashes.map((hash, index) => ({ x: spacing * (index + 1), y }));
     });
 
     let markup = "";
 
-    // Draw connecting edges behind the nodes.
-    for (let level = 0; level < positions.length - 1; level++) {
-        const parents = positions[level];
-        const children = positions[level + 1];
+    // Draw edges from each parent down to its two children.
+    for (let displayLevel = 0; displayLevel < positions.length - 1; displayLevel++) {
+        const parents = positions[displayLevel];
+        const children = positions[displayLevel + 1];
         for (let index = 0; index < children.length; index++) {
             const parent = parents[Math.floor(index / 2)];
             const child = children[index];
             if (!parent) continue;
-            const parentBottom = parent.y + (level === 0 ? rootHeight : nodeHeight);
             markup += `
-                <line class="merkle-line" x1="${parent.x}" y1="${parentBottom}"
+                <line class="merkle-line"
+                    x1="${parent.x}" y1="${parent.y + (displayLevel === 0 ? 82 : nodeHeight)}"
                     x2="${child.x}" y2="${child.y}"></line>
-                <circle class="merkle-particle" r="3.5" cx="${parent.x}" cy="${parentBottom}">
+                <circle class="merkle-particle" r="3.5" cx="${parent.x}" cy="${parent.y + nodeHeight}">
                     <animateMotion dur="2s" begin="${index * 0.16}s" repeatCount="indefinite"
-                        path="M 0 0 L ${child.x - parent.x} ${child.y - parentBottom}"></animateMotion>
+                        path="M 0 0 L ${child.x - parent.x} ${child.y - (parent.y + nodeHeight)}"></animateMotion>
                     <animate attributeName="opacity" values="0;1;1;0" dur="2s"
                         begin="${index * 0.16}s" repeatCount="indefinite"></animate>
-                </circle>`;
+                </circle>
+            `;
         }
-    }
-
-    // Add level labels on the right, matching the forensic reference layout.
-    const levelDescriptions = displayLevels.map((hashes, index) => {
-        if (index === 0) return ["LEVEL 0", "(ROOT)"];
-        if (index === displayLevels.length - 1) return [`LEVEL ${index}`, "(LEAVES / EVIDENCE)"];
-        return [`LEVEL ${index}`, "(PARENT HASHES)"];
-    });
-    for (let level = 0; level < positions.length; level++) {
-        const first = positions[level][0];
-        const last = positions[level][positions[level].length - 1];
-        if (!first || !last) continue;
-        const centerY = (first.y + last.y) / 2 + (level === 0 ? rootHeight / 2 : nodeHeight / 2);
-        const labelX = treeWidth + 28;
-        markup += `
-            <path class="merkle-level-bracket" d="M ${labelX - 12} ${centerY - 30} h 10 v 60 h -10" />
-            <text class="merkle-level-label" x="${labelX + 8}" y="${centerY - 3}">${levelDescriptions[level][0]}</text>
-            <text class="merkle-level-description" x="${labelX + 8}" y="${centerY + 17}">${levelDescriptions[level][1]}</text>`;
     }
 
     const rootHash = levels[levels.length - 1][0];
     const root = positions[0][0];
-    const rootVersion = String(blockchainState.integrity.rootVersion || "—").toUpperCase();
     if (root) {
         markup += `
             <g class="merkle-root-node">
-                <rect class="merkle-node root" x="${root.x - 125}" y="${root.y}" width="250" height="${rootHeight}" rx="10"></rect>
-                <text class="merkle-node-label" x="${root.x}" y="${root.y + 25}">MERKLE ROOT</text>
-                <rect class="merkle-version-badge" x="${root.x + 53}" y="${root.y + 8}" width="45" height="21" rx="10"></rect>
-                <text class="merkle-version-text" x="${root.x + 75}" y="${root.y + 22}">${escapeHTML(rootVersion)}</text>
+                <rect class="merkle-node root" x="${root.x - 125}" y="${root.y}" width="250" height="82" rx="10"></rect>
+                <text class="merkle-node-label" x="${root.x}" y="${root.y + 27}">ROOT · SHA-256</text>
                 <text class="merkle-root-text" x="${root.x}" y="${root.y + 51}">${escapeHTML(shortHash("0x" + rootHash, 8, 6))}</text>
-                <text class="merkle-node-label" x="${root.x}" y="${root.y + 69}">SHA-256</text>
+                <text class="merkle-node-label" x="${root.x}" y="${root.y + 68}">MERKLE ROOT</text>
             </g>
-            <circle class="merkle-root-pulse" cx="${root.x}" cy="${root.y + 41}" r="18"></circle>`;
+            <circle class="merkle-root-pulse" cx="${root.x}" cy="${root.y + 41}" r="18"></circle>
+        `;
     }
 
-    // Intermediate parent hashes.
-    for (let level = 1; level < displayLevels.length - 1; level++) {
-        for (let index = 0; index < displayLevels[level].length; index++) {
-            const node = positions[level][index];
-            const originalLevel = levels.length - 1 - level;
-            markup += createSvgNode(node.x - nodeWidth / 2, node.y, nodeWidth, nodeHeight,
-                `PARENT H${originalLevel}`, displayLevels[level][index], "parent");
+    // Render intermediate parent hashes.
+    for (let displayLevel = 1; displayLevel < displayLevels.length - 1; displayLevel++) {
+        for (let index = 0; index < displayLevels[displayLevel].length; index++) {
+            const node = positions[displayLevel][index];
+            const originalLevel = levels.length - 1 - displayLevel;
+            markup += createSvgNode(
+                node.x - nodeWidth / 2, node.y, nodeWidth, nodeHeight,
+                `PARENT H${originalLevel}`, displayLevels[displayLevel][index], "parent"
+            );
         }
     }
 
-    // Evidence leaves at the bottom.
+    // Evidence leaves are always the bottom level.
     const leafLevel = displayLevels.length - 1;
     for (let index = 0; index < displayLevels[leafLevel].length; index++) {
         const node = positions[leafLevel][index];
-        markup += createSvgNode(node.x - nodeWidth / 2, node.y, nodeWidth, nodeHeight,
-            evidence[index]?.id || `EVID-${index + 1}`, displayLevels[leafLevel][index], "evidence");
+        markup += createSvgNode(
+            node.x - nodeWidth / 2, node.y, nodeWidth, nodeHeight,
+            evidence[index]?.id || `EVID-${index + 1}`,
+            displayLevels[leafLevel][index],
+            "evidence"
+        );
     }
-
-    // Populate the left-side forensic details from the selected integrity record.
-    const treeVersion = String(blockchainState.integrity.rootVersion || "—").toUpperCase();
-    const leafCount = evidence.length;
-    const setInfo = (id, value) => {
-        const el = document.getElementById(id);
-        if (el) el.textContent = value == null || value === "" ? "—" : String(value);
-    };
-    setInfo("treeInfoVersion", treeVersion);
-    setInfo("treeInfoEvidenceCount", leafCount);
-    setInfo("treeInfoHeight", leafCount ? Math.ceil(Math.log2(leafCount)) : 0);
-    setInfo("treeInfoLeaves", leafCount);
-    setInfo("treeInfoNodes", leafCount ? (leafCount * 2 - 1) : 0);
-    setInfo("treeInfoBalanced", leafCount && (leafCount & (leafCount - 1)) === 0 ? "YES" : "NO");
-    setInfo("treeRootVersion", treeVersion);
-    setInfo("treeRootHash", shortHash("0x" + rootHash, 8, 6));
-    setInfo("treeRootStatus", String(blockchainState.integrity.anchorStatus || blockchainState.integrity.status || "PENDING").toUpperCase());
-    setInfo("treeRootBlock", blockchainState.integrity.block || "—");
-    setInfo("treeRootNetwork", blockchainState.integrity.network || blockchainState.blockchain.chainId || "—");
 
     elements.merkleSvg.innerHTML = markup;
 }
