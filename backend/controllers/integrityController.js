@@ -75,6 +75,37 @@ async function getIntegrity(req, res) {
 }
 
 
+// Retrieve the most recently updated integrity record when the selected incident
+// does not yet have its own record. This keeps integrity pages useful even when
+// Incident Twin and Blockchain Integrity records were created independently.
+async function getLatestIntegrity(req, res) {
+    try {
+        const integrity = await BlockchainIntegrity.findOne()
+            .sort({ updatedAt: -1, createdAt: -1 })
+            .lean();
+
+        if (!integrity) {
+            return res.status(404).json({
+                success: false,
+                message: "No Blockchain Integrity records are available yet."
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            data: integrity
+        });
+    } catch (error) {
+        console.error("[Integrity] Latest Record Retrieval Error:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Failed to retrieve the latest Blockchain Integrity record."
+        });
+    }
+}
+
+
 // Retrieve the Chain of Custody history for an incident.
 async function getCustodyHistory(req, res) {
     try {
@@ -247,6 +278,7 @@ async function verifyIntegrityVersion(req, res) {
 module.exports = {
     generateIntegrity,
     getIntegrity,
+    getLatestIntegrity,
     getCustodyHistory,
     getIntegrityBlockchainStatus,
     verifyIntegrityVersion
