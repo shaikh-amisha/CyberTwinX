@@ -154,7 +154,7 @@ function stages() {
         if (!normalized || ignored.has(normalized) || normalized.startsWith("ENDPOINT_")) return;
         if (seen.has(canon(normalized))) return;
         seen.add(canon(normalized));
-        result.push(String(value).replace(/^Endpoint:\\s*/i, "").trim());
+        result.push(String(value).replace(/^Endpoint:\s*/i, "").trim());
     });
     return result;
 }
