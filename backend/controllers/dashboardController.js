@@ -651,13 +651,20 @@ const getDashboardOverview = async (req, res) => {
         let blockchainHealth = "UNKNOWN";
 
         try {
-            const integrityRecord = activeIncident?.incidentId
+            // Prefer the active incident's own integrity record. If it has
+            // no anchored record, fall back to the latest saved record so the
+            // dashboard can still report overall blockchain anchoring health.
+            let integrityRecord = activeIncident?.incidentId
                 ? await BlockchainIntegrity.findOne({
                     incidentId: activeIncident.incidentId
                 }).lean()
-                : await BlockchainIntegrity.findOne()
+                : null;
+
+            if (!integrityRecord || !integrityRecord.rootVersions?.length) {
+                integrityRecord = await BlockchainIntegrity.findOne()
                     .sort({ updatedAt: -1 })
                     .lean();
+            }
 
             const rootVersions = integrityRecord?.rootVersions || [];
             const latestRoot = [...rootVersions].sort(
