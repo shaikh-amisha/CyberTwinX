@@ -142,7 +142,17 @@ function renderTop() {
     if (E.sideStatus) E.sideStatus.textContent = `SYSTEM ${e.status || "UNKNOWN"}`;
 }
 
-function stages() { return [...new Set((S.context?.incident?.attackProgression || S.context?.actual?.attackProgression || []).filter(Boolean))]; }
+function stages() {
+    // Endpoint labels can appear in legacy attackProgression data, but they
+    // describe the monitored host, not an attack stage. Keep them out of the
+    // selectable timeline so the backend's observed-attack validation agrees.
+    const progression = S.context?.incident?.attackProgression || S.context?.actual?.attackProgression || [];
+    return [...new Set(progression.filter(value => {
+        if (!value) return false;
+        const normalized = key(value);
+        return normalized !== "ENDPOINT" && !normalized.startsWith("ENDPOINT_");
+    }))];
+}
 function finding(stage) { return (S.context?.actual?.findings || []).find(f => canon(f.type) === canon(stage)); }
 function evidence(stage) {
     const records = Array.isArray(S.context?.evidence) ? S.context.evidence : [];
