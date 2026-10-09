@@ -679,103 +679,60 @@ function updateAttackProgression(
 // BUILD ACTUAL AUTHENTICATION TIMELINE
 // =========================================================
 
-function buildAuthenticationTimeline(
-    telemetry,
-    incident
-) {
-
+function buildAuthenticationTimeline(telemetry, incident) {
     const timeline = [];
-
-
-    const events =
-        Array.isArray(
-            telemetry?.telemetry?.authentication?.events
-        )
-            ? telemetry.telemetry.authentication.events
-            : [];
-
-
-    for (const event of events) {
-
-        if (!event?.timestamp) {
-            continue;
-        }
-
-
-        const message =
-            event.raw_message ||
-            event.message ||
-            "";
-
-
-        if (!message) {
-            continue;
-        }
-
-
-        let title =
-            "Authentication Activity";
-
-
-        if (
-            /useradd|userdel|adduser|deluser/i.test(message)
-        ) {
-
-            title =
-                "User Account Modification";
-
-        }
-
-        else if (
-            /sudo:.*USER=root/i.test(message) ||
-            /session opened for user root/i.test(message)
-        ) {
-
-            title =
-                "Privilege Escalation";
-
-        }
-
-        else if (
-            /\bsudo:/i.test(message)
-        ) {
-
-            title =
-                "Privileged Activity";
-
-        }
-
-        else if (
-            /failed password/i.test(message) ||
-            /authentication failure/i.test(message) ||
-            /failed login/i.test(message) ||
-            /invalid user/i.test(message)
-        ) {
-
-            title =
-                "Authentication Failure";
-
-        }
-
-
-        timeline.push({
-
-            time:
-                new Date(
-                    event.timestamp
-                ),
-
-            title,
-
-            description:
-                message
-
-        });
-
+    const addEvent = (timeValue, title, description) => {
+        if (!timeValue || !description) return;
+        const time = new Date(timeValue);
+        if (Number.isNaN(time.getTime())) return;
+        timeline.push({ time, title, description: String(description) });
+    };
+    const authEvents = Array.isArray(telemetry?.telemetry?.authentication?.events) ? telemetry.telemetry.authentication.events : [];
+    for (const event of authEvents) {
+        const message = event?.raw_message || event?.message || event?.description || "";
+        if (!event?.timestamp || !message) continue;
+        let title = "Authentication Activity";
+        if (/useradd|userdel|adduser|deluser/i.test(message)) title = "User Account Modification";
+        else if (/sudo:.*USER=root|session opened for user root/i.test(message)) title = "Privilege Escalation";
+        else if (/sudo:/i.test(message)) title = "Privileged Activity";
+        else if (/failed password|authentication failure|failed login|invalid user/i.test(message)) title = "Authentication Failure";
+        addEvent(event.timestamp, title, message);
     }
-
-
+    const fileEvents = Array.isArray(telemetry?.telemetry?.files?.events) ? telemetry.telemetry.files.events : [];
+    for (const event of fileEvents) {
+        const timestamp = event?.timestamp || event?.time || event?.createdAt;
+        const action = event?.action || event?.operation || event?.type || "File activity";
+        const filePath = event?.path || event?.file_path || event?.file || "";
+        addEvent(timestamp, "File Activity", event?.description || [action, filePath].filter(Boolean).join(": "));
+    }
+    const logs = Array.isArray(telemetry?.telemetry?.logs?.logs) ? telemetry.telemetry.logs.logs : [];
+    const snapshotTime = new Date(telemetry?.timestamp || NaN);
+    for (const entry of logs) {
+        const message = entry?.message || entry?.raw_message || "";
+        const match = message.match(/^(\d{4}-\d{2}-\d{2}[T ][^ ]+)/);
+        if (!match) continue;
+        const time = new Date(match[1]);
+        if (Number.isNaN(time.getTime())) continue;
+        if (!Number.isNaN(snapshotTime.getTime()) && Math.abs(snapshotTime.getTime() - time.getTime()) > INCIDENT_CONTINUITY_WINDOW_MS) continue;
+        let title = null;
+        if (/failed password|authentication failure|failed login|invalid user/i.test(message)) title = "Authentication Failure";
+        else if (/useradd|userdel|adduser|deluser/i.test(message)) title = "User Account Modification";
+        else if (/sudo:.*USER=root|session opened for user root/i.test(message)) title = "Privilege Escalation";
+        if (title) addEvent(time, title, message);
+    }
     return timeline;
+}
+
+function buildEvidenceTimeline(evidence) {
+    if (!Array.isArray(evidence)) return [];
+    return evidence
+        .filter(item => item?.timestamp && (item?.type || item?.description))
+        .map(item => ({
+            time: new Date(item.timestamp),
+            title: String(item.type || "Incident Evidence").replace(/_/g, " ").toLowerCase().replace(/\b\w/g, letter => letter.toUpperCase()),
+            description: item.description || String(item.type || "Incident evidence recorded")
+        }))
+        .filter(item => !Number.isNaN(item.time.getTime()));
 }
 
 
@@ -1017,7 +974,7 @@ async function correlateIncident({
         const timeline =
             mergeTimeline(
                 [],
-                telemetryTimeline
+                [...telemetryTimeline, ...buildEvidenceTimeline(evidence)]
             );
 
 
@@ -1207,11 +1164,8 @@ async function correlateIncident({
 
     incident.timeline =
         mergeTimeline(
-
             incident.timeline,
-
-            telemetryTimeline
-
+            [...telemetryTimeline, ...buildEvidenceTimeline(incident.evidence)]
         );
 
 
