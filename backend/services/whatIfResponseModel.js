@@ -212,13 +212,46 @@ async function simulateModeledResponse({ context, attackType, action }) {
         : [];
 
     const simulatedFindings = applyModel(actualFindings, attackType, action);
-    const simulatedRisk = calculateRiskScore(simulatedFindings);
+    const recalculatedRisk = calculateRiskScore(simulatedFindings);
+
+    /*
+     * The live Endpoint Twin score may already be capped at 100.
+     * Recalculating the remaining findings alone can therefore still
+     * return 100 even when this response removed a finding. Preserve
+     * the live score's scale by subtracting the contribution of findings
+     * removed by this modeled response. This remains counterfactual only:
+     * it does not write to the Endpoint Twin or MongoDB.
+     */
+    const removedFindings = actualFindings.filter(actual =>
+        !simulatedFindings.some(simulated =>
+            normalize(simulated.type) === normalize(actual.type)
+        )
+    );
+    const severityWeights = { LOW: 5, MEDIUM: 15, HIGH: 30, CRITICAL: 40 };
+    const removedRisk = removedFindings.reduce((sum, finding) => {
+        const contribution = Number(finding.score);
+        return sum + (Number.isFinite(contribution) && contribution > 0
+            ? contribution
+            : (severityWeights[String(finding.severity || "LOW").toUpperCase()] || 0));
+    }, 0);
+    const actualRiskScore = Number(context?.actual?.riskScore || 0);
+    const modeledRiskScore = removedFindings.length
+        ? Math.max(0, Math.min(100, actualRiskScore - removedRisk))
+        : recalculatedRisk.score;
+    const simulatedRisk = {
+        ...recalculatedRisk,
+        score: modeledRiskScore,
+        level: modeledRiskScore >= 60 ? "CRITICAL"
+            : modeledRiskScore >= 40 ? "HIGH"
+                : modeledRiskScore >= 25 ? "MEDIUM" : "LOW"
+    };
+
     const actualProgression = Array.isArray(context?.actual?.attackProgression)
         ? context.actual.attackProgression
         : [];
     const simulatedProgression = buildSimulatedProgression(actualProgression, attackType);
     const simulatedPaths = buildPaths(simulatedProgression);
-    const riskReduction = Number(context?.actual?.riskScore || 0) - Number(simulatedRisk.score || 0);
+    const riskReduction = Math.max(0, actualRiskScore - Number(simulatedRisk.score || 0));
 
     const securityState = score =>
         score >= 60 ? "COMPROMISED" : score >= 25 ? "SUSPICIOUS" : "NORMAL";
