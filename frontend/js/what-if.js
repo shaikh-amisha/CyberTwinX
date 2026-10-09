@@ -143,15 +143,23 @@ function renderTop() {
 }
 
 function stages() {
-    // Endpoint labels can appear in legacy attackProgression data, but they
-    // describe the monitored host, not an attack stage. Keep them out of the
-    // selectable timeline so the backend's observed-attack validation agrees.
+    // Use the full set of observed incident stages, not only the often-sparse
+    // attackProgression array. Endpoint names are metadata, never attack stages.
     const progression = S.context?.incident?.attackProgression || S.context?.actual?.attackProgression || [];
-    return [...new Set(progression.filter(value => {
-        if (!value) return false;
+    const findings = (S.context?.actual?.findings || []).map(item => item?.type);
+    const evidence = (Array.isArray(S.context?.evidence) ? S.context.evidence : [])
+        .flatMap(item => [item?.type, item?.category]);
+    const ignored = new Set(["", "UNKNOWN", "OTHER", "ENDPOINT"]);
+    const result = [];
+    const seen = new Set();
+    [...progression, ...findings, ...evidence].forEach(value => {
         const normalized = key(value);
-        return normalized !== "ENDPOINT" && !normalized.startsWith("ENDPOINT_");
-    }))];
+        if (!normalized || ignored.has(normalized) || normalized.startsWith("ENDPOINT_")) return;
+        if (seen.has(canon(normalized))) return;
+        seen.add(canon(normalized));
+        result.push(String(value).replace(/^Endpoint:\\s*/i, "").trim());
+    });
+    return result;
 }
 function finding(stage) { return (S.context?.actual?.findings || []).find(f => canon(f.type) === canon(stage)); }
 function evidence(stage) {
