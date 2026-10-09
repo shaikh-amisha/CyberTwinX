@@ -1239,9 +1239,22 @@ function renderIncidentTwin(
     );
 
 
-    renderTimeline(
-        incident.timeline
-    );
+    // Older incidents may have evidence timestamps but an empty stored timeline.
+    // Merge evidence-derived entries for display without mutating backend data.
+    const incidentTimeline = Array.isArray(incident.timeline) ? [...incident.timeline] : [];
+    (Array.isArray(incident.evidence) ? incident.evidence : []).forEach(evidence => {
+        if (!evidence?.timestamp) return;
+        const duplicate = incidentTimeline.some(event =>
+            new Date(event.time).getTime() === new Date(evidence.timestamp).getTime() &&
+            (event.description || "") === (evidence.description || "")
+        );
+        if (!duplicate) incidentTimeline.push({
+            time: evidence.timestamp,
+            title: evidence.type || evidence.category || "Incident Evidence",
+            description: evidence.description || "Evidence recorded for this incident."
+        });
+    });
+    renderTimeline(incidentTimeline);
 
     renderIncidentGraph(
         incident.timeline
