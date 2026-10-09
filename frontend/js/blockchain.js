@@ -630,6 +630,25 @@ async function renderMerkleTree() {
             evidence[index]?.id || `EVID-${index + 1}`, displayLevels[leafLevel][index], "evidence");
     }
 
+    // Populate the left-side forensic details from the selected integrity record.
+    const treeVersion = String(blockchainState.integrity.rootVersion || "—").toUpperCase();
+    const leafCount = evidence.length;
+    const setInfo = (id, value) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = value == null || value === "" ? "—" : String(value);
+    };
+    setInfo("treeInfoVersion", treeVersion);
+    setInfo("treeInfoEvidenceCount", leafCount);
+    setInfo("treeInfoHeight", leafCount ? Math.ceil(Math.log2(leafCount)) : 0);
+    setInfo("treeInfoLeaves", leafCount);
+    setInfo("treeInfoNodes", leafCount ? (leafCount * 2 - 1) : 0);
+    setInfo("treeInfoBalanced", leafCount && (leafCount & (leafCount - 1)) === 0 ? "YES" : "NO");
+    setInfo("treeRootVersion", treeVersion);
+    setInfo("treeRootHash", shortHash("0x" + rootHash, 8, 6));
+    setInfo("treeRootStatus", String(blockchainState.integrity.anchorStatus || blockchainState.integrity.status || "PENDING").toUpperCase());
+    setInfo("treeRootBlock", blockchainState.integrity.block || "—");
+    setInfo("treeRootNetwork", blockchainState.integrity.network || blockchainState.blockchain.chainId || "—");
+
     elements.merkleSvg.innerHTML = markup;
 }
 
