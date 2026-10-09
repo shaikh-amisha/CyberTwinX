@@ -132,6 +132,10 @@ async function fetchIntegrity(incidentId) {
     );
 }
 
+async function fetchLatestIntegrity() {
+    return fetchJSON(`${INTEGRITY_API_BASE_URL}/latest`);
+}
+
 async function fetchCustody(incidentId) {
     return fetchJSON(
         `${INTEGRITY_API_BASE_URL}/${encodeURIComponent(incidentId)}/custody`
@@ -1253,16 +1257,39 @@ async function loadPage() {
     try {
         state.incidentId = await resolveIncidentId();
 
-        const [incident, integrity, custody, blockchain] = await Promise.all([
+        let integrity;
+        let incident = null;
+        let custody = [];
+        let blockchain;
+
+        try {
+            integrity = await fetchIntegrity(state.incidentId);
+        } catch (selectedError) {
+            // Fall back to the latest saved integrity record when the newest
+            // Incident Twin has no matching Blockchain Integrity record.
+            integrity = await fetchLatestIntegrity();
+            state.incidentId = integrity.incidentId || state.incidentId;
+        }
+
+        const results = await Promise.allSettled([
             fetchIncident(state.incidentId),
-            fetchIntegrity(state.incidentId),
             fetchCustody(state.incidentId),
             fetchBlockchainStatus()
         ]);
 
+        if (results[0].status === "fulfilled") incident = results[0].value;
+        if (results[1].status === "fulfilled" && Array.isArray(results[1].value)) {
+            custody = results[1].value;
+        }
+        if (results[2].status === "fulfilled") {
+            blockchain = results[2].value;
+        } else {
+            throw results[2].reason;
+        }
+
         state.incident = incident;
         state.integrity = integrity;
-        state.custody = Array.isArray(custody) ? custody : [];
+        state.custody = custody;
         state.blockchain = blockchain;
         state.latestVersion = getLatestVersion();
 
