@@ -625,57 +625,53 @@ function mergeEvidence(
 function updateAttackProgression(
     existingProgression,
     hostname,
-    findings
+    findings,
+    incidentEvidence = []
 ) {
+    const endpointNode = hostname ? `Endpoint: ${hostname}` : "";
+    const prior = Array.isArray(existingProgression) ? existingProgression : [];
+    const records = Array.isArray(incidentEvidence) ? incidentEvidence : [];
 
-    const progression = [
-        ...existingProgression
+    /*
+     * Prefer this incident's timestamped evidence for stage ordering.
+     * A finding list is a set of detections, not a guaranteed attack sequence.
+     */
+    const timestampedStages = records
+        .filter(item => item?.type && item?.timestamp)
+        .map(item => ({
+            stage: formatFindingType(item.type),
+            time: new Date(item.timestamp).getTime()
+        }))
+        .filter(item => Number.isFinite(item.time))
+        .sort((a, b) => a.time - b.time)
+        .map(item => item.stage);
+
+    const sourceStages = timestampedStages.length
+        ? timestampedStages
+        : [
+            ...prior.filter(item =>
+                item && !String(item).startsWith("Endpoint:")
+            ),
+            ...(Array.isArray(findings) ? findings.map(item =>
+                formatFindingType(item?.type)
+            ) : [])
+        ];
+
+    const orderedStages = [];
+    const seen = new Set();
+    for (const stage of sourceStages) {
+        const key = String(stage || "").trim().toUpperCase();
+        if (!key || seen.has(key)) continue;
+        seen.add(key);
+        orderedStages.push(stage);
+    }
+
+    return [
+        ...(endpointNode ? [endpointNode] : prior.filter(item =>
+            String(item || "").startsWith("Endpoint:")
+        ).slice(0, 1)),
+        ...orderedStages
     ];
-
-
-    if (hostname) {
-
-        const endpointNode =
-            `Endpoint: ${hostname}`;
-
-
-        if (
-            !progression.includes(
-                endpointNode
-            )
-        ) {
-
-            progression.unshift(
-                endpointNode
-            );
-
-        }
-
-    }
-
-
-    for (
-        const finding of findings
-    ) {
-
-        const node =
-            formatFindingType(
-                finding.type
-            );
-
-
-        if (
-            !progression.includes(node)
-        ) {
-
-            progression.push(node);
-
-        }
-
-    }
-
-
-    return progression;
 }
 
 
@@ -1085,7 +1081,8 @@ async function correlateIncident({
                     updateAttackProgression(
                         [],
                         hostname,
-                        findings
+                        findings,
+                        evidence
                     ),
 
                 currentObjective:
@@ -1197,13 +1194,10 @@ async function correlateIncident({
 
     incident.attackProgression =
         updateAttackProgression(
-
             incident.attackProgression,
-
             hostname,
-
-            findings
-
+            findings,
+            incident.evidence
         );
 
 
