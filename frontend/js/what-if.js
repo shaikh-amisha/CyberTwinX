@@ -143,29 +143,52 @@ function renderTop() {
 }
 
 function stages() {
-    // Prefer this incident's ordered attack progression. Older incidents may
-    // have no progression, so fall back only to their recorded incident type.
-    // Do not append endpoint-wide findings or turn every evidence item into a stage.
-    const progression = S.context?.incident?.attackProgression || S.context?.actual?.attackProgression || [];
-    const ignored = new Set(["", "UNKNOWN", "OTHER", "ENDPOINT"]);
+    // Prefer the incident's recorded attack progression. If legacy incident
+    // data has no progression, use its own timestamped timeline titles, then
+    // its incident type as a final fallback. Evidence IDs and endpoint labels
+    // are never treated as attack stages.
+    const incident = S.context?.incident || {};
+    const progression = Array.isArray(incident.attackProgression)
+        ? incident.attackProgression
+        : Array.isArray(S.context?.actual?.attackProgression)
+            ? S.context.actual.attackProgression
+            : [];
+    const ignored = new Set(["", "UNKNOWN", "OTHER", "ENDPOINT", "EVIDENCE", "INCIDENT"]);
+    const isStage = value => {
+        const normalized = key(value);
+        return normalized &&
+            !ignored.has(normalized) &&
+            !normalized.startsWith("ENDPOINT_") &&
+            !normalized.startsWith("INC_") &&
+            !/^E\d+/.test(normalized) &&
+            !normalized.includes("EVIDENCE_ID");
+    };
     const result = [];
     const seen = new Set();
-    progression.forEach(value => {
-        const normalized = key(value);
-        if (!normalized || ignored.has(normalized) || normalized.startsWith("ENDPOINT_")) return;
-        if (seen.has(canon(normalized))) return;
-        seen.add(canon(normalized));
-        result.push(String(value).replace(/^Endpoint:\\s*/i, "").trim());
-    });
+    const add = value => {
+        const label = String(value || "").replace(/^Endpoint:\\s*/i, "").trim();
+        const normalized = key(label);
+        if (!isStage(label) || !normalized) return;
+        const canonical = canon(normalized);
+        if (seen.has(canonical)) return;
+        seen.add(canonical);
+        result.push(label);
+    };
 
-    if (!result.length) {
-        const incidentType = String(S.context?.incident?.incidentType || "").trim();
-        const normalized = key(incidentType);
-        if (normalized && !ignored.has(normalized) && !normalized.startsWith("ENDPOINT_")) {
-            result.push(incidentType);
-        }
+    progression.forEach(add);
+
+    if (!result.length && Array.isArray(incident.timeline)) {
+        [...incident.timeline]
+            .filter(item => item?.time || item?.timestamp)
+            .sort((a, b) => new Date(a.time || a.timestamp) - new Date(b.time || b.timestamp))
+            .forEach(item => {
+                const title = item?.title || item?.event || "";
+                if (/^(evidence|incident state|state changed|new evidence detected)$/i.test(String(title).trim())) return;
+                add(title);
+            });
     }
 
+    if (!result.length) add(incident.incidentType);
     return result;
 }
 function finding(stage) { return (S.context?.actual?.findings || []).find(f => canon(f.type) === canon(stage)); }
