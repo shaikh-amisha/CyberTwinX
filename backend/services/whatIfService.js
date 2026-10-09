@@ -1594,21 +1594,15 @@ async function getWhatIfContext({
 
 
     /*
-     * What-If is incident-scoped. Do not merge Endpoint Twin's global
-     * riskBreakdown into this incident's stages: those findings may belong to
-     * other incidents (for example ransomware or privilege escalation).
-     * Use this incident's progression and its own linked evidence only.
+     * Only the incident's ordered attackProgression defines timeline stages.
+     * Evidence supports a stage but must never become a separate stage itself.
+     * This prevents unrelated evidence categories from being appended as
+     * extra tabs (for example NETWORK or RANSOMWARE on a scanning incident).
      */
-    const incidentEvidenceStages = (Array.isArray(incident.evidence) ? incident.evidence : [])
-        .flatMap(item => [item?.type, item?.category])
-        .filter(Boolean);
-    const observedAttacks = [...new Set([
-        ...getObservedAttacks(actualProgression),
-        ...incidentEvidenceStages
-    ].filter(value => {
+    const observedAttacks = getObservedAttacks(actualProgression).filter(value => {
         const normalized = normalizeType(value);
         return normalized !== "ENDPOINT" && !normalized.startsWith("ENDPOINT_");
-    }))];
+    });
 
 
     /*
