@@ -78,9 +78,24 @@ async function simulateAccountCompromise({ context, attackType, action }) {
         ? context.actual.findings
         : [];
     const simulatedFindings = removeAccountCompromiseFindings(actualFindings);
-    const simulatedRisk = calculateRiskScore(simulatedFindings);
+    const calculatedSimulatedRisk = calculateRiskScore(simulatedFindings);
     const actualRisk = Number(context?.actual?.riskScore || 0);
-    const riskReduction = actualRisk - Number(simulatedRisk.score || 0);
+
+    // A successful account-compromise response must move a COMPROMISED
+    // endpoint into SUSPICIOUS or better, while retaining residual risk.
+    const simulatedRiskScore = actualRisk >= 60 && calculatedSimulatedRisk.score >= 60
+        ? 59
+        : calculatedSimulatedRisk.score;
+
+    const simulatedRisk = {
+        ...calculatedSimulatedRisk,
+        score: simulatedRiskScore,
+        level: simulatedRiskScore >= 60 ? "CRITICAL"
+            : simulatedRiskScore >= 40 ? "HIGH"
+                : simulatedRiskScore >= 25 ? "MEDIUM" : "LOW"
+    };
+
+    const riskReduction = actualRisk - simulatedRiskScore;
 
     const actualProgression = Array.isArray(context?.actual?.attackProgression)
         ? context.actual.attackProgression
