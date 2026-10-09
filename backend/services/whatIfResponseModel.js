@@ -214,30 +214,24 @@ async function simulateModeledResponse({ context, attackType, action }) {
     const simulatedFindings = applyModel(actualFindings, attackType, action);
     const recalculatedRisk = calculateRiskScore(simulatedFindings);
 
-    /*
-     * The live Endpoint Twin score may already be capped at 100.
-     * Recalculating the remaining findings alone can therefore still
-     * return 100 even when this response removed a finding. Preserve
-     * the live score's scale by subtracting the contribution of findings
-     * removed by this modeled response. This remains counterfactual only:
-     * it does not write to the Endpoint Twin or MongoDB.
-     */
-    const removedFindings = actualFindings.filter(actual =>
-        !simulatedFindings.some(simulated =>
-            normalize(simulated.type) === normalize(actual.type)
-        )
+    // Response impact controls how much risk is mitigated at this stage.
+    // A high-impact response must reduce more risk than a low-impact response,
+    // but unrelated findings keep the overall state from being forced to NORMAL.
+    const impactWeight = { LOW: 0.25, MEDIUM: 0.50, HIGH: 0.75 };
+    const impact = String(scenario.disruption || "MEDIUM").toUpperCase();
+    const mitigationWeight = impactWeight[impact] ?? impactWeight.MEDIUM;
+    const stageFinding = actualFindings.find(
+        finding => normalize(finding.type) === normalize(attackType)
     );
     const severityWeights = { LOW: 5, MEDIUM: 15, HIGH: 30, CRITICAL: 40 };
-    const removedRisk = removedFindings.reduce((sum, finding) => {
-        const contribution = Number(finding.score);
-        return sum + (Number.isFinite(contribution) && contribution > 0
-            ? contribution
-            : (severityWeights[String(finding.severity || "LOW").toUpperCase()] || 0));
-    }, 0);
+    const stageRiskContribution = stageFinding
+        ? (Number(stageFinding.score) > 0
+            ? Number(stageFinding.score)
+            : (severityWeights[String(stageFinding.severity || "LOW").toUpperCase()] || 5))
+        : 15;
     const actualRiskScore = Number(context?.actual?.riskScore || 0);
-    const modeledRiskScore = removedFindings.length
-        ? Math.max(0, Math.min(100, actualRiskScore - removedRisk))
-        : recalculatedRisk.score;
+    const weightedReduction = Math.max(1, Math.round(stageRiskContribution * mitigationWeight));
+    const modeledRiskScore = Math.max(0, Math.min(100, actualRiskScore - weightedReduction));
     const simulatedRisk = {
         ...recalculatedRisk,
         score: modeledRiskScore,
