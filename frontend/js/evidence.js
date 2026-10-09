@@ -1099,12 +1099,27 @@ function applyEvidenceInvestigationData(
             ? data.evidence
             : [];
 
-    evidenceState.timeline =
-        Array.isArray(
-            data.timeline
-        )
-            ? data.timeline
-            : [];
+    // Use backend timeline events when present; fall back to this incident's
+    // timestamped evidence for older incidents whose timeline was never populated.
+    const backendTimeline = Array.isArray(data.timeline) ? data.timeline : [];
+    const evidenceTimeline = evidenceState.evidenceRecords
+        .filter(item => item?.timestamp && (item?.type || item?.description))
+        .map(item => ({
+            time: item.timestamp,
+            title: item.type || item.category || "Incident Evidence",
+            description: item.description || "Evidence recorded for this incident."
+        }));
+    const mergedTimeline = [...backendTimeline];
+    evidenceTimeline.forEach(event => {
+        const duplicate = mergedTimeline.some(existing =>
+            new Date(existing.time).getTime() === new Date(event.time).getTime() &&
+            (existing.description || "") === (event.description || "")
+        );
+        if (!duplicate) mergedTimeline.push(event);
+    });
+    evidenceState.timeline = mergedTimeline.sort(
+        (a, b) => new Date(a.time) - new Date(b.time)
+    );
 
     evidenceState.missingEvidenceRecords =
         Array.isArray(
