@@ -143,15 +143,13 @@ function renderTop() {
 }
 
 function stages() {
-    // Only use the selected incident's progression and incident-linked evidence.
-    // Endpoint Twin findings are global and can belong to unrelated incidents.
+    // The stage tabs represent the ordered attack path for this incident only.
+    // Evidence and endpoint-wide findings belong in the Evidence panel, not here.
     const progression = S.context?.incident?.attackProgression || S.context?.actual?.attackProgression || [];
-    const evidence = (Array.isArray(S.context?.evidence) ? S.context.evidence : [])
-        .flatMap(item => [item?.type, item?.category]);
     const ignored = new Set(["", "UNKNOWN", "OTHER", "ENDPOINT"]);
     const result = [];
     const seen = new Set();
-    [...progression, ...evidence].forEach(value => {
+    progression.forEach(value => {
         const normalized = key(value);
         if (!normalized || ignored.has(normalized) || normalized.startsWith("ENDPOINT_")) return;
         if (seen.has(canon(normalized))) return;
