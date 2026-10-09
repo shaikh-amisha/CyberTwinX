@@ -231,7 +231,15 @@ async function simulateModeledResponse({ context, attackType, action }) {
         : 15;
     const actualRiskScore = Number(context?.actual?.riskScore || 0);
     const weightedReduction = Math.max(1, Math.round(stageRiskContribution * mitigationWeight));
-    const modeledRiskScore = Math.max(0, Math.min(100, actualRiskScore - weightedReduction));
+    const rawModeledRiskScore = Math.max(0, Math.min(100, actualRiskScore - weightedReduction));
+
+    // A successful counterfactual response must improve a COMPROMISED
+    // endpoint by at least one state band. Keep residual risk visible:
+    // cap it at 59 (SUSPICIOUS), rather than forcing the endpoint to NORMAL.
+    const modeledRiskScore = actualRiskScore >= 60 && rawModeledRiskScore >= 60
+        ? 59
+        : rawModeledRiskScore;
+
     const simulatedRisk = {
         ...recalculatedRisk,
         score: modeledRiskScore,
