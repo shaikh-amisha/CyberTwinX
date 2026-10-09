@@ -240,10 +240,18 @@ async function simulateModeledResponse({ context, attackType, action }) {
                 : modeledRiskScore >= 25 ? "MEDIUM" : "LOW"
     };
 
-    const actualProgression = Array.isArray(context?.actual?.attackProgression)
-        ? context.actual.attackProgression
-        : [];
-    const simulatedProgression = buildSimulatedProgression(actualProgression, attackType);
+    const actualProgression = Array.isArray(context?.incident?.observedAttacks) && context.incident.observedAttacks.length
+        ? context.incident.observedAttacks
+        : (Array.isArray(context?.actual?.attackProgression) ? context.actual.attackProgression : []);
+    const selectedStageIndex = actualProgression.findIndex(
+        stage => normalize(stage) === normalize(attackType)
+    );
+    // A response at stage N models containment at that point: earlier stages
+    // remain in the path, while the selected stage and downstream stages are
+    // removed from the counterfactual path.
+    const simulatedProgression = selectedStageIndex >= 0
+        ? actualProgression.slice(0, selectedStageIndex)
+        : buildSimulatedProgression(actualProgression, attackType);
     const simulatedPaths = buildPaths(simulatedProgression);
     const riskReduction = Math.max(0, actualRiskScore - Number(simulatedRisk.score || 0));
 
