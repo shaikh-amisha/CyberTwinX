@@ -1545,4 +1545,21 @@
 }
 
 
-
+/* Merkle tree forensic side panel and level annotations */
+.merkle-layout { display:grid; grid-template-columns:minmax(250px,.34fr) minmax(0,1fr); align-items:stretch; gap:16px; }
+.merkle-info-panel { padding:16px; min-width:0; background:#06121a; border:1px solid rgba(34,211,238,.35); }
+.merkle-info-title { color:#22d3ee; font-size:17px; font-weight:900; letter-spacing:1.2px; }
+.merkle-info-subtitle { color:#7194aa; font-size:9px; font-weight:700; letter-spacing:.8px; margin:4px 0 15px; }
+.merkle-info-box { border:1px solid rgba(34,211,238,.28); border-radius:8px; padding:12px; margin-top:12px; background:rgba(2,14,22,.7); }
+.merkle-info-box h4 { margin:0 0 12px; color:#67e8f9; font-size:11px; letter-spacing:.5px; }
+.merkle-info-box dl { display:grid; grid-template-columns:minmax(80px,1fr) minmax(0,1.2fr); gap:8px 10px; margin:0; font-size:10px; }
+.merkle-info-box dt { color:#83a6b8; }
+.merkle-info-box dd { margin:0; color:#d5e7f0; font-weight:700; overflow-wrap:anywhere; }
+.merkle-info-hash { color:#22d3ee !important; font-family:monospace; }
+.merkle-legend-item { display:flex; align-items:center; gap:12px; color:#9fc0d1; font-size:10px; margin:10px 0; }
+.merkle-legend-node { width:15px; height:15px; border:2px solid #22d3ee; border-radius:50%; box-shadow:0 0 8px rgba(34,211,238,.4); }
+.merkle-legend-edge { width:25px; height:2px; background:#22d3ee; box-shadow:0 0 6px rgba(34,211,238,.45); }
+.merkle-level-bracket { fill:none; stroke:rgba(34,211,238,.72); stroke-width:1.4; }
+.merkle-level-label { fill:#67e8f9; font-size:12px; font-weight:800; letter-spacing:.5px; }
+.merkle-level-description { fill:#8fa6b7; font-size:10px; font-weight:600; }
+@media (max-width:1100px) { .merkle-layout { grid-template-columns:1fr; } .merkle-info-panel { order:2; } }
