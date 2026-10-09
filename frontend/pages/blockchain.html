@@ -185,39 +185,22 @@
                 </div>
 
                 <div class="merkle-layout">
-                    <aside class="dashboard-card merkle-info-panel">
-                        <div class="merkle-info-title">MERKLE TREE</div>
-                        <div class="merkle-info-subtitle">FORENSIC EVIDENCE INTEGRITY</div>
-                        <section class="merkle-info-box">
-                            <h4>DATA STRUCTURE</h4>
-                            <dl>
-                                <dt>TYPE</dt><dd>BINARY HASH TREE</dd>
-                                <dt>ROOT VERSION</dt><dd id="treeInfoVersion">—</dd>
-                                <dt>HASH FUNCTION</dt><dd>SHA-256</dd>
-                                <dt>TOTAL EVIDENCES</dt><dd id="treeInfoEvidenceCount">—</dd>
-                                <dt>TREE HEIGHT</dt><dd id="treeInfoHeight">—</dd>
-                                <dt>LEAVES</dt><dd id="treeInfoLeaves">—</dd>
-                                <dt>TOTAL NODES</dt><dd id="treeInfoNodes">—</dd>
-                                <dt>ENCODING</dt><dd>HEX</dd>
-                                <dt>BALANCED</dt><dd id="treeInfoBalanced">—</dd>
-                            </dl>
-                        </section>
-                        <section class="merkle-info-box">
-                            <h4>LEGEND</h4>
-                            <div class="merkle-legend-item"><span class="merkle-legend-node"></span><span>NODE</span></div>
-                            <div class="merkle-legend-item"><span class="merkle-legend-edge"></span><span>EDGE</span></div>
-                        </section>
-                        <section class="merkle-info-box">
-                            <h4>ROOT INFORMATION</h4>
-                            <dl>
-                                <dt>VERSION</dt><dd id="treeRootVersion">—</dd>
-                                <dt>ROOT HASH</dt><dd class="merkle-info-hash" id="treeRootHash">—</dd>
-                                <dt>STATUS</dt><dd id="treeRootStatus">—</dd>
-                                <dt>BLOCK</dt><dd id="treeRootBlock">—</dd>
-                                <dt>NETWORK</dt><dd id="treeRootNetwork">—</dd>
-                            </dl>
-                        </section>
-                    </aside>
+                    <article class="dashboard-card evidence-hashes-card">
+                        <div class="card-header evidence-hashes-header">
+                            <div>
+                                <span class="card-label">EVIDENCE HASHES</span>
+                                <span class="evidence-hashes-subtitle">Cryptographic fingerprints generated from evidence snapshots</span>
+                            </div>
+                            
+                        </div>
+                        <div class="evidence-hash-list" id="evidenceHashList"></div>
+                        <div class="hash-stream-footer">
+                            <span class="hash-stream-dot"></span>
+                            <span>SHA-256 HASH STREAM</span>
+                            <span class="hash-stream-line"></span>
+                            <span id="evidenceLeafCount">0 LEAVES</span>
+                        </div>
+                    </article>
 
                     <article class="dashboard-card merkle-visual-card">
                         <div class="merkle-visual-header">
