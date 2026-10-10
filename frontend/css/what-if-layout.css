@@ -692,3 +692,9 @@
 .stage-inferred-node .stage-path-detail { font-size: 10px; }
 .stage-inferred-track .stage-path-connector { min-width: 20px; color: #f4b740; }
 @media (max-width: 600px) { .stage-inferred { padding: 12px; } .stage-inferred-node { flex-basis: 170px; } .stage-inferred-heading { align-items: flex-start; } }
+.stage-evidence-derived { margin-top: 18px; padding: 16px; border: 1px solid rgba(53, 168, 255, .25); border-radius: 12px; background: rgba(8, 19, 32, .62); }
+.stage-evidence-derived .stage-inferred-heading { color: #35a8ff; }
+.stage-evidence-derived .stage-inferred-badge { color: #65caff !important; border-color: rgba(53, 168, 255, .4); }
+.stage-evidence-derived .stage-inferred-node { border-color: rgba(53, 168, 255, .25); }
+.stage-evidence-derived .stage-inferred-node .stage-path-icon { color: #35a8ff; border-color: rgba(53, 168, 255, .3); background: rgba(53, 168, 255, .08); }
+.stage-evidence-derived .stage-inferred-node .stage-number { color: #35a8ff; }
