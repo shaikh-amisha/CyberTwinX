@@ -209,8 +209,17 @@ function evidence(stage) {
 }
 
 function renderStages() {
-    const a = stages();
-    E.stage.innerHTML = a.length ? a.map((s, i) => `<button type="button" class="stage-item" data-i="${i}" aria-pressed="false"><span class="stage-number">${i + 1}</span><span class="stage-name">${esc(pretty(s))}</span></button>`).join("") : '<div class="whatif-empty">No observed stages recorded for this incident.</div>';
+    const observed = stages();
+    const endpoint = S.context?.endpoint || {};
+    const incident = S.context?.incident || {};
+    const currentState = String(S.context?.actual?.securityState || endpoint.securityState || incident.securityState || "UNKNOWN").replace(/_/g, " ").toUpperCase();
+
+    // Endpoint and final state are context markers, not selectable simulation stages.
+    const startNode = `<div class="stage-path-node stage-path-endpoint"><span class="stage-path-icon"><i class="bi bi-pc-display" aria-hidden="true"></i></span><span class="stage-number">START</span><span class="stage-name">Endpoint</span><span class="stage-path-detail">${esc(endpoint.hostname || endpoint.endpointId || "Monitored host")}</span></div>`;
+    const attackNodes = observed.map((stage, index) => `<button type="button" class="stage-item stage-path-attack" data-i="${index}" aria-pressed="false"><span class="stage-number">STAGE ${index + 1}</span><span class="stage-name">${esc(pretty(stage))}</span><span class="stage-path-detail">Observed activity · Select to investigate</span></button>`).join('<span class="stage-path-connector" aria-hidden="true"><i class="bi bi-arrow-right"></i></span>');
+    const finalNode = `<div class="stage-path-node stage-path-state ${/COMPROMISED/.test(currentState) ? "is-compromised" : /SUSPICIOUS/.test(currentState) ? "is-suspicious" : ""}"><span class="stage-path-icon"><i class="bi bi-shield-exclamation" aria-hidden="true"></i></span><span class="stage-number">CURRENT STATE</span><span class="stage-name">${esc(currentState)}</span><span class="stage-path-detail">Recorded endpoint state</span></div>`;
+    const middle = observed.length ? `<span class="stage-path-connector" aria-hidden="true"><i class="bi bi-arrow-right"></i></span>${attackNodes}<span class="stage-path-connector" aria-hidden="true"><i class="bi bi-arrow-right"></i></span>` : '<div class="whatif-empty">No observed attack stages recorded for this incident.</div>';
+    E.stage.innerHTML = `<div class="stage-path">${startNode}${middle}${finalNode}</div>`;
     E.stage.querySelectorAll(".stage-item").forEach(button => button.addEventListener("click", () => selectStage(Number(button.dataset.i))));
 }
 
