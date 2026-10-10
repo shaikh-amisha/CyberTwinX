@@ -1028,6 +1028,13 @@ function initializeIncidentSelector() {
                         .trim()
                         .toLowerCase();
 
+                // Open the incident list as soon as the always-visible
+                // search receives input, so matching results are immediately visible.
+                if (query && elements.incidentSelectorMenu.hidden) {
+                    elements.incidentSelectorMenu.hidden = false;
+                    elements.incidentSelector.classList.add("open");
+                    elements.incidentSelectorButton.setAttribute("aria-expanded", "true");
+                }
 
                 const filtered =
                     query
