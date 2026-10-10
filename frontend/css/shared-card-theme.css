@@ -1,0 +1,101 @@
+/* CyberTwinX shared blue card theme — deliberately excluded from What-If Analysis */
+:root {
+  --ct-card-blue-1: #102844;
+  --ct-card-blue-2: #091b30;
+  --ct-card-border: rgba(67, 153, 226, .32);
+  --ct-card-border-hover: rgba(72, 177, 255, .58);
+  --ct-card-text: #e7f2ff;
+  --ct-card-muted: #a9c0da;
+}
+body:not(:has(link[href*="what-if-layout.css"])) .app .dashboard-card,
+body:not(:has(link[href*="what-if-layout.css"])) .app .dashboard-section,
+body:not(:has(link[href*="what-if-layout.css"])) .app .card,
+body:not(:has(link[href*="what-if-layout.css"])) .app .panel,
+body:not(:has(link[href*="what-if-layout.css"])) .app .panel-card,
+body:not(:has(link[href*="what-if-layout.css"])) .app .content-card,
+body:not(:has(link[href*="what-if-layout.css"])) .app .section-card,
+body:not(:has(link[href*="what-if-layout.css"])) .app .chart-card,
+body:not(:has(link[href*="what-if-layout.css"])) .app .data-card,
+body:not(:has(link[href*="what-if-layout.css"])) .app .metric-card,
+body:not(:has(link[href*="what-if-layout.css"])) .app .kpi-card,
+body:not(:has(link[href*="what-if-layout.css"])) .app .stat-card,
+body:not(:has(link[href*="what-if-layout.css"])) .app .info-card,
+body:not(:has(link[href*="what-if-layout.css"])) .app .activity-card,
+body:not(:has(link[href*="what-if-layout.css"])) .app .endpoint-card,
+body:not(:has(link[href*="what-if-layout.css"])) .app .endpoint-panel,
+body:not(:has(link[href*="what-if-layout.css"])) .app .endpoint-telemetry-card,
+body:not(:has(link[href*="what-if-layout.css"])) .app .evidence-card,
+body:not(:has(link[href*="what-if-layout.css"])) .app .evidence-context-card,
+body:not(:has(link[href*="what-if-layout.css"])) .app .evidence-connection-card,
+body:not(:has(link[href*="what-if-layout.css"])) .app .incident-card,
+body:not(:has(link[href*="what-if-layout.css"])) .app .incident-record,
+body:not(:has(link[href*="what-if-layout.css"])) .app .incident-explorer-card,
+body:not(:has(link[href*="what-if-layout.css"])) .app .integrity-card,
+body:not(:has(link[href*="what-if-layout.css"])) .app .attack-card,
+body:not(:has(link[href*="what-if-layout.css"])) .app .finding-card,
+body:not(:has(link[href*="what-if-layout.css"])) .app .health-card,
+body:not(:has(link[href*="what-if-layout.css"])) .app .telemetry-card,
+body:not(:has(link[href*="what-if-layout.css"])) .app .timeline-card,
+body:not(:has(link[href*="what-if-layout.css"])) .app .summary-card,
+body:not(:has(link[href*="what-if-layout.css"])) .app .verification-card,
+body:not(:has(link[href*="what-if-layout.css"])) .app .recommendation-card,
+body:not(:has(link[href*="what-if-layout.css"])) .app .response-scenarios-card,
+body:not(:has(link[href*="what-if-layout.css"])) .app .simulation-card,
+body:not(:has(link[href*="what-if-layout.css"])) .app .graph-card,
+body:not(:has(link[href*="what-if-layout.css"])) .app .graph-panel,
+body:not(:has(link[href*="what-if-layout.css"])) .app .attack-graph-panel,
+body:not(:has(link[href*="what-if-layout.css"])) .app .analysis-card,
+body:not(:has(link[href*="what-if-layout.css"])) .app .live-card,
+body:not(:has(link[href*="what-if-layout.css"])) .app .ai-chat-card,
+body:not(:has(link[href*="what-if-layout.css"])) .app .security-state-card,
+body:not(:has(link[href*="what-if-layout.css"])) .app .state-card,
+body:not(:has(link[href*="what-if-layout.css"])) .app .hero-card {
+  background: linear-gradient(145deg, rgba(16, 40, 68, .98), rgba(7, 22, 40, .99)) !important;
+  border-color: var(--ct-card-border) !important;
+  box-shadow: inset 0 1px 0 rgba(173, 216, 255, .045), 0 10px 28px rgba(0, 0, 0, .18) !important;
+  color: var(--ct-card-text);
+  transition: background .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+body:not(:has(link[href*="what-if-layout.css"])) .app .dashboard-card:hover,
+body:not(:has(link[href*="what-if-layout.css"])) .app .card:hover,
+body:not(:has(link[href*="what-if-layout.css"])) .app .panel:hover,
+body:not(:has(link[href*="what-if-layout.css"])) .app .content-card:hover,
+body:not(:has(link[href*="what-if-layout.css"])) .app .section-card:hover,
+body:not(:has(link[href*="what-if-layout.css"])) .app .chart-card:hover,
+body:not(:has(link[href*="what-if-layout.css"])) .app .metric-card:hover,
+body:not(:has(link[href*="what-if-layout.css"])) .app .kpi-card:hover,
+body:not(:has(link[href*="what-if-layout.css"])) .app .stat-card:hover,
+body:not(:has(link[href*="what-if-layout.css"])) .app .activity-card:hover,
+body:not(:has(link[href*="what-if-layout.css"])) .app .evidence-card:hover,
+body:not(:has(link[href*="what-if-layout.css"])) .app .incident-card:hover,
+body:not(:has(link[href*="what-if-layout.css"])) .app .finding-card:hover,
+body:not(:has(link[href*="what-if-layout.css"])) .app .integrity-card:hover,
+body:not(:has(link[href*="what-if-layout.css"])) .app .attack-card:hover {
+  background: linear-gradient(145deg, rgba(19, 51, 85, .99), rgba(8, 29, 51, 1)) !important;
+  border-color: var(--ct-card-border-hover) !important;
+  box-shadow: inset 0 1px 0 rgba(173, 216, 255, .07), 0 12px 32px rgba(0, 0, 0, .22), 0 0 18px rgba(47, 153, 255, .07) !important;
+}
+/* KPI and compact data tiles */
+body:not(:has(link[href*="what-if-layout.css"])) .app .kpi,
+body:not(:has(link[href*="what-if-layout.css"])) .app .kpi-item,
+body:not(:has(link[href*="what-if-layout.css"])) .app .stat-item,
+body:not(:has(link[href*="what-if-layout.css"])) .app .metric,
+body:not(:has(link[href*="what-if-layout.css"])) .app .mini-stat,
+body:not(:has(link[href*="what-if-layout.css"])) .app .summary-item,
+body:not(:has(link[href*="what-if-layout.css"])) .app .endpoint-kpi,
+body:not(:has(link[href*="what-if-layout.css"])) .app .selected-attack-stat {
+  background: linear-gradient(145deg, rgba(17, 44, 73, .96), rgba(8, 24, 42, .98)) !important;
+  border-color: rgba(67, 153, 226, .28) !important;
+}
+/* Improve hierarchy while preserving severity badges and semantic status colors. */
+body:not(:has(link[href*="what-if-layout.css"])) .app .card-title,
+body:not(:has(link[href*="what-if-layout.css"])) .app .card-header,
+body:not(:has(link[href*="what-if-layout.css"])) .app .panel-header,
+body:not(:has(link[href*="what-if-layout.css"])) .app .section-header {
+  border-color: rgba(67, 153, 226, .24);
+}
+body:not(:has(link[href*="what-if-layout.css"])) .app .card-label,
+body:not(:has(link[href*="what-if-layout.css"])) .app .metric-label,
+body:not(:has(link[href*="what-if-layout.css"])) .app .kpi-label {
+  color: var(--ct-card-muted);
+}
