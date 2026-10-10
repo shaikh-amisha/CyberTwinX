@@ -298,3 +298,83 @@
     .ai-chat-card .chat-message.user { width: 96%; }
     .ai-chat-toolbar { padding: 9px 12px; }
 }
+
+
+/* Final chat fixes: compact bubbles, internal scrolling, typing feedback */
+html:has(.ai-chat-card), body:has(.ai-chat-card) { min-height: 0; }
+body:has(.ai-chat-card) { overflow-y: auto; }
+.ai-chat-card {
+    height: calc(100vh - 380px);
+    min-height: 500px;
+    max-height: 760px;
+}
+.ai-chat-card .chat-messages {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: none;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 18px 20px 28px;
+    gap: 14px;
+    scrollbar-gutter: stable;
+}
+.ai-chat-card .chat-message,
+.ai-chat-card .chat-message.user {
+    width: fit-content;
+    max-width: 70%;
+    min-width: 0;
+}
+.ai-chat-card .chat-message.assistant { align-self: flex-start; }
+.ai-chat-card .chat-message.user { align-self: flex-end; }
+.ai-chat-card .chat-message-header {
+    padding: 6px 10px;
+    gap: 8px;
+    border-bottom: 1px solid rgba(143, 169, 197, .12);
+}
+.ai-chat-card .chat-avatar {
+    width: 22px; height: 22px; flex-basis: 22px; font-size: 11px;
+}
+.ai-chat-card .chat-role { font-size: 10px; }
+.ai-chat-card .chat-message > p,
+.ai-chat-card .chat-message-content {
+    display: block;
+    margin: 0;
+    padding: 9px 12px 11px;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    line-height: 1.55;
+    font-size: 13px;
+}
+.ai-chat-card .chat-typing {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    width: fit-content;
+    max-width: 70%;
+    padding: 12px 14px;
+    color: #a9c4da;
+    font-size: 12px;
+}
+.chat-typing-dots { display: inline-flex; align-items: center; gap: 4px; }
+.chat-typing-dots i {
+    display: block; width: 5px; height: 5px; border-radius: 50%;
+    background: #35c7ff; animation: aiTypingPulse 1s infinite ease-in-out;
+}
+.chat-typing-dots i:nth-child(2) { animation-delay: .15s; }
+.chat-typing-dots i:nth-child(3) { animation-delay: .3s; }
+@keyframes aiTypingPulse {
+    0%, 60%, 100% { opacity: .35; transform: translateY(0); }
+    30% { opacity: 1; transform: translateY(-3px); }
+}
+.ai-chat-card .chat-input-area input:disabled { opacity: .65; cursor: wait; }
+.ai-chat-card .chat-input-area .primary-button:disabled { opacity: .6; cursor: wait; }
+.sidebar-footer { display: flex; flex-direction: column; gap: 12px; padding-bottom: 16px; }
+.sidebar-footer .system-status { margin-bottom: 2px; }
+.sidebar-footer .version { margin-top: 0; }
+@media (max-width: 720px) {
+    .ai-chat-card { height: calc(100vh - 300px); min-height: 420px; }
+    .ai-chat-card .chat-message,
+    .ai-chat-card .chat-message.user,
+    .ai-chat-card .chat-typing { max-width: 90%; }
+}
