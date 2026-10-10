@@ -229,13 +229,21 @@ function renderStages() {
         ["04", "Encryption / ransom impact", "Confirm encryption or ransom artifacts", "bi-lock-fill"]
     ];
     const inferredPath = isRansomware ? '<section class="stage-inferred" aria-label="Typical ransomware lifecycle reference"><div class="stage-inferred-heading"><i class="bi bi-diagram-3" aria-hidden="true"></i><div><strong>Typical ransomware lifecycle</strong><span>Reference path · not all stages are confirmed in this incident</span></div><span class="stage-inferred-badge">INFERRED</span></div><div class="stage-inferred-track">' + ransomwareStages.map((item, index) => (index ? '<span class="stage-path-connector" aria-hidden="true"><i class="bi bi-arrow-right"></i></span>' : "") + '<div class="stage-inferred-node"><span class="stage-path-icon"><i class="bi ' + item[3] + '" aria-hidden="true"></i></span><span class="stage-number">PHASE ' + item[0] + '</span><span class="stage-name">' + item[1] + '</span><span class="stage-path-detail">' + item[2] + '</span></div>').join("") + '</div></section>' : "";
-    const rawEvidence = Array.isArray(incident.evidence) ? incident.evidence : [];
+    // Evidence Investigation may return records separately from incident.evidence.
+    // Merge all incident-scoped sources, then group repeated activity labels.
+    const rawEvidence = [
+        ...(Array.isArray(incident.evidence) ? incident.evidence : []),
+        ...(Array.isArray(S.context?.evidence) ? S.context.evidence : []),
+        ...(Array.isArray(incident.timeline) ? incident.timeline : []),
+        ...(Array.isArray(S.context?.timeline) ? S.context.timeline : [])
+    ];
+    const evidenceLabel = item => String(item.title || item.event || item.type || item.category || item.attackType || item.findingType || item.description || "").trim();
     const evidenceStages = [];
     const evidenceSeen = new Set();
     rawEvidence.forEach(item => {
-        const raw = String(item.type || item.category || item.attackType || item.title || "").trim();
+        const raw = evidenceLabel(item);
         const normalized = canon(raw);
-        if (!raw || !normalized || /EVIDENCE|RANSOMWARE_LIKE_ACTIVITY/.test(normalized) && /RANSOMWARE_LIKE_ACTIVITY/.test(evidenceSeen.has(normalized) ? normalized : "")) return;
+        if (!raw || !normalized || /^(EVIDENCE|INCIDENT STATE|STATE CHANGED|NEW EVIDENCE DETECTED)$/.test(normalized)) return;
         const label = pretty(raw);
         const canonical = canon(label);
         if (evidenceSeen.has(canonical)) return;
@@ -249,7 +257,7 @@ function renderStages() {
         entry.count += 1;
         if (item.evidenceId) entry.ids.push(item.evidenceId);
     });
-    const evidencePath = evidenceStages.length ? '<section class="stage-evidence-derived"><div class="stage-inferred-heading"><i class="bi bi-journal-check" aria-hidden="true"></i><div><strong>Stages derived from incident evidence</strong><span>Repeated evidence is grouped by activity type; selectability remains limited to validated attack stages above.</span></div><span class="stage-inferred-badge">EVIDENCE</span></div><div class="stage-inferred-track">' + evidenceStages.map((item, index) => (index ? '<span class="stage-path-connector" aria-hidden="true"><i class="bi bi-arrow-right"></i></span>' : "") + '<div class="stage-inferred-node"><span class="stage-number">EVIDENCE STAGE ' + String(index + 1).padStart(2, "0") + '</span><span class="stage-name">' + esc(item.label) + '</span><span class="stage-path-detail">' + (item.count > 1 ? item.count - 1 + " repeated record(s) grouped" : "1 evidence record") + '</span></div>').join("") + '</div></section>' : "";
+    const evidencePath = evidenceStages.length ? '<section class="stage-evidence-derived"><div class="stage-inferred-heading"><i class="bi bi-journal-check" aria-hidden="true"></i><div><strong>Stages derived from incident evidence</strong><span>Repeated evidence/timeline entries are grouped by label; observed records, not invented phases.</span></div><span class="stage-inferred-badge">EVIDENCE</span></div><div class="stage-inferred-track">' + evidenceStages.map((item, index) => (index ? '<span class="stage-path-connector" aria-hidden="true"><i class="bi bi-arrow-right"></i></span>' : "") + '<div class="stage-inferred-node"><span class="stage-number">EVIDENCE STAGE ' + String(index + 1).padStart(2, "0") + '</span><span class="stage-name">' + esc(item.label) + '</span><span class="stage-path-detail">' + (item.count > 1 ? item.count - 1 + " repeated record(s) grouped" : "1 evidence record") + '</span></div>').join("") + '</div></section>' : "";
     E.stage.innerHTML = `<div class="stage-path">${startNode}${middle}${finalNode}</div>${evidencePath}${inferredPath}`;
     E.stage.querySelectorAll(".stage-item").forEach(button => button.addEventListener("click", () => selectStage(Number(button.dataset.i))));
 }
