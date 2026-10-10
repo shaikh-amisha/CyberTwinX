@@ -660,6 +660,9 @@ function initializeIncidentSelector() {
                 if (
                     event.target.closest(
                         ".incident-selector-item"
+                    ) ||
+                    event.target.closest(
+                        ".incident-dropdown-search"
                     )
                 ) {
 
