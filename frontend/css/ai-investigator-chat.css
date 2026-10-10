@@ -177,3 +177,49 @@
         animation: none;
     }
 }
+
+
+/* Chat workspace header inspired by the supplied reference, adapted to CyberTwinX neon theme */
+.ai-chat-card {
+    border: 1px solid rgba(53, 184, 255, .25);
+    border-radius: 18px;
+    background: linear-gradient(145deg, rgba(7, 17, 32, .98), rgba(10, 23, 40, .98));
+}
+.ai-chat-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    min-height: 72px;
+    padding: 15px 22px;
+    border-bottom: 1px solid rgba(90, 160, 205, .2);
+    background: linear-gradient(90deg, rgba(20, 48, 75, .78), rgba(9, 22, 39, .72));
+}
+.ai-chat-identity { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.ai-chat-bot-icon {
+    display: grid; place-items: center; flex: 0 0 42px; width: 42px; height: 42px;
+    border: 1px solid rgba(53, 184, 255, .42); border-radius: 13px;
+    color: #66d2ff; background: rgba(53, 184, 255, .12);
+    box-shadow: 0 0 22px rgba(53, 184, 255, .08); font-size: 20px;
+}
+.ai-chat-identity strong { display: block; color: #edf7ff; font-size: 14px; letter-spacing: .02em; }
+.ai-chat-identity div > span { display: flex; align-items: center; gap: 7px; margin-top: 5px; color: #8faac3; font-size: 11px; }
+.ai-chat-live-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #35d5a2; box-shadow: 0 0 9px rgba(53,213,162,.55); }
+.ai-chat-secure {
+    display: inline-flex; align-items: center; gap: 7px; flex: 0 0 auto;
+    padding: 7px 10px; border: 1px solid rgba(53, 213, 162, .22); border-radius: 8px;
+    color: #75dcbc; background: rgba(53, 213, 162, .06);
+    font-size: 10px; font-weight: 800; letter-spacing: .09em;
+}
+.ai-chat-card .chat-messages { background-image: radial-gradient(rgba(73, 143, 189, .09) .7px, transparent .7px); background-size: 18px 18px; }
+.ai-chat-card .chat-message { backdrop-filter: blur(8px); }
+.ai-chat-card .chat-message-header { min-height: 53px; }
+.ai-chat-card .chat-message-content { font-size: 14px; line-height: 1.8; }
+.ai-chat-card .chat-input-area { gap: 14px; }
+.ai-chat-card .chat-input-area input { min-height: 50px; }
+.ai-chat-card .chat-input-area .primary-button { min-height: 50px; padding-inline: 20px; }
+@media (max-width: 560px) {
+    .ai-chat-toolbar { align-items: flex-start; padding: 13px; }
+    .ai-chat-secure { font-size: 9px; padding: 6px 7px; }
+    .ai-chat-bot-icon { width: 37px; height: 37px; flex-basis: 37px; }
+}
