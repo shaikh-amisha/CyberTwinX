@@ -7,8 +7,8 @@ const {
 const MISTRAL_API_URL = "https://api.mistral.ai/v1/chat/completions";
 const MISTRAL_MODEL = process.env.MISTRAL_MODEL || "mistral-small-latest";
 const MISTRAL_TIMEOUT_MS = Number(process.env.MISTRAL_TIMEOUT_MS) || 45000;
-const MAX_EVIDENCE_ITEMS = 8;
-const MAX_TIMELINE_ITEMS = 8;
+const MAX_EVIDENCE_ITEMS = 4;
+const MAX_TIMELINE_ITEMS = 4;
 
 /* =========================================================
    FIND INCIDENT
@@ -70,7 +70,7 @@ function compactEvidence(item) {
         severity: item.severity || "LOW",
         status: item.status || "SUPPORTING",
         timestamp: item.timestamp || null,
-        description: String(item.description || "").slice(0, 300)
+        description: String(item.description || "").slice(0, 160)
     };
 }
 
@@ -80,7 +80,7 @@ function compactTimelineEvent(event) {
     return {
         time: event.time || null,
         title: event.title || "Incident event",
-        description: String(event.description || "").slice(0, 250)
+        description: String(event.description || "").slice(0, 120)
     };
 }
 
@@ -147,24 +147,22 @@ async function buildInvestigationContext(incidentId) {
                 logs: endpoint.telemetry?.logs ?? 0
             },
             riskBreakdown: Array.isArray(endpoint.riskBreakdown)
-                ? endpoint.riskBreakdown.slice(0, 8)
+                ? endpoint.riskBreakdown.slice(0, 3)
                 : []
         } : null,
         investigationSummary: investigation.summary ? {
             supportingCount: investigation.summary.supportingCount ?? 0,
             missingCount: investigation.summary.missingCount ?? 0,
             evidenceSufficiency: investigation.summary.sufficiency ?? null,
-            expectedCategories: investigation.summary.expectedCategories || [],
-            presentCategories: investigation.summary.presentCategories || [],
-            missingCategories: investigation.summary.missingCategories || [],
-            detectedAttackTypes: investigation.summary.detectedAttackTypes || []
+            missingCategories: (investigation.summary.missingCategories || []).slice(0, 4),
+            detectedAttackTypes: (investigation.summary.detectedAttackTypes || []).slice(0, 4)
         } : null,
         evidence: sourceEvidence.slice(-MAX_EVIDENCE_ITEMS).map(compactEvidence),
         missingEvidence: Array.isArray(investigation.missingEvidence)
-            ? investigation.missingEvidence.slice(0, 8).map(item => ({
+            ? investigation.missingEvidence.slice(0, 4).map(item => ({
                 category: item.category || "",
                 label: item.label || "",
-                description: String(item.description || "").slice(0, 180)
+                description: String(item.description || "").slice(0, 100)
             }))
             : [],
         timeline: sourceTimeline.slice(-MAX_TIMELINE_ITEMS).map(compactTimelineEvent)
