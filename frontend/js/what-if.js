@@ -425,7 +425,7 @@ async function decide(decision) {
     show(E.confirm);
 }
 
-E.incidentSelector?.addEventListener("click", event => { if (event.target.closest(".incident-selector-item")) return; toggleIncidentSelector(); });
+E.incidentSelector?.addEventListener("click", event => { if (event.target.closest(".incident-selector-item") || event.target.closest(".incident-dropdown-search")) return; toggleIncidentSelector(); });
 document.addEventListener("click", event => { if (E.incidentSelector && !E.incidentSelector.contains(event.target)) closeIncidentSelector(); });
 E.run?.addEventListener("click", run);
 E.approve?.addEventListener("click", () => decide("APPROVED"));
