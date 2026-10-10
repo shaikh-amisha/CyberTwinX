@@ -8,7 +8,9 @@ const {
 
 async function askInvestigator(req, res) {
     try {
-        const { incidentId, question } = req.body || {};
+        const body = req.body || {};
+        const incidentId = body.incidentId;
+        const question = body.question ?? body.query ?? body.message;
 
         if (!question || !String(question).trim()) {
             return res.status(400).json({
