@@ -7,6 +7,9 @@
     <title>CyberTwin | What-If Analysis</title>
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/what-if-layout.css">
+    <style>
+.incident-dropdown-search{display:none;align-items:center;gap:9px;padding:9px 12px;margin:6px 8px 10px;border:1px solid rgba(74,150,230,.4);border-radius:8px;background:rgba(8,19,35,.78);color:#72b8ff}.incident-selector.open .incident-dropdown-search{display:flex}.incident-dropdown-search input{min-width:0;width:100%;border:0;outline:0;background:transparent;color:#eaf4ff;font:inherit}.incident-dropdown-search input::placeholder{color:#8da4bd}
+    </style>
 </head>
 <body>
 <div class="app">
@@ -70,6 +73,7 @@
                     <div class="incident-selector" id="incidentSelector">
                         <div class="incident-selector-current" id="selectedIncidentLabel">Loading incidents...</div>
                         <span class="incident-selector-arrow"><i class="bi bi-chevron-down" aria-hidden="true"></i></span>
+                        <div class="incident-search-wrapper incident-dropdown-search"><i class="bi bi-search" aria-hidden="true"></i><input type="search" id="whatIfIncidentSearch" placeholder="Search incidents..." autocomplete="off" aria-label="Search incidents"></div>
                         <div class="incident-selector-panel" id="incidentSelectorPanel"><div class="incident-selector-empty">Loading incidents...</div></div>
                     </div>
                 </div>
@@ -137,5 +141,23 @@
 </div>
 <script src="../js/what-if.js"></script>
 <script src="../js/topbar.js"></script>
+<script>
+document.addEventListener("input", function(event) {
+    if (event.target.id !== "whatIfIncidentSearch") return;
+    const query = event.target.value.trim().toLowerCase();
+    const panel = document.getElementById("incidentSelectorPanel");
+    if (!panel) return;
+    let visible = 0;
+    panel.querySelectorAll(".incident-selector-item").forEach(item => {
+        const match = item.textContent.toLowerCase().includes(query);
+        item.style.display = match ? "" : "none";
+        if (match) visible++;
+    });
+    let empty = panel.querySelector(".incident-search-empty");
+    if (!empty) { empty = document.createElement("div"); empty.className = "incident-selector-empty incident-search-empty"; panel.appendChild(empty); }
+    empty.textContent = query && visible === 0 ? "No matching incidents found." : "";
+    empty.hidden = !(query && visible === 0);
+});
+</script>
 </body>
 </html>
