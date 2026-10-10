@@ -219,7 +219,17 @@ function renderStages() {
     const attackNodes = observed.map((stage, index) => `<button type="button" class="stage-item stage-path-attack" data-i="${index}" aria-pressed="false"><span class="stage-number">STAGE ${index + 1}</span><span class="stage-name">${esc(pretty(stage))}</span><span class="stage-path-detail">Observed activity · Select to investigate</span></button>`).join('<span class="stage-path-connector" aria-hidden="true"><i class="bi bi-arrow-right"></i></span>');
     const finalNode = `<div class="stage-path-node stage-path-state ${/COMPROMISED/.test(currentState) ? "is-compromised" : /SUSPICIOUS/.test(currentState) ? "is-suspicious" : ""}"><span class="stage-path-icon"><i class="bi bi-shield-exclamation" aria-hidden="true"></i></span><span class="stage-number">CURRENT STATE</span><span class="stage-name">${esc(currentState)}</span><span class="stage-path-detail">Recorded endpoint state</span></div>`;
     const middle = observed.length ? `<span class="stage-path-connector" aria-hidden="true"><i class="bi bi-arrow-right"></i></span>${attackNodes}<span class="stage-path-connector" aria-hidden="true"><i class="bi bi-arrow-right"></i></span>` : '<div class="whatif-empty">No observed attack stages recorded for this incident.</div>';
-    E.stage.innerHTML = `<div class="stage-path">${startNode}${middle}${finalNode}</div>`;
+    const incidentType = String(incident.type || incident.title || incident.name || incident.attackType || "").toLowerCase();
+    const observedText = observed.join(" ").toLowerCase();
+    const isRansomware = /ransomware|encrypt|file.?encrypt/.test(incidentType + " " + observedText);
+    const ransomwareStages = [
+        ["01", "Initial access / execution", "Entry or execution evidence needed", "bi-door-open"],
+        ["02", "File discovery & targeting", "Identify files affected by activity", "bi-folder2-open"],
+        ["03", "Mass file modification", "Look for rapid or repeated file changes", "bi-files"],
+        ["04", "Encryption / ransom impact", "Confirm encryption or ransom artifacts", "bi-lock-fill"]
+    ];
+    const inferredPath = isRansomware ? '<section class="stage-inferred" aria-label="Typical ransomware lifecycle reference"><div class="stage-inferred-heading"><i class="bi bi-diagram-3" aria-hidden="true"></i><div><strong>Typical ransomware lifecycle</strong><span>Reference path · not all stages are confirmed in this incident</span></div><span class="stage-inferred-badge">INFERRED</span></div><div class="stage-inferred-track">' + ransomwareStages.map((item, index) => (index ? '<span class="stage-path-connector" aria-hidden="true"><i class="bi bi-arrow-right"></i></span>' : "") + '<div class="stage-inferred-node"><span class="stage-path-icon"><i class="bi ' + item[3] + '" aria-hidden="true"></i></span><span class="stage-number">PHASE ' + item[0] + '</span><span class="stage-name">' + item[1] + '</span><span class="stage-path-detail">' + item[2] + '</span></div>').join("") + '</div></section>' : "";
+    E.stage.innerHTML = `<div class="stage-path">${startNode}${middle}${finalNode}</div>${inferredPath}`;
     E.stage.querySelectorAll(".stage-item").forEach(button => button.addEventListener("click", () => selectStage(Number(button.dataset.i))));
 }
 
