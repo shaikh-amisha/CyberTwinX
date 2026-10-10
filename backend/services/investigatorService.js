@@ -4,9 +4,9 @@ const {
     getInvestigation
 } = require("./evidenceInvestigationService");
 
-const MISTRAL_API_URL = "https://api.mistral.ai/v1/chat/completions";
-const MISTRAL_MODEL = process.env.MISTRAL_MODEL || "mistral-small-latest";
-const MISTRAL_TIMEOUT_MS = Number(process.env.MISTRAL_TIMEOUT_MS) || 45000;
+const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
+const GROQ_MODEL = process.env.GROQ_MODEL || "openai/gpt-oss-20b";
+const GROQ_TIMEOUT_MS = Number(process.env.GROQ_TIMEOUT_MS) || 45000;
 const MAX_EVIDENCE_ITEMS = 4;
 const MAX_TIMELINE_ITEMS = 4;
 
@@ -216,7 +216,7 @@ function parseInvestigationResponse(content) {
     }
 
     if (typeof content !== "string" || !content.trim()) {
-        throw new Error("Mistral returned an empty response.");
+        throw new Error("Groq returned an empty response.");
     }
 
     const cleaned = content
@@ -233,12 +233,12 @@ function parseInvestigationResponse(content) {
         const firstBrace = cleaned.indexOf("{");
         const lastBrace = cleaned.lastIndexOf("}");
         if (firstBrace < 0 || lastBrace <= firstBrace) {
-            throw new Error("Mistral returned a response that could not be parsed as JSON.");
+            throw new Error("Groq returned a response that could not be parsed as JSON.");
         }
         try {
             parsed = JSON.parse(cleaned.slice(firstBrace, lastBrace + 1));
         } catch {
-            throw new Error("Mistral returned invalid JSON for the investigation response.");
+            throw new Error("Groq returned invalid JSON for the investigation response.");
         }
     }
 
@@ -261,30 +261,30 @@ function parseInvestigationResponse(content) {
    CALL MISTRAL CLOUD API
    ========================================================= */
 
-async function askMistral(question, context) {
-    if (!process.env.MISTRAL_API_KEY) {
-        const error = new Error("MISTRAL_API_KEY is missing. Add it to backend/.env and restart the backend.");
+async function askGroq(question, context) {
+    if (!process.env.GROQ_API_KEY) {
+        const error = new Error("GROQ_API_KEY is missing. Add it to backend/.env and restart the backend.");
         error.statusCode = 503;
         throw error;
     }
 
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), MISTRAL_TIMEOUT_MS);
+    const timeout = setTimeout(() => controller.abort(), GROQ_TIMEOUT_MS);
 
     let response;
     let result;
 
     try {
-        response = await fetch(MISTRAL_API_URL, {
+        response = await fetch(GROQ_API_URL, {
             method: "POST",
             headers: {
-                "Authorization": `Bearer ${process.env.MISTRAL_API_KEY}`,
+                "Authorization": `Bearer ${process.env.GROQ_API_KEY}`,
                 "Content-Type": "application/json",
                 "Accept": "application/json"
             },
             signal: controller.signal,
             body: JSON.stringify({
-                model: MISTRAL_MODEL,
+                model: GROQ_MODEL,
                 messages: buildInvestigationMessages(question, context),
                 temperature: 0.2,
                 max_tokens: 600,
@@ -301,12 +301,12 @@ async function askMistral(question, context) {
         }
     } catch (error) {
         if (error?.name === "AbortError") {
-            const timeoutError = new Error("Mistral request timed out. Try a shorter question or reduce the incident evidence context.");
+            const timeoutError = new Error("Groq request timed out. Try a shorter question or reduce the incident evidence context.");
             timeoutError.statusCode = 504;
             throw timeoutError;
         }
 
-        const networkError = new Error("Could not reach the Mistral API. Check the backend internet connection and try again.");
+        const networkError = new Error("Could not reach the Groq API. Check the backend internet connection and try again.");
         networkError.statusCode = 502;
         networkError.cause = error;
         throw networkError;
@@ -316,27 +316,27 @@ async function askMistral(question, context) {
 
     if (!response.ok) {
         const apiMessage = result?.message || result?.detail || result?.error?.message || result?.error || "";
-        let message = `Mistral API request failed (HTTP ${response.status}).`;
+        let message = `Groq API request failed (HTTP ${response.status}).`;
         let statusCode = 502;
 
         if (response.status === 401 || response.status === 403) {
-            message = "Mistral rejected the API key. Verify MISTRAL_API_KEY in backend/.env and restart the backend.";
+            message = "Groq rejected the API key. Verify GROQ_API_KEY in backend/.env and restart the backend.";
             statusCode = 502;
         } else if (response.status === 429) {
-            message = "Mistral rate limit or free-tier quota reached. Wait for the quota window to reset, or check your Mistral Console usage limits.";
+            message = "Groq rate limit or free-tier quota reached. Wait for the quota window to reset, or check your Groq Console usage limits.";
             statusCode = 429;
         } else if (response.status === 400) {
-            message = `Mistral rejected the request. Verify MISTRAL_MODEL is available to your account and supports JSON response mode. ${String(apiMessage).slice(0, 240)}`;
+            message = `Groq rejected the request. Verify GROQ_MODEL is available to your account and supports JSON response mode. ${String(apiMessage).slice(0, 240)}`;
             statusCode = 502;
         } else if (response.status >= 500) {
-            message = "Mistral is temporarily unavailable. Please retry in a moment.";
+            message = "Groq is temporarily unavailable. Please retry in a moment.";
             statusCode = 503;
         }
 
         const error = new Error(message);
         error.statusCode = statusCode;
         // Do not log or return request headers/API keys.
-        console.error("[CyberTwin] Mistral API error:", response.status, String(apiMessage).slice(0, 240));
+        console.error("[CyberTwin] Groq API error:", response.status, String(apiMessage).slice(0, 240));
         throw error;
     }
 
@@ -356,7 +356,7 @@ async function investigate({ incidentId, question }) {
     }
 
     const context = await buildInvestigationContext(incidentId);
-    const aiResult = await askMistral(String(question).trim(), context);
+    const aiResult = await askGroq(String(question).trim(), context);
 
     return {
         incidentId: context.incident.incidentId,
