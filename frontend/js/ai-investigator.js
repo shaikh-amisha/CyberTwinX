@@ -364,73 +364,34 @@ function renderRecommendations() {
    08. ADD CHAT MESSAGE
    ========================================================= */
 
-function addChatMessage(
-    role,
-    message
-) {
-
-    if (!elements.chatMessages) {
-        return;
-    }
-
-
-    const messageContainer =
-        document.createElement(
-            "div"
-        );
-
-
-    messageContainer.className =
-        `chat-message ${role}`;
-
-
-    const roleName =
-        role === "user"
-            ? "ANALYST"
-            : "CYBERTWIN AI";
-
-
-    const avatar =
-        role === "user"
-            ? '<i class="bi bi-person-fill" aria-hidden="true"></i>'
-            : '<i class="bi bi-stars" aria-hidden="true"></i>';
-
-    messageContainer.innerHTML = `
-
-        <div class="chat-message-header">
-
-            <span class="chat-avatar" aria-hidden="true">
-                ${avatar}
-            </span>
-
-            <span class="chat-role">
-                ${roleName}
-            </span>
-
-        </div>
-
-        <p>
-            ${escapeHTML(message)}
-        </p>
-
-    `;
-
-
-    elements.chatMessages.appendChild(
-        messageContainer
-    );
-
-
-    /*
-        Automatically move the chat
-        to the latest message.
-    */
-
-    elements.chatMessages.scrollTop =
-        elements.chatMessages.scrollHeight;
-
+function addChatMessage(role, message) {
+    if (!elements.chatMessages) return;
+    const cleanMessage = String(message ?? "").replace(/\r\n?/g, "\n").trim();
+    if (!cleanMessage) return null;
+    const messageContainer = document.createElement("div");
+    messageContainer.className = "chat-message " + (role === "user" ? "user" : "assistant");
+    const header = document.createElement("div"); header.className = "chat-message-header";
+    const avatar = document.createElement("span"); avatar.className = "chat-avatar"; avatar.setAttribute("aria-hidden", "true");
+    avatar.innerHTML = role === "user" ? '<i class="bi bi-person-fill" aria-hidden="true"></i>' : '<i class="bi bi-stars" aria-hidden="true"></i>';
+    const roleLabel = document.createElement("span"); roleLabel.className = "chat-role"; roleLabel.textContent = role === "user" ? "ANALYST" : "CYBERTWIN AI";
+    header.append(avatar, roleLabel);
+    const content = document.createElement("p"); content.className = "chat-message-content"; content.textContent = cleanMessage;
+    messageContainer.append(header, content); elements.chatMessages.appendChild(messageContainer);
+    requestAnimationFrame(() => { elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight; });
+    return messageContainer;
 }
 
+function showTypingIndicator() {
+    if (!elements.chatMessages || document.getElementById("aiTypingIndicator")) return;
+    const indicator = document.createElement("div"); indicator.id = "aiTypingIndicator";
+    indicator.className = "chat-message assistant chat-typing"; indicator.setAttribute("role", "status");
+    indicator.setAttribute("aria-label", "CyberTwin AI is thinking");
+    const label = document.createElement("span"); label.className = "chat-typing-label"; label.textContent = "CyberTwin AI is analyzing";
+    const dots = document.createElement("span"); dots.className = "chat-typing-dots"; dots.setAttribute("aria-hidden", "true"); dots.innerHTML = "<i></i><i></i><i></i>";
+    indicator.append(label, dots); elements.chatMessages.appendChild(indicator);
+    requestAnimationFrame(() => { elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight; });
+}
+function removeTypingIndicator() { document.getElementById("aiTypingIndicator")?.remove(); }
 
 /* =========================================================
    09. INCIDENT SELECTOR
@@ -533,7 +494,7 @@ function resetAIConversation(incident) {
     const incidentLabel = incident?.incidentId || "the selected incident";
     addChatMessage(
         "ai",
-        `Hello! I'm the CyberTwinX AI Investigator. How can I help you with ${incidentLabel}? I can analyze its Incident Twin, timeline, and available evidence.`
+        `Hello! I'm CyberTwin AI. How can I help you with ${incidentLabel}? I can analyze its Incident Twin, timeline, and available evidence.`
     );
 }
 
@@ -653,20 +614,18 @@ async function askInvestigator() {
     }
 
 
-    addChatMessage(
-        "user",
-        question
-    );
+    if (elements.askButton.disabled) return;
+
+    addChatMessage("user", question);
 
 
     elements.questionInput.value = "";
 
 
-    elements.askButton.disabled =
-        true;
-
-    elements.askButton.textContent =
-        "ANALYZING...";
+    elements.askButton.disabled = true;
+    elements.askButton.textContent = "ANALYZING...";
+    elements.questionInput.disabled = true;
+    showTypingIndicator();
 
 
     try {
@@ -695,7 +654,8 @@ async function askInvestigator() {
 
                     body: JSON.stringify({
                         incidentId,
-                        question
+                        question: question.trim(),
+                        query: question.trim()
                     })
                 }
             );
@@ -894,18 +854,16 @@ async function askInvestigator() {
         );
 
 
-        addChatMessage(
-            "ai",
-            "Unable to process the investigation request. Please try again."
-        );
+        addChatMessage("ai", error.message && !/failed to fetch/i.test(error.message)
+            ? "I couldn’t complete that analysis: " + error.message
+            : "I couldn’t reach the investigation service. Please check that the backend is running and try again.");
 
     } finally {
 
-        elements.askButton.disabled =
-            false;
-
-        elements.askButton.textContent =
-            "Ask Investigator";
+        removeTypingIndicator();
+        elements.askButton.disabled = false;
+        elements.questionInput.disabled = false;
+        elements.askButton.textContent = "Ask Investigator";
 
     }
 
