@@ -698,3 +698,191 @@
 .stage-evidence-derived .stage-inferred-node { border-color: rgba(53, 168, 255, .25); }
 .stage-evidence-derived .stage-inferred-node .stage-path-icon { color: #35a8ff; border-color: rgba(53, 168, 255, .3); background: rgba(53, 168, 255, .08); }
 .stage-evidence-derived .stage-inferred-node .stage-number { color: #35a8ff; }
+
+/* Counterfactual result: clearer risk, state, and path-status indication */
+#resultsCard .card-heading {
+    margin-bottom: 18px;
+}
+#resultsCard .card-heading h3 {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 17px;
+    letter-spacing: .01em;
+}
+#resultsCard .card-heading h3::before {
+    content: "";
+    display: inline-block;
+    width: 4px;
+    height: 19px;
+    border-radius: 4px;
+    background: linear-gradient(180deg, #39d98a, #35a8ff);
+}
+#resultsCard .card-heading p {
+    margin-top: 7px;
+    color: #a8b6c9;
+}
+#resultsCard .result-metrics {
+    gap: 12px;
+}
+#resultsCard .result-metric {
+    position: relative;
+    overflow: hidden;
+    min-height: 84px;
+    padding: 15px 16px;
+    border-color: rgba(139, 161, 188, .22);
+    background: linear-gradient(145deg, rgba(20, 31, 46, .98), rgba(12, 20, 32, .98));
+}
+#resultsCard .result-metric::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 3px;
+    background: #35a8ff;
+    opacity: .9;
+}
+#resultsCard .result-metric:nth-child(1)::before { background: #39d98a; }
+#resultsCard .result-metric:nth-child(2)::before { background: #35a8ff; }
+#resultsCard .result-metric:nth-child(3)::before { background: #f4b740; }
+#resultsCard .result-metric > span {
+    display: block;
+    margin-bottom: 8px;
+    color: #a7b5c8;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .045em;
+    text-transform: uppercase;
+}
+#resultsCard .result-metric strong {
+    display: block;
+    color: #f1f6ff;
+    font-size: clamp(17px, 1.35vw, 21px);
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+    font-variant-numeric: tabular-nums;
+}
+#resultsCard .path-comparison {
+    gap: 14px;
+}
+#resultsCard .path-panel {
+    position: relative;
+    overflow: hidden;
+    padding: 17px;
+    border-color: rgba(139, 161, 188, .22);
+    background: linear-gradient(145deg, rgba(16, 26, 40, .98), rgba(10, 17, 28, .98));
+}
+#resultsCard .path-panel::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto;
+    height: 2px;
+    background: #8494aa;
+}
+#resultsCard .path-panel:first-child::before { background: #71839b; }
+#resultsCard .whatif-path-panel::before { background: linear-gradient(90deg, #35a8ff, #39d98a); }
+#resultsCard .path-panel-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 13px;
+    color: #f1f6ff;
+    font-size: 13px;
+    letter-spacing: .015em;
+}
+#resultsCard .path-panel-title::before {
+    content: "";
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #8b9bb0;
+}
+#resultsCard .whatif-path-panel .path-panel-title::before {
+    background: #39d98a;
+    box-shadow: 0 0 9px rgba(57, 217, 138, .35);
+}
+#resultsCard .path-panel ol {
+    display: grid;
+    gap: 5px;
+    padding-left: 27px;
+    counter-reset: path-step;
+}
+#resultsCard .path-panel li {
+    position: relative;
+    min-height: 34px;
+    padding: 8px 10px;
+    border: 1px solid transparent;
+    border-radius: 7px;
+    color: #cbd5e3;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+}
+#resultsCard .path-panel li::marker {
+    color: #8394aa;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+}
+#resultsCard .whatif-path-panel li.applied {
+    border-color: rgba(57, 217, 138, .35);
+    background: rgba(20, 89, 61, .22);
+    color: #65edaa;
+    font-weight: 750;
+    text-decoration: none;
+}
+#resultsCard .whatif-path-panel li.applied::after {
+    content: "APPLIED";
+    display: inline-block;
+    margin-left: 8px;
+    padding: 3px 6px;
+    border: 1px solid rgba(57, 217, 138, .38);
+    border-radius: 4px;
+    color: #65edaa;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: .07em;
+    vertical-align: 1px;
+}
+#resultsCard .whatif-path-panel li.disabled-stage {
+    border-color: rgba(139, 161, 188, .08);
+    background: rgba(8, 13, 22, .38);
+    color: #7f8b9d;
+    text-decoration: line-through;
+    text-decoration-color: rgba(127, 139, 157, .75);
+}
+#resultsCard .result-reading {
+    gap: 14px;
+    margin-top: 17px;
+    padding-top: 17px;
+}
+#resultsCard .result-reading > div {
+    padding: 12px 14px;
+    border: 1px solid rgba(139, 161, 188, .15);
+    border-radius: 8px;
+    background: rgba(8, 15, 25, .42);
+}
+#resultsCard .result-reading > div:first-child {
+    border-left: 3px solid #39d98a;
+}
+#resultsCard .result-reading > div:last-child {
+    border-left: 3px solid #f4b740;
+}
+#resultsCard .result-reading span {
+    display: block;
+    margin-bottom: 7px;
+    color: #a7b5c8;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+#resultsCard .result-reading p {
+    color: #d4deeb;
+    line-height: 1.6;
+}
+@media (max-width: 600px) {
+    #resultsCard .result-metric { min-height: 0; }
+    #resultsCard .result-reading { gap: 10px; }
+    #resultsCard .path-panel { padding: 13px; }
+    #resultsCard .whatif-path-panel li.applied::after { margin: 5px 0 0; }
+}
+
