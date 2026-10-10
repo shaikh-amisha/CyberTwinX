@@ -13,6 +13,35 @@ function getSecurityState(score) {
     return "NORMAL";
 }
 
+/*
+ * Aggregate independent active incidents with diminishing returns.
+ *
+ * A straight sum makes the global score jump too quickly (for example,
+ * two incidents scored 50 each immediately produce 100). Instead, each
+ * incident contributes its risk against the remaining risk capacity:
+ *
+ * combined = 100 * (1 - product(1 - incidentScore / 100))
+ *
+ * This is order-independent, always bounded to 0..100, and ensures that
+ * each additional active incident raises risk while its marginal increase
+ * gets smaller as the endpoint approaches the upper end of the scale.
+ * Per-incident scores and evidence counts remain unchanged in breakdown.
+ */
+function combineIncidentRiskScores(incidents = []) {
+    let remainingSafety = 1;
+
+    for (const incident of incidents) {
+        const incidentScore = Math.max(
+            0,
+            Math.min(100, Number(incident?.riskScore) || 0)
+        );
+
+        remainingSafety *= 1 - incidentScore / 100;
+    }
+
+    return Math.round((1 - remainingSafety) * 100);
+}
+
 async function aggregateActiveIncidentRisk(endpointId) {
     const incidents = await IncidentTwin.find({
         endpointId,
@@ -21,13 +50,7 @@ async function aggregateActiveIncidentRisk(endpointId) {
         }
     }).lean();
 
-    const rawScore = incidents.reduce(
-        (total, incident) =>
-            total + Number(incident.riskScore || 0),
-        0
-    );
-
-    const score = Math.min(rawScore, 100);
+    const score = combineIncidentRiskScores(incidents);
 
     const breakdown = incidents.map(incident => ({
         type: incident.incidentType || "SECURITY_INCIDENT",
@@ -52,5 +75,6 @@ async function aggregateActiveIncidentRisk(endpointId) {
 }
 
 module.exports = {
-    aggregateActiveIncidentRisk
+    aggregateActiveIncidentRisk,
+    combineIncidentRiskScores
 };
