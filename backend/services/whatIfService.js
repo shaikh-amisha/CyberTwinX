@@ -1781,6 +1781,11 @@ async function getWhatIfContext({
                     incident.timeline
                 )
                     ? incident.timeline
+                    : [],
+
+            evidence:
+                Array.isArray(incident.evidence)
+                    ? incident.evidence
                     : []
 
         },
