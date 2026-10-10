@@ -240,7 +240,7 @@ function renderStages() {
         const canonical = canon(label);
         if (evidenceSeen.has(canonical)) return;
         evidenceSeen.add(canonical);
-        evidenceStages.push({ label, count: 1, ids: [] });
+        evidenceStages.push({ label, count: 0, ids: [] });
     });
     rawEvidence.forEach(item => {
         const raw = String(item.type || item.category || item.attackType || item.title || "").trim();
