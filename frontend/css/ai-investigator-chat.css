@@ -223,3 +223,78 @@
     .ai-chat-secure { font-size: 9px; padding: 6px 7px; }
     .ai-chat-bot-icon { width: 37px; height: 37px; flex-basis: 37px; }
 }
+
+
+/* Compact conversation layout: prioritize message space over repeated headers */
+.ai-chat-card {
+    height: clamp(540px, 68vh, 760px);
+    min-height: 0;
+}
+.ai-chat-card .chat-messages {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: none;
+    gap: 14px;
+    padding: 18px 22px;
+    background-color: rgba(7, 14, 25, .62);
+}
+.ai-chat-toolbar {
+    min-height: 54px;
+    padding: 9px 18px;
+}
+.ai-chat-bot-icon {
+    width: 32px;
+    height: 32px;
+    flex-basis: 32px;
+    border-radius: 9px;
+    font-size: 16px;
+}
+.ai-chat-identity { gap: 9px; }
+.ai-chat-identity strong { font-size: 12px; }
+.ai-chat-identity div > span { margin-top: 2px; font-size: 10px; }
+.ai-chat-secure { padding: 5px 8px; font-size: 9px; }
+.ai-chat-card .chat-message {
+    width: min(84%, 760px);
+    border-radius: 12px;
+}
+.ai-chat-card .chat-message.user { width: min(72%, 640px); }
+.ai-chat-card .chat-message-header {
+    min-height: 0;
+    gap: 8px;
+    padding: 7px 11px;
+}
+.ai-chat-card .chat-avatar {
+    width: 24px;
+    height: 24px;
+    flex-basis: 24px;
+    border-radius: 7px;
+    font-size: 12px;
+}
+.ai-chat-card .chat-role {
+    font-size: 10px;
+    letter-spacing: .045em;
+}
+.ai-chat-card .chat-message > p {
+    margin: 0;
+    padding: 11px 14px 13px;
+    color: #d3dfed;
+    font-size: 13px;
+    line-height: 1.65;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+.ai-chat-card .chat-input-area {
+    flex: 0 0 auto;
+    padding: 12px 16px;
+}
+.ai-chat-card .chat-input-area input,
+.ai-chat-card .chat-input-area .primary-button {
+    min-height: 44px;
+}
+@media (max-width: 720px) {
+    .ai-chat-card { height: 68vh; min-height: 460px; }
+    .ai-chat-card .chat-messages { padding: 12px; gap: 12px; }
+    .ai-chat-card .chat-message,
+    .ai-chat-card .chat-message.user { width: 96%; }
+    .ai-chat-toolbar { padding: 9px 12px; }
+}
