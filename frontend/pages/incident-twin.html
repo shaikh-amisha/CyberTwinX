@@ -23,6 +23,45 @@
 
 
 <style>
+/* Always-visible incident search */
+.incident-search-visible {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    margin: 14px 0;
+    padding: 0 14px;
+    min-height: 46px;
+    box-sizing: border-box;
+    border: 1px solid rgba(67, 157, 255, 0.42);
+    border-radius: 10px;
+    background: rgba(8, 19, 35, 0.82);
+    transition: border-color .2s ease, box-shadow .2s ease;
+}
+.incident-search-visible:focus-within {
+    border-color: #4ea1ff;
+    box-shadow: 0 0 0 3px rgba(78, 161, 255, 0.12);
+}
+.incident-search-visible .incident-search-icon {
+    color: #65b4ff;
+    flex: 0 0 auto;
+}
+.incident-search-visible .incident-search {
+    width: 100%;
+    min-width: 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: #eaf4ff;
+    padding: 12px 0;
+}
+.incident-search-visible .incident-search::placeholder {
+    color: #8da4bd;
+}
+.incident-search-visible .incident-search::-webkit-search-cancel-button {
+    cursor: pointer;
+}
+
 /* =========================================================
    INCIDENT TWIN — EVIDENCE SEVERITY / STATUS COLORS
    ========================================================= */
@@ -488,6 +527,18 @@
                     </span>
                 </div>
 
+                <div class="incident-search-wrapper incident-search-visible">
+                    <span class="incident-search-icon"><i class="bi bi-search" aria-hidden="true"></i></span>
+                    <input
+                        type="search"
+                        id="incidentSearch"
+                        class="incident-search"
+                        placeholder="Search incidents by ID, endpoint, type, state, evidence..."
+                        autocomplete="off"
+                        aria-label="Search incidents"
+                    >
+                </div>
+
                 <button
                     type="button"
                     class="incident-selector-trigger"
@@ -511,19 +562,7 @@
                     hidden
                 >
 
-                    <div class="incident-search-wrapper">
-                        <span class="incident-search-icon"><i class="bi bi-search" aria-hidden="true"></i></span>
-
-                        <input
-                            type="search"
-                            id="incidentSearch"
-                            class="incident-search"
-                            placeholder="Search incident, endpoint, type, state..."
-                            autocomplete="off"
-                        >
-                    </div>
-
-                    <div
+                        <div
                         class="incident-selector-list"
                         id="incidentSelectorList"
                     >
