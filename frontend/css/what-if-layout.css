@@ -675,3 +675,20 @@
     .stage-path .stage-item { flex-basis: 170px; }
     .stage-path-connector { min-width: 18px; }
 }
+
+/* Clearly separated reference lifecycle for ransomware incidents */
+.stage-inferred { margin-top: 18px; padding: 16px; border: 1px dashed rgba(244, 183, 64, .34); border-radius: 12px; background: rgba(22, 22, 28, .55); }
+.stage-inferred-heading { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; color: #f4b740; }
+.stage-inferred-heading > i { font-size: 20px; }
+.stage-inferred-heading div { display: flex; flex: 1; flex-direction: column; gap: 4px; }
+.stage-inferred-heading strong { color: #eef5ff; font-size: 13px; }
+.stage-inferred-heading span { color: #9baabd; font-size: 11px; line-height: 1.4; }
+.stage-inferred-badge { padding: 5px 8px; border: 1px solid rgba(244, 183, 64, .4); border-radius: 6px; color: #f4b740 !important; font-size: 9px !important; font-weight: 800; letter-spacing: .08em; }
+.stage-inferred-track { display: flex; align-items: stretch; gap: 8px; overflow-x: auto; padding: 2px 2px 8px; }
+.stage-inferred-node { box-sizing: border-box; display: flex; flex: 0 0 190px; flex-direction: column; align-items: flex-start; gap: 7px; min-height: 130px; padding: 12px; border: 1px solid rgba(244, 183, 64, .24); border-radius: 9px; background: linear-gradient(160deg, rgba(29, 31, 40, .98), rgba(12, 18, 29, .98)); }
+.stage-inferred-node .stage-path-icon { color: #f4b740; border-color: rgba(244, 183, 64, .3); background: rgba(244, 183, 64, .08); }
+.stage-inferred-node .stage-number { color: #f4b740; }
+.stage-inferred-node .stage-name { font-size: 12px; }
+.stage-inferred-node .stage-path-detail { font-size: 10px; }
+.stage-inferred-track .stage-path-connector { min-width: 20px; color: #f4b740; }
+@media (max-width: 600px) { .stage-inferred { padding: 12px; } .stage-inferred-node { flex-basis: 170px; } .stage-inferred-heading { align-items: flex-start; } }
