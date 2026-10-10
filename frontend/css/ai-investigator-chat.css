@@ -378,3 +378,17 @@ body:has(.ai-chat-card) { overflow-y: auto; }
     .ai-chat-card .chat-message.user,
     .ai-chat-card .chat-typing { max-width: 90%; }
 }
+
+
+/* Slightly taller AI conversation workspace */
+.ai-chat-card {
+    height: calc(100vh - 320px);
+    min-height: 560px;
+    max-height: 860px;
+}
+@media (max-width: 720px) {
+    .ai-chat-card {
+        height: calc(100vh - 260px);
+        min-height: 460px;
+    }
+}
