@@ -90,15 +90,21 @@ async function buildInvestigationContext(incidentId) {
     let endpoint = null;
     let evidenceInvestigation = null;
 
-    try {
-        [endpoint, evidenceInvestigation] = await Promise.all([
-            findEndpoint(incident),
-            getInvestigation(incident.incidentId)
-        ]);
-    } catch (error) {
-        // Endpoint details are helpful but should not prevent an investigation
-        // when a related record is temporarily unavailable.
-        console.warn("[CyberTwin] Additional investigation context unavailable:", error.message);
+    const [endpointResult, investigationResult] = await Promise.allSettled([
+        findEndpoint(incident),
+        getInvestigation(incident.incidentId)
+    ]);
+
+    if (endpointResult.status === "fulfilled") {
+        endpoint = endpointResult.value;
+    } else {
+        console.warn("[CyberTwin] Endpoint context unavailable:", endpointResult.reason?.message);
+    }
+
+    if (investigationResult.status === "fulfilled") {
+        evidenceInvestigation = investigationResult.value;
+    } else {
+        console.warn("[CyberTwin] Evidence investigation unavailable:", investigationResult.reason?.message);
     }
 
     const investigation = evidenceInvestigation || {};
