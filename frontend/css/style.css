@@ -11654,3 +11654,22 @@ body::before {
     position: relative;
     z-index: 1;
 }
+
+
+/* Evidence search and results share one bordered container. */
+.evidence-results-container {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-medium);
+    background: rgba(7, 12, 19, 0.72);
+}
+
+.evidence-search-wrapper {
+    width: 100%;
+    margin: 0 0 12px;
+}
+
+.evidence-results-container .evidence-list {
+    margin-top: 0;
+}
