@@ -886,3 +886,17 @@
     #resultsCard .whatif-path-panel li.applied::after { margin: 5px 0 0; }
 }
 
+
+
+/* Keep the evidence search field inside the evidence-results panel. */
+.whatif-evidence-results-container {
+    padding: 12px;
+    border: 1px solid var(--wi-border);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.015);
+}
+
+.whatif-evidence-results-container .evidence-search-wrapper {
+    width: 100%;
+    margin: 0 0 12px;
+}
