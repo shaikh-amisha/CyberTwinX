@@ -111,6 +111,9 @@ const elements = {
     evidenceList:
         document.getElementById("evidenceList"),
 
+    evidenceSearch:
+        document.getElementById("evidenceSearch"),
+
     missingEvidenceList:
         document.getElementById("missingEvidenceList"),
 
@@ -1525,11 +1528,42 @@ function renderEvidenceDetails() {
         }
     );
 
+    applyEvidenceSearch();
+
 }
 
 
 /* =========================================================
-   22. RENDER MISSING EVIDENCE
+   22. FILTER AVAILABLE EVIDENCE
+========================================================= */
+
+function applyEvidenceSearch() {
+    const container = elements.evidenceList;
+    if (!container) return;
+
+    const query = String(elements.evidenceSearch?.value || "").trim().toLowerCase();
+    const cards = [...container.querySelectorAll(".evidence-card")];
+    let visible = 0;
+
+    cards.forEach(card => {
+        const matches = card.textContent.toLowerCase().includes(query);
+        card.hidden = !matches;
+        if (matches) visible++;
+    });
+
+    let empty = container.querySelector(".evidence-search-empty");
+    if (!empty) {
+        empty = document.createElement("div");
+        empty.className = "evidence-empty evidence-search-empty";
+        container.appendChild(empty);
+    }
+
+    empty.textContent = query && visible === 0 ? "No matching evidence found." : "";
+    empty.hidden = !(query && visible === 0);
+}
+
+/* =========================================================
+   23. RENDER MISSING EVIDENCE
 ========================================================= */
 
 function renderMissingEvidence() {
@@ -1998,6 +2032,8 @@ function initializeEvidencePage() {
 
 
     initializeIncidentSelector();
+
+    elements.evidenceSearch?.addEventListener("input", applyEvidenceSearch);
 
     initializeReevaluation();
 
