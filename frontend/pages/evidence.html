@@ -573,23 +573,17 @@
                     id="evidenceDetails"
                 >
 
+                    <div class="evidence-results-container">
                     <div class="incident-search-wrapper evidence-search-wrapper">
                         <span class="incident-search-icon"><i class="bi bi-search" aria-hidden="true"></i></span>
                         <input type="search" id="evidenceSearch" class="incident-search" placeholder="Search available evidence..." autocomplete="off" aria-label="Search available evidence">
                     </div>
 
-                    <!-- Dynamic evidence records are rendered here -->
-
-                    <div
-                        class="evidence-list"
-                        id="evidenceList"
-                    >
-
-                        <div class="evidence-empty">
-                            Loading evidence...
-                        </div>
-
+                    <!-- Dynamic evidence records render inside the same container as search. -->
+                    <div class="evidence-list" id="evidenceList">
+                        <div class="evidence-empty">Loading evidence...</div>
                     </div>
+                </div>
 
                 </div>
 
