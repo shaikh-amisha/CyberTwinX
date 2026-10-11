@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/what-if-layout.css">
     <style>
-.incident-dropdown-search{display:none;align-items:center;gap:9px;padding:9px 12px;margin:6px 8px 10px;border:1px solid rgba(74,150,230,.4);border-radius:8px;background:rgba(8,19,35,.78);color:#72b8ff}.incident-selector.open .incident-dropdown-search{display:flex}.incident-dropdown-search input{min-width:0;width:100%;border:0;outline:0;background:transparent;color:#eaf4ff;font:inherit}.incident-dropdown-search input::placeholder{color:#8da4bd}
+.incident-dropdown-search{display:none}.incident-selector.open .incident-dropdown-search{display:block}
     </style>
 </head>
 <body>
@@ -73,7 +73,7 @@
                     <div class="incident-selector" id="incidentSelector">
                         <div class="incident-selector-current" id="selectedIncidentLabel">Loading incidents...</div>
                         <span class="incident-selector-arrow"><i class="bi bi-chevron-down" aria-hidden="true"></i></span>
-                        <div class="incident-search-wrapper incident-dropdown-search"><i class="bi bi-search" aria-hidden="true"></i><input type="search" id="whatIfIncidentSearch" placeholder="Search incidents..." autocomplete="off" aria-label="Search incidents"></div>
+                        <div class="incident-search-wrapper incident-dropdown-search"><span class="incident-search-icon"><i class="bi bi-search" aria-hidden="true"></i></span><input type="search" id="whatIfIncidentSearch" class="incident-search" placeholder="Search incident, endpoint, type, state..." autocomplete="off" aria-label="Search incidents"></div>
                         <div class="incident-selector-panel" id="incidentSelectorPanel"><div class="incident-selector-empty">Loading incidents...</div></div>
                     </div>
                 </div>
