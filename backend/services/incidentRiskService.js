@@ -57,7 +57,9 @@ async function aggregateActiveIncidentRisk(endpointId) {
         currentState: {
             $nin: ["RESOLVED", "CONTAINED"]
         }
-    }).lean();
+    })
+        .sort({ lastSeenAt: -1, updatedAt: -1, createdAt: -1 })
+        .lean();
 
     const score = combineIncidentRiskScores(incidents);
 
@@ -67,7 +69,8 @@ async function aggregateActiveIncidentRisk(endpointId) {
         score: Number(incident.riskScore || 0),
         count: Array.isArray(incident.evidence) ? incident.evidence.length : 1,
         description: (incident.incidentType || "Security incident") + " is active on the endpoint.",
-        incidentId: incident.incidentId
+        incidentId: incident.incidentId,
+        lastSeenAt: incident.lastSeenAt || incident.updatedAt || incident.createdAt || null
     }));
 
     return {
