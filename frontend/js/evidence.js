@@ -1547,7 +1547,7 @@ function applyEvidenceSearch() {
 
     cards.forEach(card => {
         const matches = card.textContent.toLowerCase().includes(query);
-        card.hidden = !matches;
+        card.style.display = matches ? "" : "none";
         if (matches) visible++;
     });
 
@@ -1559,7 +1559,7 @@ function applyEvidenceSearch() {
     }
 
     empty.textContent = query && visible === 0 ? "No matching evidence found." : "";
-    empty.hidden = !(query && visible === 0);
+    empty.style.display = query && visible === 0 ? "" : "none";
 }
 
 /* =========================================================
