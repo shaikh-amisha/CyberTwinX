@@ -88,11 +88,13 @@
                 <article class="whatif-card">
                     <div class="card-heading"><div><h3>Evidence</h3><p>Evidence connected to the selected attack stage.</p></div></div>
                     <div class="evidence-summary"><div><span>Events</span><strong id="evidenceEventCount">0</strong></div><div><span>Confidence</span><strong id="evidenceConfidence">0%</strong></div></div>
-                    <div class="incident-search-wrapper evidence-search-wrapper">
-                        <span class="incident-search-icon"><i class="bi bi-search" aria-hidden="true"></i></span>
-                        <input type="search" id="whatIfEvidenceSearch" class="incident-search" placeholder="Search available evidence..." autocomplete="off" aria-label="Search available evidence">
+                    <div class="evidence-results-container whatif-evidence-results-container">
+                        <div class="incident-search-wrapper evidence-search-wrapper">
+                            <span class="incident-search-icon"><i class="bi bi-search" aria-hidden="true"></i></span>
+                            <input type="search" id="whatIfEvidenceSearch" class="incident-search" placeholder="Search available evidence..." autocomplete="off" aria-label="Search available evidence">
+                        </div>
+                        <ul class="evidence-list" id="evidenceList"><li class="whatif-empty">Select a stage.</li></ul>
                     </div>
-                    <ul class="evidence-list" id="evidenceList"><li class="whatif-empty">Select a stage.</li></ul>
                     <p class="model-interpretation" id="modelInterpretation">Select a stage to inspect the supporting evidence.</p>
                 </article>
 
