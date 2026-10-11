@@ -1,10 +1,10 @@
 const WHAT_IF_API = "http://localhost:5000/api/what-if";
 
-const S = { context: null, incidents: [], incidentId: null, stage: null, response: null, simulation: null, options: [] };
+const S = { context: null, incidents: [], incidentId: null, stage: null, response: null, simulation: null, options: [], stageEvidence: [] };
 const $ = id => document.getElementById(id);
 const E = {
     stage: $("stageTimeline"), details: $("stageDetails"), bar: $("actionBarCard"), results: $("resultsCard"),
-    eCount: $("evidenceEventCount"), confidence: $("evidenceConfidence"), evidence: $("evidenceList"), interpretation: $("modelInterpretation"),
+    eCount: $("evidenceEventCount"), confidence: $("evidenceConfidence"), evidence: $("evidenceList"), evidenceSearch: $("whatIfEvidenceSearch"), interpretation: $("modelInterpretation"),
     responses: $("responseOptions"), modeled: $("modeledDataBadge"), selection: $("actionSelectionText"), run: $("runSimulation"),
     reject: $("rejectResponse"), approve: $("approveResponse"), error: $("actionError"), confirm: $("decisionConfirmation"),
     risk: $("riskChangeMetric"), paths: $("attackPathsMetric"), state: $("securityStateMetric"), actual: $("actualPath"), whatif: $("whatIfPath"),
@@ -347,10 +347,20 @@ async function selectStage(index) {
 
 function renderEvidence(stage) {
     const records = evidence(stage), f = finding(stage), count = records.reduce((sum, x) => sum + Math.max(1, n(x.count, 1)), 0), confidence = getIncidentConfidence();
+    S.stageEvidence = records;
     E.eCount.textContent = count;
     E.confidence.textContent = `${confidence}%`;
-    E.evidence.innerHTML = records.slice(0, 3).map(x => `<li class="evidence-item"><strong>${esc(pretty(x.type || x.category || "Evidence"))}</strong><span>${esc(x.description || `${pretty(x.source || "Recorded evidence")} · ${pretty(x.severity || "Supporting")}`)}</span></li>`).join("") || '<li class="whatif-empty">No evidence recorded for this stage.</li>';
+    renderFilteredEvidence();
     E.interpretation.textContent = f?.description || `The Incident Twin recorded ${pretty(stage)} as an observed stage with ${count} supporting event${count === 1 ? "" : "s"}.`;
+}
+
+function renderFilteredEvidence() {
+    const query = String(E.evidenceSearch?.value || "").trim().toLowerCase();
+    const matches = S.stageEvidence.filter(item => [
+        item.type, item.category, item.description, item.source, item.severity, item.evidenceId
+    ].some(value => String(value || "").toLowerCase().includes(query)));
+    E.evidence.innerHTML = matches.slice(0, 3).map(x => `<li class="evidence-item"><strong>${esc(pretty(x.type || x.category || "Evidence"))}</strong><span>${esc(x.description || `${pretty(x.source || "Recorded evidence")} · ${pretty(x.severity || "Supporting")}`)}</span></li>`).join("") ||
+        `<li class="whatif-empty">${query ? "No matching evidence found." : "No evidence recorded for this stage."}</li>`;
 }
 
 function normalizeResponse(x) {
@@ -427,6 +437,7 @@ async function decide(decision) {
 
 E.incidentSelector?.addEventListener("click", event => { if (event.target.closest(".incident-selector-item") || event.target.closest(".incident-dropdown-search")) return; toggleIncidentSelector(); });
 document.addEventListener("click", event => { if (E.incidentSelector && !E.incidentSelector.contains(event.target)) closeIncidentSelector(); });
+E.evidenceSearch?.addEventListener("input", renderFilteredEvidence);
 E.run?.addEventListener("click", run);
 E.approve?.addEventListener("click", () => decide("APPROVED"));
 E.reject?.addEventListener("click", () => decide("REJECTED"));
