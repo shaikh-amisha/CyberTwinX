@@ -1236,8 +1236,16 @@ function updateSecurityActivity() {
      * DYNAMIC FINDING CARDS
      */
 
+    const latestFindings = [...findings]
+        .sort((a, b) => {
+            const timeA = new Date(a.lastSeenAt || 0).getTime();
+            const timeB = new Date(b.lastSeenAt || 0).getTime();
+            return timeB - timeA;
+        })
+        .slice(0, 4);
+
     elements.securityActivity.innerHTML =
-        findings
+        latestFindings
             .map(
                 (
                     finding,
