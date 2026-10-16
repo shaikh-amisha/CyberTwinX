@@ -142,6 +142,30 @@
                 </div>
             </div>
 
+            <!-- Incident lookup: loads integrity data for the entered incident ID. -->
+            <form class="incident-search" id="incidentSearchForm" role="search">
+                <label for="incidentSearchInput">
+                    <i class="bi bi-search" aria-hidden="true"></i>
+                    FIND INCIDENT IN BLOCKCHAIN INTEGRITY
+                </label>
+                <div class="incident-search-controls">
+                    <input
+                        id="incidentSearchInput"
+                        name="incidentId"
+                        type="search"
+                        placeholder="Enter incident ID (e.g. INC-004)"
+                        autocomplete="off"
+                        aria-describedby="incidentSearchHint"
+                        required
+                    >
+                    <button type="submit" class="incident-search-button">
+                        <i class="bi bi-search" aria-hidden="true"></i>
+                        <span>Search</span>
+                    </button>
+                </div>
+                <small id="incidentSearchHint">Search by incident ID to load its evidence hashes, Merkle root and on-chain anchor.</small>
+            </form>
+
             <!-- 01 INTEGRITY OVERVIEW -->
             <section class="dashboard-section">
                 <div class="section-heading">
