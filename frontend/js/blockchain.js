@@ -48,6 +48,8 @@ const elements = {
     sidebarSystemStatus: document.getElementById("sidebarSystemStatus"),
 
     pageLiveStatus: document.getElementById("pageLiveStatus"),
+    incidentSearchForm: document.getElementById("incidentSearchForm"),
+    incidentSearchInput: document.getElementById("incidentSearchInput"),
 
     incidentKpi: document.getElementById("incidentKpi"),
     evidenceCountKpi: document.getElementById("evidenceCountKpi"),
@@ -1086,6 +1088,25 @@ async function refreshBlockchainPage() {
 }
 
 function initializeBlockchainPage() {
+    const currentIncidentId = urlParams.get("incidentId");
+    if (elements.incidentSearchInput && currentIncidentId) {
+        elements.incidentSearchInput.value = currentIncidentId;
+    }
+
+    if (elements.incidentSearchForm) {
+        elements.incidentSearchForm.addEventListener("submit", event => {
+            event.preventDefault();
+            const incidentId = elements.incidentSearchInput?.value.trim().toUpperCase();
+            if (!incidentId) {
+                elements.incidentSearchInput?.focus();
+                return;
+            }
+
+            // Navigate with the explicit ID so every integrity view stays tied to this incident.
+            window.location.href = `./blockchain.html?incidentId=${encodeURIComponent(incidentId)}`;
+        });
+    }
+
     loadBlockchainData();
 
     if (elements.verifyIntegrityButton) {
