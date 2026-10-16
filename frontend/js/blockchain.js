@@ -48,6 +48,8 @@ const elements = {
     sidebarSystemStatus: document.getElementById("sidebarSystemStatus"),
 
     pageLiveStatus: document.getElementById("pageLiveStatus"),
+    incidentSearchForm: document.getElementById("incidentSearchForm"),
+    incidentSearchInput: document.getElementById("incidentSearchInput"),
 
     incidentKpi: document.getElementById("incidentKpi"),
     evidenceCountKpi: document.getElementById("evidenceCountKpi"),
@@ -175,23 +177,13 @@ async function verifyIntegrityVersion(id, version) {
 async function resolveIncidentId() {
     const requestedIncidentId = urlParams.get("incidentId");
 
-    if (requestedIncidentId) {
-        return requestedIncidentId;
+    if (!requestedIncidentId) {
+        throw new Error(
+            "No incident is selected. Open Incident Twin, select an incident, then choose Blockchain Integrity."
+        );
     }
 
-    const incidents = await fetchAllIncidents();
-
-    if (!Array.isArray(incidents) || incidents.length === 0) {
-        throw new Error("No Incident Twin records are available.");
-    }
-
-    const sorted = [...incidents].sort((a, b) => {
-        const dateA = new Date(a.updatedAt || a.createdAt || 0).getTime();
-        const dateB = new Date(b.updatedAt || b.createdAt || 0).getTime();
-        return dateB - dateA;
-    });
-
-    return sorted[0].incidentId;
+    return requestedIncidentId;
 }
 
 function applyBlockchainStatus(status) {
@@ -869,18 +861,11 @@ async function loadBlockchainData() {
 
         applyBlockchainStatus(blockchainStatus);
 
-        let integrity;
-        let incident = null;
-        let resolvedIncidentId = selectedIncidentId;
+        const integrity =
+            await fetchIntegrity(selectedIncidentId);
 
-        try {
-            integrity = await fetchIntegrity(selectedIncidentId);
-        } catch (selectedError) {
-            // The newest Incident Twin may not have a corresponding integrity
-            // record. Fall back to the latest saved Blockchain Integrity record.
-            integrity = await fetchLatestIntegrity();
-            resolvedIncidentId = integrity.incidentId || selectedIncidentId;
-        }
+        let incident = null;
+        const resolvedIncidentId = selectedIncidentId;
 
         blockchainState.incident = resolvedIncidentId;
 
@@ -903,6 +888,28 @@ async function loadBlockchainData() {
         }
 
         applyIntegrityData(integrity);
+
+        const incidentTwinLink =
+            document.getElementById("incidentTwinNavLink");
+        const investigationIntegrityLink =
+            document.getElementById("investigationIntegrityNavLink");
+        const returnIncidentTwinLink =
+            document.getElementById("returnIncidentTwinLink");
+
+        const incidentTwinUrl =
+            "./incident-twin.html?incidentId=" +
+            encodeURIComponent(resolvedIncidentId);
+        const investigationIntegrityUrl =
+            "./investigation-integrity.html?incidentId=" +
+            encodeURIComponent(resolvedIncidentId);
+
+        if (incidentTwinLink) incidentTwinLink.href = incidentTwinUrl;
+        if (investigationIntegrityLink) {
+            investigationIntegrityLink.href = investigationIntegrityUrl;
+        }
+        if (returnIncidentTwinLink) {
+            returnIncidentTwinLink.href = incidentTwinUrl;
+        }
 
         blockchainState.systemStatus =
             blockchainState.blockchain.connected
@@ -1081,6 +1088,25 @@ async function refreshBlockchainPage() {
 }
 
 function initializeBlockchainPage() {
+    const currentIncidentId = urlParams.get("incidentId");
+    if (elements.incidentSearchInput && currentIncidentId) {
+        elements.incidentSearchInput.value = currentIncidentId;
+    }
+
+    if (elements.incidentSearchForm) {
+        elements.incidentSearchForm.addEventListener("submit", event => {
+            event.preventDefault();
+            const incidentId = elements.incidentSearchInput?.value.trim().toUpperCase();
+            if (!incidentId) {
+                elements.incidentSearchInput?.focus();
+                return;
+            }
+
+            // Navigate with the explicit ID so every integrity view stays tied to this incident.
+            window.location.href = `./blockchain.html?incidentId=${encodeURIComponent(incidentId)}`;
+        });
+    }
+
     loadBlockchainData();
 
     if (elements.verifyIntegrityButton) {
