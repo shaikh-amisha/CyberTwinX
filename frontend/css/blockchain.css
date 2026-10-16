@@ -1546,3 +1546,61 @@
 
 
 
+
+
+/* =========================================================
+   INCIDENT-AWARE INTEGRITY NAVIGATION
+   ========================================================= */
+
+.blockchain-page .page-header-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 12px;
+    flex: 0 0 auto;
+}
+
+.incident-context-backlink {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    color: #c8d5e1;
+    font-size: 11px;
+    font-weight: 700;
+    text-decoration: none;
+    border: 1px solid rgba(148, 163, 184, .25);
+    border-radius: 7px;
+    padding: 8px 10px;
+    background: rgba(148, 163, 184, .05);
+    transition: color .2s ease, border-color .2s ease, background .2s ease;
+}
+
+.incident-context-backlink:hover {
+    color: #ffffff;
+    border-color: rgba(34, 197, 94, .45);
+    background: rgba(34, 197, 94, .08);
+}
+
+.incident-context-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+    color: #8fa2b5;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .7px;
+}
+
+.incident-context-label strong {
+    color: #dce7f0;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 11px;
+    letter-spacing: 0;
+}
+
+@media (max-width: 760px) {
+    .blockchain-page .page-header-actions {
+        align-items: flex-start;
+    }
+}
