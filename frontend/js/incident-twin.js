@@ -158,7 +158,13 @@ const elements = {
     selectedIncidentSummary:
         document.getElementById(
             "selectedIncidentSummary"
-        )
+        ),
+
+    blockchainIntegrityLink:
+        document.getElementById("incidentIntegrityLink"),
+
+    blockchainIntegrityNavLink:
+        document.getElementById("blockchainIntegrityNavLink")
 
 };
 
@@ -839,6 +845,27 @@ function updateSelectedIncident(
 }
 
 
+function syncBlockchainIntegrityLinks(incident) {
+    if (!incident?.incidentId) return;
+
+    const target =
+        "./blockchain.html?incidentId=" +
+        encodeURIComponent(incident.incidentId);
+
+    if (elements.blockchainIntegrityLink) {
+        elements.blockchainIntegrityLink.href = target;
+        elements.blockchainIntegrityLink.setAttribute(
+            "aria-label",
+            "Open blockchain integrity for incident " + incident.incidentId
+        );
+    }
+
+    if (elements.blockchainIntegrityNavLink) {
+        elements.blockchainIntegrityNavLink.href = target;
+    }
+}
+
+
 async function selectIncident(
     id
 ) {
@@ -879,6 +906,7 @@ async function selectIncident(
             incident
         );
 
+        syncBlockchainIntegrityLinks(incident);
 
         renderIncidentSelector(
             allIncidents
@@ -1179,6 +1207,8 @@ async function loadIncidentTwin() {
         updateSelectedIncident(
             incident
         );
+
+        syncBlockchainIntegrityLinks(incident);
 
     }
 
