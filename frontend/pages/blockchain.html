@@ -35,7 +35,7 @@
                     <span class="nav-icon"><i class="bi bi-diagram-3-fill"></i></span>
                     <span>Endpoint Twin</span>
                 </a>
-                <a href="./incident-twin.html" class="nav-item">
+                <a href="./incident-twin.html" id="incidentTwinNavLink" class="nav-item">
                     <span class="nav-icon"><i class="bi bi-shield-exclamation"></i></span>
                     <span>Incident Twin</span>
                 </a>
@@ -64,7 +64,7 @@
                     <span>Blockchain Integrity</span>
                 </a>
 
-                <a href="./investigation-integrity.html" class="nav-item">
+                <a href="./investigation-integrity.html" id="investigationIntegrityNavLink" class="nav-item">
                     <span class="nav-icon"><i class="bi bi-patch-check-fill"></i></span>
                     <span>Investigation Integrity</span>
                 </a>
@@ -131,9 +131,14 @@
                     <h2>Blockchain Integrity</h2>
                     <p>Cryptographic evidence integrity anchored through SHA-256 hashing, Merkle Tree aggregation and an immutable on-chain Merkle Root.</p>
                 </div>
-                <div class="blockchain-live-badge">
-                    <span class="status-dot"></span>
-                    <span id="pageLiveStatus">INTEGRITY ACTIVE</span>
+                <div class="page-header-actions">
+                    <a id="returnIncidentTwinLink" class="incident-context-backlink" href="./incident-twin.html">
+                        <i class="bi bi-arrow-left"></i> Back to selected Incident Twin
+                    </a>
+                    <div class="blockchain-live-badge">
+                        <span class="status-dot"></span>
+                        <span id="pageLiveStatus">INTEGRITY ACTIVE</span>
+                    </div>
                 </div>
             </div>
 
