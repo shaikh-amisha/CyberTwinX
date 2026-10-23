@@ -544,52 +544,19 @@ function mergeEvidence(
 
         if (existing) {
 
-            const oldSeverity =
-                String(
-                    existing.severity ||
-                    "LOW"
-                ).toUpperCase();
-
-
-            existing.description =
-                description;
-
-
-            existing.status =
-                "SUPPORTING";
-
-
-            existing.category =
-                category;
-
-
-            if (telemetryId) {
-
-                existing.telemetryId =
-                    telemetryId;
-
-            }
-
-
-            if (timestamp) {
-
-                existing.timestamp =
-                    timestamp;
-
-            }
-
-
-            if (
-                SEVERITY_RANK[newSeverity] >
-                SEVERITY_RANK[oldSeverity]
-            ) {
-
-                existing.severity =
-                    newSeverity;
-
-            }
-
-
+            /*
+             * Evidence records are immutable once added to an Incident Twin.
+             * Their description, category, severity, status, timestamp, and
+             * telemetry reference are part of the evidence snapshot used for
+             * hashing and Merkle proofs. Updating them during routine telemetry
+             * correlation would make the current source differ from the
+             * snapshot already anchored on-chain.
+             *
+             * Keep live risk/state updates on the Incident Twin itself. If a
+             * genuinely distinct piece of evidence is detected, it must be
+             * represented by a new evidence record so a new integrity version
+             * can be generated.
+             */
             continue;
         }
 
