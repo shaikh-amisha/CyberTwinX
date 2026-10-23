@@ -9,6 +9,27 @@
 const IncidentTwin = require("../models/IncidentTwin");
 const Telemetry = require("../models/Telemetry");
 
+const {
+    generateIncidentIntegrity
+} = require("./integrityService");
+
+// Integrity failures must not prevent Incident Twin data from being saved.
+async function tryGenerateIncidentIntegrity(incidentId, reason) {
+    try {
+        const result = await generateIncidentIntegrity(incidentId);
+        console.log(
+            `[Integrity] Automatically anchored ${incidentId} (v${result.version}) after ${reason}.`
+        );
+        return result;
+    } catch (error) {
+        console.error(
+            `[Integrity] Automatic generation failed for ${incidentId} after ${reason}:`,
+            error.message || error
+        );
+        return null;
+    }
+}
+
 
 // =========================================================
 // SEVERITY RANKING
@@ -1052,6 +1073,14 @@ async function correlateIncident({
 
         await incident.save();
 
+        // Anchor the first evidence snapshot as soon as the new incident is persisted.
+        // This is best-effort: a blockchain outage must not discard the incident.
+        if (Array.isArray(incident.evidence) && incident.evidence.length > 0) {
+            await tryGenerateIncidentIntegrity(
+                incident.incidentId,
+                "incident creation"
+            );
+        }
 
         return {
 
@@ -1235,6 +1264,14 @@ async function correlateIncident({
 
     await incident.save();
 
+    // Create a new integrity version only when new evidence items were added.
+    // Routine telemetry updates must not create unnecessary blockchain transactions.
+    if (incident.evidence.length > previousEvidenceCount) {
+        await tryGenerateIncidentIntegrity(
+            incident.incidentId,
+            "new evidence added"
+        );
+    }
 
     return {
 
