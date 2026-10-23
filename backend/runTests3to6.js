@@ -91,6 +91,7 @@ function testNavigationCode() {
 
 async function main() {
     let telemetryId = null;
+    let followUpTelemetryId = null;
     let automaticIncidentId = null;
     let versionedIncidentId = null;
     let failed = false;
@@ -227,6 +228,84 @@ async function main() {
         );
         console.log(`TEST 4 PASSED: New incident ${automaticIncidentId} automatically received an anchored integrity root.`);
 
+        // TEST 4B: A routine follow-up telemetry update with the same evidence
+        // types must not mutate the anchored evidence snapshot or create a new root.
+        const originalEvidence = correlated.incident.evidence.map(item => ({
+            evidenceId: item.evidenceId,
+            type: item.type,
+            category: item.category,
+            severity: item.severity,
+            status: item.status,
+            description: item.description,
+            timestamp: new Date(item.timestamp).toISOString(),
+            telemetryId: String(item.telemetryId)
+        }));
+        const originalIntegrity = await BlockchainIntegrity.findOne({
+            incidentId: automaticIncidentId
+        }).lean();
+        const originalVersionCount = originalIntegrity.rootVersions.length;
+
+        const followUpTelemetry = await Telemetry.create({
+            agent: { name: "CyberTwinX-Test-Agent", version: "test", platform: "test" },
+            timestamp: new Date(),
+            telemetry: { system: { hostname: `test-${autoSuffix}` } }
+        });
+        followUpTelemetryId = followUpTelemetry._id;
+
+        const followUp = await correlateIncident({
+            endpointId: `TEST-ENDPOINT-${autoSuffix}`,
+            hostname: `test-${autoSuffix}`,
+            telemetryId: followUpTelemetry._id,
+            securityAnalysis: {
+                state: "COMPROMISED",
+                riskLevel: "CRITICAL",
+                score: 95,
+                confidence: 99,
+                findings: [
+                    {
+                        type: "TEST_SUSPICIOUS_PROCESS",
+                        severity: "CRITICAL",
+                        description: "Changed follow-up description must not overwrite the anchored snapshot.",
+                        timestamp: new Date(Date.now() + 1000).toISOString()
+                    },
+                    {
+                        type: "TEST_NETWORK_SCAN",
+                        severity: "HIGH",
+                        description: "Changed network description must not overwrite the anchored snapshot.",
+                        timestamp: new Date(Date.now() + 1000).toISOString()
+                    }
+                ]
+            }
+        });
+
+        assert(
+            followUp?.updated && followUp.incident.incidentId === automaticIncidentId,
+            "Follow-up telemetry did not update the same incident."
+        );
+        const evidenceAfterFollowUp = followUp.incident.evidence.map(item => ({
+            evidenceId: item.evidenceId,
+            type: item.type,
+            category: item.category,
+            severity: item.severity,
+            status: item.status,
+            description: item.description,
+            timestamp: new Date(item.timestamp).toISOString(),
+            telemetryId: String(item.telemetryId)
+        }));
+        assert(
+            JSON.stringify(evidenceAfterFollowUp) === JSON.stringify(originalEvidence),
+            "Routine telemetry update changed one or more existing evidence snapshot fields."
+        );
+
+        const integrityAfterFollowUp = await BlockchainIntegrity.findOne({
+            incidentId: automaticIncidentId
+        }).lean();
+        assert(
+            integrityAfterFollowUp.rootVersions.length === originalVersionCount,
+            "Routine telemetry update unexpectedly created a new integrity root version."
+        );
+        console.log("TEST 4B PASSED: Routine telemetry updates preserve all anchored evidence fields and do not create a new root.");
+
         // TEST 5: Verify actual frontend navigation code keeps incidentId in links.
         testNavigationCode();
 
@@ -293,7 +372,8 @@ async function main() {
                         ChainOfCustody.deleteMany({ incidentId: { $in: incidentIds } })
                     ]);
                 }
-                if (telemetryId) await Telemetry.deleteOne({ _id: telemetryId });
+                const telemetryIds = [telemetryId, followUpTelemetryId].filter(Boolean);
+                if (telemetryIds.length) await Telemetry.deleteMany({ _id: { $in: telemetryIds } });
                 console.log("Temporary test records cleaned up.");
             } catch (cleanupError) {
                 failed = true;
