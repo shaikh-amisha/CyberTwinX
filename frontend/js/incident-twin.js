@@ -675,99 +675,55 @@ function renderIncidentSelector(
                     0;
 
 
+                const safeIncidentId = escapeHTML(incident.incidentId || "");
+                const integrityUrl = "./blockchain.html?incidentId=" +
+                    encodeURIComponent(incident.incidentId || "");
+
                 return `
 
-                    <button
-                        type="button"
-                        class="incident-selector-item ${
-                            incident.incidentId ===
-                            currentIncidentId
-                                ? "active"
-                                : ""
-                        }"
-                        data-incident-id="${
-                            escapeHTML(
-                                incident.incidentId ||
-                                ""
-                            )
-                        }"
-                    >
+                    <div class="incident-selector-row">
 
-                        <div
-                            class="incident-selector-item-main"
+                        <button
+                            type="button"
+                            class="incident-selector-item ${
+                                incident.incidentId === currentIncidentId
+                                    ? "active"
+                                    : ""
+                            }"
+                            data-incident-id="${safeIncidentId}"
                         >
-
-                            <span
-                                class="incident-selector-item-title"
-                            >
-
-                                ${escapeHTML(
-                                    type
-                                )}
-
+                            <div class="incident-selector-item-main">
+                                <span class="incident-selector-item-title">
+                                    ${escapeHTML(type)}
+                                </span>
+                                <span class="incident-selector-item-meta">
+                                    <span>${escapeHTML(incident.incidentId || "")}</span>
+                                    <span>•</span>
+                                    <span>${escapeHTML(endpoint)}</span>
+                                    <span>•</span>
+                                    <span>${escapeHTML(state)}</span>
+                                    <span>•</span>
+                                    <span>Risk ${escapeHTML(String(risk))}</span>
+                                    <span>•</span>
+                                    <span>${escapeHTML(formatIncidentDate(dateValue))} ${escapeHTML(formatIncidentTime(dateValue))}</span>
+                                </span>
+                            </div>
+                            <span class="incident-selector-severity ${severity}">
+                                ${escapeHTML(incident.severity || "LOW")}
                             </span>
+                        </button>
 
-
-                            <span
-                                class="incident-selector-item-meta"
-                            >
-
-                                <span>
-                                    ${escapeHTML(
-                                        endpoint
-                                    )}
-                                </span>
-
-                                <span>•</span>
-
-                                <span>
-                                    ${escapeHTML(
-                                        state
-                                    )}
-                                </span>
-
-                                <span>•</span>
-
-                                <span>
-                                    Risk
-                                    ${escapeHTML(
-                                        String(risk)
-                                    )}
-                                </span>
-
-                                <span>•</span>
-
-                                <span>
-                                    ${escapeHTML(
-                                        formatIncidentDate(
-                                            dateValue
-                                        )
-                                    )}
-
-                                    ${escapeHTML(
-                                        formatIncidentTime(
-                                            dateValue
-                                        )
-                                    )}
-                                </span>
-
-                            </span>
-
-                        </div>
-
-
-                        <span
-                            class="incident-selector-severity ${severity}"
+                        <a
+                            class="incident-selector-integrity-link"
+                            href="${integrityUrl}"
+                            aria-label="Open Blockchain Integrity for incident ${safeIncidentId}"
+                            title="Open Blockchain Integrity for this incident"
                         >
+                            <i class="bi bi-link-45deg" aria-hidden="true"></i>
+                            Integrity
+                        </a>
 
-                            ${escapeHTML(
-                                incident.severity ||
-                                "LOW"
-                            )}
-
-                        </span>
-
-                    </button>
+                    </div>
 
                 `;
 
