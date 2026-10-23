@@ -15,10 +15,33 @@ const {
 } = require("./services/integrityService");
 
 
+function getTestMongoUri() {
+    const uri = process.env.TEST_MONGODB_URI;
+
+    if (!uri) {
+        throw new Error("TEST_MONGODB_URI is missing from backend/.env");
+    }
+
+    let databaseName;
+    try {
+        databaseName = new URL(uri).pathname.replace(/^\/+/, "").split("/")[0];
+    } catch {
+        throw new Error("TEST_MONGODB_URI is not a valid MongoDB connection URI.");
+    }
+
+    if (databaseName !== "CyberTwinX_Test") {
+        throw new Error(
+            `Refusing to run test against database "${databaseName}". Expected "CyberTwinX_Test".`
+        );
+    }
+
+    return uri;
+}
+
+
 // Test Merkle Tree generation, MongoDB storage and blockchain anchoring.
 async function testIntegrityService() {
     const testSuffix = crypto.randomUUID();
-
     const incidentId = `TEST-INTEGRITY-${testSuffix}`;
     const evidenceIds = [
         `TEST-EVIDENCE-A-${testSuffix}`,
@@ -26,14 +49,9 @@ async function testIntegrityService() {
     ];
 
     try {
-        // Ensure the required connection settings are configured.
-        if (!process.env.MONGODB_URI) {
-            throw new Error("MONGODB_URI is missing from backend/.env");
-        }
-
-        // Connect to the CyberTwinX MongoDB database.
-        await mongoose.connect(process.env.MONGODB_URI);
-        console.log("MongoDB connection successful.");
+        // Refuse to connect to the normal CyberTwinX database.
+        await mongoose.connect(getTestMongoUri());
+        console.log("Connected to isolated CyberTwinX_Test database.");
 
         // Create a temporary Incident Twin with two evidence records.
         await IncidentTwin.create({
@@ -81,16 +99,12 @@ async function testIntegrityService() {
             throw new Error("Blockchain transaction hash was not returned.");
         }
 
-        // Retrieve the saved integrity document.
-        const savedIntegrity = await BlockchainIntegrity.findOne({
-            incidentId
-        }).lean();
+        const savedIntegrity = await BlockchainIntegrity.findOne({ incidentId }).lean();
 
         if (!savedIntegrity) {
             throw new Error("Blockchain Integrity record was not saved.");
         }
 
-        // Confirm the root, evidence records and transaction were stored.
         const savedVersion = savedIntegrity.rootVersions.find(
             item => item.version === result.version
         );
@@ -122,16 +136,13 @@ async function testIntegrityService() {
 
         // Verify the generated Merkle Root using the deployed smart contract.
         const { contract } = getBlockchainConnection();
-        const onChainVerified = await contract.verifyMerkleRoot(
-            incidentId,
-            result.merkleRoot
-        );
+        const onChainVerified = await contract.verifyMerkleRoot(incidentId, result.merkleRoot);
 
         if (!onChainVerified) {
             throw new Error("The generated Merkle Root could not be verified on-chain.");
         }
 
-        // getLatestRoot returns a tuple: root, timestamp, registrar and version.
+        // getLatestRoot returns root, timestamp, registrar and version.
         const latestRootRecord = await contract.getLatestRoot(incidentId);
         const latestRoot = latestRootRecord[0];
         const latestRootVersion = latestRootRecord[3];
@@ -141,10 +152,9 @@ async function testIntegrityService() {
         }
 
         if (latestRootVersion !== BigInt(result.version)) {
-            throw new Error("The latest on-chain Merkle Root version is incorrect.");
+            throw new Error("The on-chain Merkle Root version is incorrect.");
         }
 
-        // Confirm that the contract recorded the expected number of root versions.
         const rootHistoryLength = await contract.getRootHistoryLength(incidentId);
 
         if (rootHistoryLength !== BigInt(result.version)) {
@@ -153,7 +163,7 @@ async function testIntegrityService() {
 
         console.log("On-chain Merkle Root and history verification successful.");
 
-        // Confirm that hash-generation custody events were recorded.
+        // There must be one hash-generation event per evidence record.
         const hashEvents = await ChainOfCustody.find({
             incidentId,
             evidenceId: { $in: evidenceIds },
@@ -161,49 +171,58 @@ async function testIntegrityService() {
         }).lean();
 
         if (hashEvents.length !== evidenceIds.length) {
-            throw new Error("Expected HASH_GENERATED custody events were not found.");
+            throw new Error(
+                `Expected ${evidenceIds.length} HASH_GENERATED events; found ${hashEvents.length}.`
+            );
         }
 
-        // Confirm that blockchain anchoring custody events were recorded.
+        // Anchoring applies to the complete Merkle Root, not each evidence leaf.
         const anchorEvents = await ChainOfCustody.find({
             incidentId,
-            evidenceId: { $in: evidenceIds },
             eventType: "ROOT_ANCHORED"
         }).lean();
 
-        if (anchorEvents.length !== evidenceIds.length) {
-            throw new Error("Expected ROOT_ANCHORED custody events were not found.");
+        if (anchorEvents.length !== 1) {
+            throw new Error(
+                `Expected exactly 1 ROOT_ANCHORED event for this root; found ${anchorEvents.length}.`
+            );
         }
 
-        console.log("Chain of Custody hash and anchoring events successful.");
-        console.log("FULL INTEGRITY WORKFLOW TEST PASSED");
+        if (anchorEvents[0].evidenceId) {
+            throw new Error("ROOT_ANCHORED should be a root-level event without an evidenceId.");
+        }
 
+        if (
+            !anchorEvents[0].integrity ||
+            Number(anchorEvents[0].integrity.rootVersion) !== Number(result.version) ||
+            String(anchorEvents[0].integrity.merkleRoot).toLowerCase() !== result.merkleRoot.toLowerCase()
+        ) {
+            throw new Error("ROOT_ANCHORED event does not match the generated Merkle Root and version.");
+        }
+
+        console.log("Chain of Custody assertions passed: one hash event per evidence and one root anchor event.");
+        console.log("FULL INTEGRITY WORKFLOW TEST PASSED");
     } catch (error) {
         console.error("TEST FAILED:", error.message);
         process.exitCode = 1;
-
     } finally {
-        // Remove only the temporary records created by this test.
-        try {
-            await Promise.all([
-                IncidentTwin.deleteOne({ incidentId }),
-                BlockchainIntegrity.deleteOne({ incidentId }),
-                ChainOfCustody.deleteMany({ incidentId })
-            ]);
-
-            console.log("Temporary test records cleaned up.");
-        } catch (cleanupError) {
-            console.error(
-                "Could not clean up temporary test records:",
-                cleanupError.message
-            );
-            process.exitCode = 1;
+        // These identifiers are unique to this run; cleanup is confined to the test database.
+        if (mongoose.connection.readyState !== 0) {
+            try {
+                await Promise.all([
+                    IncidentTwin.deleteOne({ incidentId }),
+                    BlockchainIntegrity.deleteOne({ incidentId }),
+                    ChainOfCustody.deleteMany({ incidentId })
+                ]);
+                console.log("Temporary test records cleaned up.");
+            } catch (cleanupError) {
+                console.error("Could not clean up temporary test records:", cleanupError.message);
+                process.exitCode = 1;
+            } finally {
+                await mongoose.disconnect();
+            }
         }
-
-        await mongoose.disconnect();
     }
 }
 
-
-// Run the test.
 testIntegrityService();

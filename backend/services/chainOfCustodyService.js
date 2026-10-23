@@ -14,9 +14,14 @@ async function recordCustodyEvent({
 }) {
 
     // Ensure the event is linked to an incident and evidence record.
-    if (!incidentId || !evidenceId) {
+    const rootLevelEvent = [
+        "ROOT_ANCHORED",
+        "ROOT_REANCHORED"
+    ].includes(eventType);
+
+    if (!incidentId || (!evidenceId && !rootLevelEvent)) {
         const error = new Error(
-            "Incident ID and Evidence ID are required."
+            "Incident ID is required, and evidence-level events require an Evidence ID."
         );
         error.statusCode = 400;
         throw error;

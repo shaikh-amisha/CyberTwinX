@@ -147,25 +147,23 @@ async function generateIncidentIntegrity(incidentId) {
 
         await integrityRecord.save();
 
-        // Record that the Merkle Root was anchored on the blockchain.
+        // Record the root-level blockchain action once per root version.
+        // Individual evidence hashes remain traceable through HASH_GENERATED
+        // events above; anchoring applies to the complete evidence set.
         const custodyEventType = version === 1
             ? "ROOT_ANCHORED"
             : "ROOT_REANCHORED";
 
-        for (const evidenceRecord of evidenceRecords) {
-            await recordCustodyEvent({
-                incidentId,
-                evidenceId: evidenceRecord.evidenceId,
-                eventType: custodyEventType,
-                integrity: {
-                    status: "ANCHORED",
-                    evidenceHash: evidenceRecord.evidenceHash,
-                    merkleRoot: merkleTree.root,
-                    rootVersion: version
-                },
-                details: `Merkle Root version ${version} anchored on-chain. Transaction: ${anchorResult.transactionHash}`
-            });
-        }
+        await recordCustodyEvent({
+            incidentId,
+            eventType: custodyEventType,
+            integrity: {
+                status: "ANCHORED",
+                merkleRoot: merkleTree.root,
+                rootVersion: version
+            },
+            details: `Merkle Root version ${version} anchored on-chain for ${evidenceRecords.length} evidence item(s). Transaction: ${anchorResult.transactionHash}`
+        });
 
         // Return the generated integrity information and transaction details.
         return {
