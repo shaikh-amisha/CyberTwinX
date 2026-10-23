@@ -6839,6 +6839,57 @@ main::after,
     background: rgba(255, 48, 48, 0.4);
 }
 
+/* Each incident has its own direct Blockchain Integrity link. */
+.incident-selector-row {
+    display: flex;
+    align-items: stretch;
+    gap: 8px;
+    margin-bottom: 7px;
+    min-width: 0;
+}
+
+.incident-selector-row .incident-selector-item {
+    flex: 1 1 auto;
+    width: auto;
+    min-width: 0;
+    margin-bottom: 0;
+}
+
+.incident-selector-integrity-link {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    align-self: stretch;
+    padding: 0 10px;
+    border: 1px solid rgba(34, 211, 238, .24);
+    border-radius: 7px;
+    color: #67e8f9;
+    background: rgba(34, 211, 238, .045);
+    font-size: 9px;
+    font-weight: 750;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background .2s ease, border-color .2s ease;
+}
+
+.incident-selector-integrity-link:hover {
+    background: rgba(34, 211, 238, .12);
+    border-color: rgba(34, 211, 238, .6);
+}
+
+@media (max-width: 560px) {
+    .incident-selector-row {
+        gap: 5px;
+    }
+
+    .incident-selector-integrity-link {
+        padding: 0 7px;
+        font-size: 8px;
+    }
+}
+
 /* Individual incident */
 
 .incident-selector-item {
