@@ -61,6 +61,7 @@ const elements = {
     anchorNetwork: document.getElementById("anchorNetwork"),
     anchorNetworkOutput: document.getElementById("anchorNetworkOutput"),
     anchorContract: document.getElementById("anchorContract"),
+    anchorContractNote: document.getElementById("anchorContractNote"),
     anchorRoot: document.getElementById("anchorRoot"),
     anchorTransaction: document.getElementById("anchorTransaction"),
     anchorBlock: document.getElementById("anchorBlock"),
@@ -650,6 +651,18 @@ function renderAnchor() {
         integrity.contract
     );
 
+    const recordedContract = String(integrity.contract || "").toLowerCase();
+    const activeContract = String(blockchainState.blockchain.contractAddress || "").toLowerCase();
+    if (elements.anchorContractNote) {
+        if (recordedContract && activeContract && recordedContract !== activeContract) {
+            elements.anchorContractNote.textContent = `Historical anchor uses a different contract. Current connected contract: ${blockchainState.blockchain.contractAddress}`;
+        } else if (recordedContract && activeContract) {
+            elements.anchorContractNote.textContent = "Recorded anchor matches the currently connected contract.";
+        } else {
+            elements.anchorContractNote.textContent = "Contract address is provided by the backend; anchor metadata is historical.";
+        }
+    }
+
     setText(
         elements.anchorRoot,
         shortHash(
@@ -800,8 +813,11 @@ function renderRootHistory() {
 }
 
 function setPageLoadingState(isLoading) {
-    blockchainState.systemStatus =
-        isLoading ? "LOADING" : "ONLINE";
+    blockchainState.systemStatus = isLoading
+        ? "LOADING"
+        : blockchainState.blockchain.connected
+            ? "ONLINE"
+            : "OFFLINE";
 
     if (elements.pageLiveStatus) {
         elements.pageLiveStatus.textContent =
@@ -907,11 +923,6 @@ async function loadBlockchainData() {
             returnIncidentTwinLink.href = incidentTwinUrl;
         }
 
-        blockchainState.systemStatus =
-            blockchainState.blockchain.connected
-                ? "ONLINE"
-                : "OFFLINE";
-
         await refreshBlockchainPage();
 
         console.log(
@@ -925,15 +936,11 @@ async function loadBlockchainData() {
     } catch (error) {
         showPageError(error);
     } finally {
-        if (
-            blockchainState.systemStatus ===
-            "LOADING"
-        ) {
-            blockchainState.systemStatus =
-                "ONLINE";
+        if (blockchainState.systemStatus === "LOADING") {
+            setPageLoadingState(false);
+        } else {
+            updateTopbar();
         }
-
-        updateTopbar();
     }
 }
 
