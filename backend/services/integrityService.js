@@ -10,7 +10,8 @@ const {
 } = require("./chainOfCustodyService");
 
 const {
-    anchorMerkleRootOnChain
+    anchorMerkleRootOnChain,
+    getBlockchainConnection
 } = require("./blockchainService");
 
 
