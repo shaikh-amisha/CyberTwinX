@@ -71,7 +71,8 @@ const chainOfCustodySchema = new mongoose.Schema(
         // Evidence record associated with this event.
         evidenceId: {
             type: String,
-            required: true,
+            required: false,
+            default: null,
             index: true
         },
 

@@ -8,25 +8,40 @@ const {
 
 const ChainOfCustody = require("./models/ChainOfCustody");
 
+function getTestMongoUri() {
+    const uri = process.env.TEST_MONGODB_URI;
+
+    if (!uri) {
+        throw new Error("TEST_MONGODB_URI is missing from backend/.env");
+    }
+
+    let databaseName;
+    try {
+        databaseName = new URL(uri).pathname.replace(/^\/+/, "").split("/")[0];
+    } catch {
+        throw new Error("TEST_MONGODB_URI is not a valid MongoDB connection URI.");
+    }
+
+    if (databaseName !== "CyberTwinX_Test") {
+        throw new Error(
+            `Refusing to run test against database "${databaseName}". Expected "CyberTwinX_Test".`
+        );
+    }
+
+    return uri;
+}
 
 async function testChainOfCustody() {
     let createdEvent = null;
 
     try {
-        // Connect to the existing CyberTwinX MongoDB database.
-        if (!process.env.MONGODB_URI) {
-            throw new Error("MONGODB_URI is missing from backend/.env");
-        }
+        // Refuse to connect to the normal CyberTwinX database.
+        await mongoose.connect(getTestMongoUri());
+        console.log("Connected to isolated CyberTwinX_Test database.");
 
-        await mongoose.connect(process.env.MONGODB_URI);
-
-        console.log("MongoDB connection successful.");
-
-        // Use dedicated temporary identifiers for this test.
         const incidentId = "TEST-INCIDENT-001";
         const evidenceId = "TEST-EVIDENCE-001";
 
-        // Record a temporary evidence creation event.
         createdEvent = await recordCustodyEvent({
             incidentId,
             evidenceId,
@@ -43,13 +58,7 @@ async function testChainOfCustody() {
 
         console.log("Custody event created:", createdEvent.eventId);
 
-        // Retrieve the event using its incident and evidence identifiers.
-        const history = await getEvidenceCustodyHistory(
-            incidentId,
-            evidenceId
-        );
-
-        // Confirm that the newly created event can be retrieved.
+        const history = await getEvidenceCustodyHistory(incidentId, evidenceId);
         const eventFound = history.some(
             event => event.eventId === createdEvent.eventId
         );
@@ -60,33 +69,24 @@ async function testChainOfCustody() {
 
         console.log("Custody event retrieval successful.");
         console.log("TEST PASSED");
-
     } catch (error) {
         console.error("TEST FAILED:", error.message);
         process.exitCode = 1;
-
     } finally {
-        // Delete only the temporary event created by this test.
         if (createdEvent) {
             try {
-                await ChainOfCustody.deleteOne({
-                    eventId: createdEvent.eventId
-                });
-
+                await ChainOfCustody.deleteOne({ eventId: createdEvent.eventId });
                 console.log("Temporary test event cleaned up.");
             } catch (cleanupError) {
-                console.error(
-                    "Could not clean up temporary test event:",
-                    cleanupError.message
-                );
+                console.error("Could not clean up temporary test event:", cleanupError.message);
                 process.exitCode = 1;
             }
         }
 
-        await mongoose.disconnect();
+        if (mongoose.connection.readyState !== 0) {
+            await mongoose.disconnect();
+        }
     }
 }
 
-
-// Run the test.
 testChainOfCustody();

@@ -108,9 +108,11 @@ async function fetchJSON(url) {
     }
 
     if (!response.ok || !result.success) {
-        throw new Error(
+        const error = new Error(
             result.message || `API request failed (${response.status})`
         );
+        error.status = response.status;
+        throw error;
     }
 
     return result.data;
@@ -155,20 +157,13 @@ async function verifyVersion(incidentId, version) {
 async function resolveIncidentId() {
     const requested = urlParams.get("incidentId");
 
-    if (requested) return requested;
-
-    const incidents = await fetchAllIncidents();
-
-    if (!Array.isArray(incidents) || incidents.length === 0) {
-        throw new Error("No Incident Twin records are available.");
+    if (!requested) {
+        throw new Error(
+            "No incident is selected. Return to Incident Twin, select an incident, then open its integrity view."
+        );
     }
 
-    return [...incidents]
-        .sort((a, b) => {
-            const dateA = new Date(a.updatedAt || a.createdAt || 0).getTime();
-            const dateB = new Date(b.updatedAt || b.createdAt || 0).getTime();
-            return dateB - dateA;
-        })[0].incidentId;
+    return requested;
 }
 
 function getLatestVersion() {
@@ -1258,18 +1253,44 @@ async function loadPage() {
         state.incidentId = await resolveIncidentId();
 
         let integrity;
+
+        try {
+            integrity = await fetchIntegrity(state.incidentId);
+        } catch (error) {
+            // A missing integrity document is an expected first-use state,
+            // not an API outage. Keep the selected incident context and allow
+            // the page to explain that no root has been generated yet.
+            if (error.status === 404) {
+                integrity = {
+                    incidentId: state.incidentId,
+                    rootVersions: []
+                };
+            } else {
+                throw error;
+            }
+        }
+
         let incident = null;
         let custody = [];
         let blockchain;
 
-        try {
-            integrity = await fetchIntegrity(state.incidentId);
-        } catch (selectedError) {
-            // Fall back to the latest saved integrity record when the newest
-            // Incident Twin has no matching Blockchain Integrity record.
-            integrity = await fetchLatestIntegrity();
-            state.incidentId = integrity.incidentId || state.incidentId;
-        }
+        const incidentTwinLink =
+            document.getElementById("incidentTwinNavLink");
+        const blockchainIntegrityLink =
+            document.getElementById("blockchainIntegrityNavLink");
+        const returnIncidentTwinLink =
+            document.getElementById("returnIncidentTwinLink");
+
+        const incidentTwinUrl =
+            "./incident-twin.html?incidentId=" +
+            encodeURIComponent(state.incidentId);
+        const blockchainUrl =
+            "./blockchain.html?incidentId=" +
+            encodeURIComponent(state.incidentId);
+
+        if (incidentTwinLink) incidentTwinLink.href = incidentTwinUrl;
+        if (blockchainIntegrityLink) blockchainIntegrityLink.href = blockchainUrl;
+        if (returnIncidentTwinLink) returnIncidentTwinLink.href = incidentTwinUrl;
 
         const results = await Promise.allSettled([
             fetchIncident(state.incidentId),
@@ -1289,6 +1310,11 @@ async function loadPage() {
 
         state.incident = incident;
         state.integrity = integrity;
+
+        setText(
+            document.getElementById("integrityIncidentContext"),
+            incident?.incidentId || state.incidentId
+        );
         state.custody = custody;
         state.blockchain = blockchain;
         state.latestVersion = getLatestVersion();

@@ -6,7 +6,8 @@ const {
     getLatestIntegrity,
     getCustodyHistory,
     getIntegrityBlockchainStatus,
-    verifyIntegrityVersion
+    verifyIntegrityVersion,
+    reanchorIntegrity
 } = require("../controllers/integrityController");
 
 const router = express.Router();
@@ -17,6 +18,9 @@ router.get("/blockchain/status", getIntegrityBlockchainStatus);
 
 // Fallback for integrity pages when the selected incident has no saved root.
 router.get("/latest", getLatestIntegrity);
+
+// Re-anchor previously saved roots to the currently configured contract.
+router.post("/:incidentId/reanchor", reanchorIntegrity);
 
 // Generate a new Merkle Root version and anchor it on-chain.
 router.post("/:incidentId/generate", generateIntegrity);

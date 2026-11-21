@@ -9,6 +9,27 @@
 const IncidentTwin = require("../models/IncidentTwin");
 const Telemetry = require("../models/Telemetry");
 
+const {
+    generateIncidentIntegrity
+} = require("./integrityService");
+
+// Integrity failures must not prevent Incident Twin data from being saved.
+async function tryGenerateIncidentIntegrity(incidentId, reason) {
+    try {
+        const result = await generateIncidentIntegrity(incidentId);
+        console.log(
+            `[Integrity] Automatically anchored ${incidentId} (v${result.version}) after ${reason}.`
+        );
+        return result;
+    } catch (error) {
+        console.error(
+            `[Integrity] Automatic generation failed for ${incidentId} after ${reason}:`,
+            error.message || error
+        );
+        return null;
+    }
+}
+
 
 // =========================================================
 // SEVERITY RANKING
@@ -523,52 +544,19 @@ function mergeEvidence(
 
         if (existing) {
 
-            const oldSeverity =
-                String(
-                    existing.severity ||
-                    "LOW"
-                ).toUpperCase();
-
-
-            existing.description =
-                description;
-
-
-            existing.status =
-                "SUPPORTING";
-
-
-            existing.category =
-                category;
-
-
-            if (telemetryId) {
-
-                existing.telemetryId =
-                    telemetryId;
-
-            }
-
-
-            if (timestamp) {
-
-                existing.timestamp =
-                    timestamp;
-
-            }
-
-
-            if (
-                SEVERITY_RANK[newSeverity] >
-                SEVERITY_RANK[oldSeverity]
-            ) {
-
-                existing.severity =
-                    newSeverity;
-
-            }
-
-
+            /*
+             * Evidence records are immutable once added to an Incident Twin.
+             * Their description, category, severity, status, timestamp, and
+             * telemetry reference are part of the evidence snapshot used for
+             * hashing and Merkle proofs. Updating them during routine telemetry
+             * correlation would make the current source differ from the
+             * snapshot already anchored on-chain.
+             *
+             * Keep live risk/state updates on the Incident Twin itself. If a
+             * genuinely distinct piece of evidence is detected, it must be
+             * represented by a new evidence record so a new integrity version
+             * can be generated.
+             */
             continue;
         }
 
@@ -1052,6 +1040,14 @@ async function correlateIncident({
 
         await incident.save();
 
+        // Anchor the first evidence snapshot as soon as the new incident is persisted.
+        // This is best-effort: a blockchain outage must not discard the incident.
+        if (Array.isArray(incident.evidence) && incident.evidence.length > 0) {
+            await tryGenerateIncidentIntegrity(
+                incident.incidentId,
+                "incident creation"
+            );
+        }
 
         return {
 
@@ -1235,6 +1231,14 @@ async function correlateIncident({
 
     await incident.save();
 
+    // Create a new integrity version only when new evidence items were added.
+    // Routine telemetry updates must not create unnecessary blockchain transactions.
+    if (incident.evidence.length > previousEvidenceCount) {
+        await tryGenerateIncidentIntegrity(
+            incident.incidentId,
+            "new evidence added"
+        );
+    }
 
     return {
 

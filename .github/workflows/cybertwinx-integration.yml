@@ -1,0 +1,121 @@
+name: CyberTwinX Blockchain Integration Tests
+
+on:
+  push:
+    branches:
+      - blockchain-incident-context
+  pull_request:
+    branches:
+      - blockchain-incident-context
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  blockchain-integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    services:
+      mongodb:
+        image: mongo:7
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --quiet --eval 'db.adminCommand({ ping: 1 }).ok'"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install backend dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Start local Ethereum test network
+        run: |
+          npx --yes ganache@7.9.2 \
+            --server.port 8545 \
+            --chain.chainId 31337 \
+            --wallet.mnemonic "test test test test test test test test test test test junk" \
+            > /tmp/cybertwinx-ganache.log 2>&1 &
+          echo $! > /tmp/cybertwinx-ganache.pid
+
+          for attempt in $(seq 1 30); do
+            if node -e "fetch('http://127.0.0.1:8545', {method:'POST', headers:{'content-type':'application/json'}, body:JSON.stringify({jsonrpc:'2.0',id:1,method:'eth_chainId',params:[]})}).then(r=>r.json()).then(x=>{if(x.result!=='0x7a69')process.exit(1)}).catch(()=>process.exit(1))"; then
+              echo "Local Ethereum test network is ready."
+              exit 0
+            fi
+            sleep 2
+          done
+
+          cat /tmp/cybertwinx-ganache.log
+          echo "Ethereum test network did not start."
+          exit 1
+
+      - name: Deploy integrity contract and configure isolated test environment
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const { ethers } = require('ethers');
+
+          (async () => {
+            const rpcUrl = 'http://127.0.0.1:8545';
+            const privateKey = '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80';
+            const provider = new ethers.JsonRpcProvider(rpcUrl);
+            const signer = new ethers.Wallet(privateKey, provider);
+            const artifact = require('./blockchain/CyberTwinXIntegrity.json');
+            if (!artifact.bytecode || artifact.bytecode === '0x') {
+              throw new Error('Contract artifact does not contain deployment bytecode.');
+            }
+            const factory = new ethers.ContractFactory(artifact.abi, artifact.bytecode, signer);
+            const contract = await factory.deploy();
+            await contract.waitForDeployment();
+            const address = await contract.getAddress();
+            const code = await provider.getCode(address);
+            if (code === '0x') throw new Error('Contract deployment verification failed.');
+
+            fs.writeFileSync('.env', [
+              'MONGODB_URI=mongodb://127.0.0.1:27017/CyberTwinX',
+              'TEST_MONGODB_URI=mongodb://127.0.0.1:27017/CyberTwinX_Test',
+              'BLOCKCHAIN_RPC_URL=' + rpcUrl,
+              'CYBERTWINX_CONTRACT_ADDRESS=' + address,
+              'BLOCKCHAIN_PRIVATE_KEY=' + privateKey,
+              'BLOCKCHAIN_CHAIN_ID=31337',
+              'PORT=5000',
+              ''
+            ].join('\n'));
+
+            console.log('Integrity contract deployed and code verified at:', address);
+          })().catch(error => {
+            console.error(error);
+            process.exit(1);
+          });
+          NODE
+
+      - name: Run Chain of Custody test
+        run: node testChainOfCustody.js
+
+      - name: Run blockchain integrity service test
+        run: node testIntegrityService.js
+
+      - name: Run end-to-end integrity workflow tests 3-6
+        run: node runTests3to6.js
+
+      - name: Print Ethereum logs if a prior step failed
+        if: failure()
+        run: cat /tmp/cybertwinx-ganache.log || true
