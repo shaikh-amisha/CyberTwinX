@@ -194,6 +194,72 @@ async function generateIncidentIntegrity(incidentId) {
 }
 
 
+
+async function reanchorExistingIntegrity(incidentId) {
+    if (!incidentId) {
+        const error = new Error("Incident ID is required.");
+        error.statusCode = 400;
+        throw error;
+    }
+    const record = await BlockchainIntegrity.findOne({ incidentId });
+    if (!record) {
+        const error = new Error(`Blockchain Integrity record not found for incident: ${incidentId}`);
+        error.statusCode = 404;
+        throw error;
+    }
+    const versions = [...record.rootVersions].sort((a,b) => Number(a.version)-Number(b.version));
+    if (!versions.length) {
+        const error = new Error("No saved Merkle Root versions are available.");
+        error.statusCode = 400;
+        throw error;
+    }
+    const { contract } = getBlockchainConnection();
+    const results = [];
+    for (const rootVersion of versions) {
+        const version = Number(rootVersion.version);
+        const root = rootVersion.merkleRoot;
+        const historyLength = Number(await contract.getRootHistoryLength(incidentId));
+        if (historyLength >= version) {
+            if (await contract.verifyHistoricalRoot(incidentId, version, root)) {
+                results.push({version, merkleRoot:root, status:"ALREADY_VERIFIED"});
+                continue;
+            }
+            throw new Error(`Contract history already contains version ${version} with a different root. Refusing to alter history.`);
+        }
+        if (historyLength !== version - 1) {
+            throw new Error(`Cannot safely anchor version ${version}; current on-chain history length is ${historyLength}.`);
+        }
+        const txResult = await anchorMerkleRootOnChain(incidentId, root);
+        if (!(await contract.verifyHistoricalRoot(incidentId, version, root))) {
+            throw new Error(`Historical verification failed after anchoring version ${version}.`);
+        }
+        rootVersion.blockchainStatus = "ANCHORED";
+        rootVersion.transaction = {
+            transactionHash: txResult.transactionHash,
+            blockNumber: txResult.blockNumber,
+            contractAddress: txResult.contractAddress,
+            chainId: txResult.chainId,
+            registrar: txResult.registrar,
+            anchoredAt: txResult.anchoredAt
+        };
+        await record.save();
+        await recordCustodyEvent({
+            incidentId,
+            eventType:"ROOT_REANCHORED",
+            integrity:{status:"ANCHORED", merkleRoot:root, rootVersion:version},
+            details:`Saved Merkle Root v${version} re-anchored to current contract. Transaction: ${txResult.transactionHash}`
+        });
+        results.push({version, merkleRoot:root, status:"REANCHORED", transaction:rootVersion.transaction});
+    }
+    return {
+        incidentId,
+        contractAddress:results.find(x=>x.transaction)?.transaction.contractAddress || null,
+        results,
+        reanchoredCount:results.filter(x=>x.status==="REANCHORED").length,
+        alreadyVerifiedCount:results.filter(x=>x.status==="ALREADY_VERIFIED").length
+    };
+}
+
 module.exports = {
     generateIncidentIntegrity
 };
