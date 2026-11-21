@@ -1,3 +1,6 @@
 blockchain/node_modules/
 blockchain/artifacts/
 blockchain/cache/
+
+# CyberTwinX integrity test evidence backups
+backend/test-artifacts/INC-005-integrity-test/*.json
