@@ -108,9 +108,11 @@ async function fetchJSON(url) {
     }
 
     if (!response.ok || !result.success) {
-        throw new Error(
+        const error = new Error(
             result.message || `API request failed (${response.status})`
         );
+        error.status = response.status;
+        throw error;
     }
 
     return result.data;
@@ -1250,8 +1252,23 @@ async function loadPage() {
     try {
         state.incidentId = await resolveIncidentId();
 
-        const integrity =
-            await fetchIntegrity(state.incidentId);
+        let integrity;
+
+        try {
+            integrity = await fetchIntegrity(state.incidentId);
+        } catch (error) {
+            // A missing integrity document is an expected first-use state,
+            // not an API outage. Keep the selected incident context and allow
+            // the page to explain that no root has been generated yet.
+            if (error.status === 404) {
+                integrity = {
+                    incidentId: state.incidentId,
+                    rootVersions: []
+                };
+            } else {
+                throw error;
+            }
+        }
 
         let incident = null;
         let custody = [];
