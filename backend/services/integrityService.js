@@ -260,6 +260,4 @@ async function reanchorExistingIntegrity(incidentId) {
     };
 }
 
-module.exports = {
-    generateIncidentIntegrity
-};
+module.exports = {\n    generateIncidentIntegrity,\n    reanchorExistingIntegrity\n};
