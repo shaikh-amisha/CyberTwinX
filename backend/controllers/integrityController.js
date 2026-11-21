@@ -7,7 +7,8 @@ const {
 } = require("../services/blockchainService");
 
 const {
-    generateIncidentIntegrity
+    generateIncidentIntegrity,
+    reanchorExistingIntegrity
 } = require("../services/integrityService");
 
 const {
@@ -42,6 +43,24 @@ async function generateIntegrity(req, res) {
     }
 }
 
+
+
+async function reanchorIntegrity(req, res) {
+    try {
+        const result = await reanchorExistingIntegrity(req.params.incidentId);
+        return res.status(200).json({
+            success: true,
+            message: "Saved integrity roots checked and re-anchored.",
+            data: result
+        });
+    } catch (error) {
+        console.error("[Integrity] Re-anchor Error:", error);
+        return res.status(error.statusCode || 500).json({
+            success: false,
+            message: error.message || "Failed to re-anchor saved integrity roots."
+        });
+    }
+}
 
 // Retrieve all saved integrity versions for an incident.
 async function getIntegrity(req, res) {
@@ -277,6 +296,7 @@ async function verifyIntegrityVersion(req, res) {
 
 module.exports = {
     generateIntegrity,
+    reanchorIntegrity,
     getIntegrity,
     getLatestIntegrity,
     getCustodyHistory,
